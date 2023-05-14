@@ -8,12 +8,18 @@ spring:
     # 应用名称
     name: Crawler
 
+  # 因为Springfox使用的路径匹配是基于AntPathMatcher的，而Spring Boot 2.6.X使用的是PathPatternMatcher
+  # 所以需要统一一下path matcher规则
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+
   # 数据库配置
   datasource:
 #    driver-class-name: com.mysql.cj.jdbc.Driver
     driver-class-name: com.p6spy.engine.spy.P6SpyDriver
     type: com.alibaba.druid.pool.DruidDataSource
-    url: jdbc:p6spy:mysql://localhost:3306/test_1?useUnicode=true&characterEncoding=UTF-8
+    url: jdbc:p6spy:mysql://localhost:3306/crawler?useUnicode=true&characterEncoding=UTF-8
     username: root
     password: 123456
 
@@ -21,11 +27,9 @@ spring:
     # 初始化连接数量
     druid:
       db-type: mysql
-
       initial-size: 1
       # 最小空闲连接数
       min-idle: 1
-
       # 最大并发连接数
       max-active: 20
       # 配置获取连接等待超时的时间

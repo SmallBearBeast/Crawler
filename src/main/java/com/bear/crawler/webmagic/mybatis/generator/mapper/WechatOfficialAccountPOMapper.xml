@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bear.crawler.webmagic.mybatis.generator.mapper.WechatOfficialAccountPOMapper">
+  <resultMap id="BaseResultMap" type="com.bear.crawler.webmagic.mybatis.generator.po.WechatOfficialAccountPO">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="alias" jdbcType="VARCHAR" property="alias" />
+    <result column="fake_id" jdbcType="VARCHAR" property="fakeId" />
+    <result column="nickname" jdbcType="VARCHAR" property="nickname" />
+    <result column="head_img" jdbcType="VARCHAR" property="headImg" />
+    <result column="signature" jdbcType="VARCHAR" property="signature" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, alias, fake_id, nickname, head_img, signature
+  </sql>
+  <select id="selectByExample" parameterType="com.bear.crawler.webmagic.mybatis.generator.po.WechatOfficialAccountPOExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    'true' as QUERYID,
+    <include refid="Base_Column_List" />
+    from wechat_official_account
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from wechat_official_account
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from wechat_official_account
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.bear.crawler.webmagic.mybatis.generator.po.WechatOfficialAccountPOExample">
+    delete from wechat_official_account
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.bear.crawler.webmagic.mybatis.generator.po.WechatOfficialAccountPO">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into wechat_official_account (alias, fake_id, nickname, 
+      head_img, signature)
+    values (#{alias,jdbcType=VARCHAR}, #{fakeId,jdbcType=VARCHAR}, #{nickname,jdbcType=VARCHAR}, 
+      #{headImg,jdbcType=VARCHAR}, #{signature,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.bear.crawler.webmagic.mybatis.generator.po.WechatOfficialAccountPO">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into wechat_official_account
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="alias != null">
+        alias,
+      </if>
+      <if test="fakeId != null">
+        fake_id,
+      </if>
+      <if test="nickname != null">
+        nickname,
+      </if>
+      <if test="headImg != null">
+        head_img,
+      </if>
+      <if test="signature != null">
+        signature,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="alias != null">
+        #{alias,jdbcType=VARCHAR},
+      </if>
+      <if test="fakeId != null">
+        #{fakeId,jdbcType=VARCHAR},
+      </if>
+      <if test="nickname != null">
+        #{nickname,jdbcType=VARCHAR},
+      </if>
+      <if test="headImg != null">
+        #{headImg,jdbcType=VARCHAR},
+      </if>
+      <if test="signature != null">
+        #{signature,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.bear.crawler.webmagic.mybatis.generator.po.WechatOfficialAccountPOExample" resultType="java.lang.Long">
+    select count(*) from wechat_official_account
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update wechat_official_account
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=INTEGER},
+      </if>
+      <if test="record.alias != null">
+        alias = #{record.alias,jdbcType=VARCHAR},
+      </if>
+      <if test="record.fakeId != null">
+        fake_id = #{record.fakeId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.nickname != null">
+        nickname = #{record.nickname,jdbcType=VARCHAR},
+      </if>
+      <if test="record.headImg != null">
+        head_img = #{record.headImg,jdbcType=VARCHAR},
+      </if>
+      <if test="record.signature != null">
+        signature = #{record.signature,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update wechat_official_account
+    set id = #{record.id,jdbcType=INTEGER},
+      alias = #{record.alias,jdbcType=VARCHAR},
+      fake_id = #{record.fakeId,jdbcType=VARCHAR},
+      nickname = #{record.nickname,jdbcType=VARCHAR},
+      head_img = #{record.headImg,jdbcType=VARCHAR},
+      signature = #{record.signature,jdbcType=VARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.bear.crawler.webmagic.mybatis.generator.po.WechatOfficialAccountPO">
+    update wechat_official_account
+    <set>
+      <if test="alias != null">
+        alias = #{alias,jdbcType=VARCHAR},
+      </if>
+      <if test="fakeId != null">
+        fake_id = #{fakeId,jdbcType=VARCHAR},
+      </if>
+      <if test="nickname != null">
+        nickname = #{nickname,jdbcType=VARCHAR},
+      </if>
+      <if test="headImg != null">
+        head_img = #{headImg,jdbcType=VARCHAR},
+      </if>
+      <if test="signature != null">
+        signature = #{signature,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.bear.crawler.webmagic.mybatis.generator.po.WechatOfficialAccountPO">
+    update wechat_official_account
+    set alias = #{alias,jdbcType=VARCHAR},
+      fake_id = #{fakeId,jdbcType=VARCHAR},
+      nickname = #{nickname,jdbcType=VARCHAR},
+      head_img = #{headImg,jdbcType=VARCHAR},
+      signature = #{signature,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

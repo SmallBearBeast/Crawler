@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration
+    PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+    "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+<!-- 配置生成器 -->
+<generatorConfiguration>
+    <properties resource="jdbc.properties"/>
+    <context id="MySqlContext" targetRuntime="MyBatis3" defaultModelType="flat">
+        <property name="beginningDelimiter" value="`"/>
+        <property name="endingDelimiter" value="`"/>
+        <!-- 指定生成的java文件的编码,没有直接生成到项目时中文可能会乱码 -->
+        <property name="javaFileEncoding" value="UTF-8"/>
+        <!--生成mapper.xml时覆盖原文件-->
+        <plugin type="org.mybatis.generator.plugins.UnmergeableXmlMappersPlugin"/>
+        <!-- 为模型生成序列化方法-->
+        <plugin type="org.mybatis.generator.plugins.SerializablePlugin"/>
+        <!-- 为生成的Java模型创建一个toString方法 -->
+        <plugin type="org.mybatis.generator.plugins.ToStringPlugin"/>
+        <!--可以自定义生成model的代码注释-->
+        <commentGenerator type="com.bear.crawler.webmagic.mybatis.CommentGenerator">
+            <!-- 是否去除自动生成的注释 true：是 ： false:否 -->
+            <property name="suppressAllComments" value="true"/>
+            <!-- 这个元素用来去除指定生成的注释中是否包含生成的日期 false:表示保护 -->
+            <property name="suppressDate" value="true"/>
+            <property name="addRemarkComments" value="true"/>
+        </commentGenerator>
+        <!--配置数据库连接-->
+        <jdbcConnection driverClass="${jdbc.driverClass}"
+                        connectionURL="${jdbc.url}"
+                        userId="${jdbc.username}"
+                        password="${jdbc.password}">
+            <!--解决mysql驱动升级到8.0后不生成指定数据库代码的问题-->
+            <property name="nullCatalogMeansCurrent" value="true"/>
+        </jdbcConnection>
+        <!-- 类型转换 -->
+        <javaTypeResolver>
+            <!-- 是否使用BigDecimals，false可自动转化以下类型(Long Integer Short等) -->
+            <property name="forceBigDecimals" value="false"/>
+        </javaTypeResolver>
+        <!--指定生成model的路径-->
+        <javaModelGenerator targetPackage="com.bear.crawler.webmagic.mybatis.generator.po"
+                            targetProject="src/main/java">
+            <!--trimStrings:是否对数据库查询结果进行trim操作，
+            如果设置为true就会生成类似这样
+            public void setUsername(String username) {
+            this.username = username == null ? null : username.trim();
+            }的setter方法。默认值为false。-->
+            <property name="trimStrings" value="false"/>
+        </javaModelGenerator>
+        <!--指定生成mapper.xml的路径-->
+        <!--接口和mapper映射文件可以分开放，也可以放一起-->
+        <sqlMapGenerator targetPackage="com.bear.crawler.webmagic.mybatis.generator.mapper"
+                         targetProject="src/main/java"/>
+        <!--指定生成mapper接口的的路径-->
+        <!-- 客户端代码，生成易于使用的针对Model对象和XML配置文件 的代码
+        type="ANNOTATEDMAPPER",生成Java Model 和基于注解的Mapper对象
+        type="MIXEDMAPPER",生成基于注解的Java Model 和相应的Mapper对象
+        type="XMLMAPPER",生成SQLMap XML文件和独立的Mapper接口
+        著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。-->
+        <javaClientGenerator type="XMLMAPPER" targetPackage="com.bear.crawler.webmagic.mybatis.generator.mapper"
+                             targetProject="src/main/java"/>
+        <!--生成全部表tableName设为%-->
+        <!-- 要生成的表 tableName是数据库中的表名或视图名 domainObjectName是实体类名-->
+        <table tableName="wechat_article_item" enableCountByExample="true"
+               enableUpdateByExample="true" enableDeleteByExample="true"
+               enableSelectByExample="true" selectByExampleQueryId="true">
+            <!-- 是否使用实际列名
+            true MyBatis Generator会使用数据库中实际的字段名字作为生成的实体类的属性名。
+            false(默认值)。如果设置为false,则MyBatis Generator会将数据库中实际的字段名字转换为驼峰式风格作为生成的实体类的属性名。
+            -->
+            <property name="useActualColumnNames" value="false"/>
+            <!-- 数据库表主键，必须配置在property标签的后面，否则解析失败，会报错-->
+            <generatedKey column="id" sqlStatement="MySql" identity="true"/>
+            <!-- 需要加上括号 -->
+            <domainObjectRenamingRule searchString="(\w+)" replaceString="$1PO" />
+        </table>
+        <table tableName="wechat_official_account" enableCountByExample="true"
+               enableUpdateByExample="true" enableDeleteByExample="true"
+               enableSelectByExample="true" selectByExampleQueryId="true">
+            <!-- 是否使用实际列名
+            true MyBatis Generator会使用数据库中实际的字段名字作为生成的实体类的属性名。
+            false(默认值)。如果设置为false,则MyBatis Generator会将数据库中实际的字段名字转换为驼峰式风格作为生成的实体类的属性名。
+            -->
+            <property name="useActualColumnNames" value="false"/>
+            <!-- 数据库表主键，必须配置在property标签的后面，否则解析失败，会报错-->
+            <generatedKey column="id" sqlStatement="MySql" identity="true"/>
+            <domainObjectRenamingRule searchString="(\w+)" replaceString="$1PO" />
+        </table>
+    </context>
+</generatorConfiguration>
