@@ -3,7 +3,7 @@ package com.bear.crawler.webmagic.processor;
 import com.bear.crawler.webmagic.mybatis.generator.mapper.WechatArticleItemPOMapper;
 import com.bear.crawler.webmagic.mybatis.generator.po.WechatArticleItemPO;
 import com.bear.crawler.webmagic.pojo.dto.WechatArticleItemDto;
-import com.bear.crawler.webmagic.pojo.dto.WechatArticleItemListRepDto;
+import com.bear.crawler.webmagic.pojo.dto.WechatArticleItemListRespDto;
 import com.bear.crawler.webmagic.util.TransformBeanUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +17,7 @@ import java.util.List;
 
 @Component
 @Slf4j
-public class WechatProcessor implements PageProcessor {
+public class WechatArticleProcessor implements PageProcessor {
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -28,9 +28,9 @@ public class WechatProcessor implements PageProcessor {
     @Override
     public void process(Page page) {
         try {
-            WechatArticleItemListRepDto wechatArticleItemListRepDto = objectMapper.readValue(page.getRawText(), WechatArticleItemListRepDto.class);
-            if (wechatArticleItemListRepDto != null) {
-                List<WechatArticleItemDto> wechatArticleItemDtos = wechatArticleItemListRepDto.getAppMsgList();
+            WechatArticleItemListRespDto articleItemListRespDto = objectMapper.readValue(page.getRawText(), WechatArticleItemListRespDto.class);
+            if (articleItemListRespDto != null) {
+                List<WechatArticleItemDto> wechatArticleItemDtos = articleItemListRespDto.getAppMsgList();
                 for (WechatArticleItemDto articleItemDto : wechatArticleItemDtos) {
                     WechatArticleItemPO articleItemPO = TransformBeanUtil.dtoToPo(articleItemDto);
                     articleItemPO.setOfficialAccountId(0);
@@ -40,7 +40,7 @@ public class WechatProcessor implements PageProcessor {
                 }
             }
         } catch (Exception e) {
-            log.error("Parse json string fail, e = {}", e.getMessage());
+            log.error("process fail, e = {}", e.getMessage());
         }
     }
 

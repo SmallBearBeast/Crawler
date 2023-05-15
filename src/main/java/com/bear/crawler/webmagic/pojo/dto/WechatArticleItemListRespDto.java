@@ -6,7 +6,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class WechatArticleItemListRepDto {
+public class WechatArticleItemListRespDto {
     @JsonAlias("app_msg_cnt")
     private int appMsgCnt;
 
