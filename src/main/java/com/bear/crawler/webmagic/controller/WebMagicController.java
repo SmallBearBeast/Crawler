@@ -3,6 +3,7 @@ package com.bear.crawler.webmagic.controller;
 import com.bear.crawler.webmagic.pojo.WechatConfig;
 import com.bear.crawler.webmagic.processor.WebMagicTestProcessor;
 import com.bear.crawler.webmagic.processor.WechatAccountProcessor;
+import com.bear.crawler.webmagic.processor.WechatArticleDetailProcessor;
 import com.bear.crawler.webmagic.processor.WechatArticleProcessor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,21 +29,35 @@ public class WebMagicController {
     private WebMagicTestProcessor webMagicTestProcessor;
 
     @Autowired
+    private WechatArticleDetailProcessor wechatArticleDetailProcessor;
+
+    @Autowired
     private WechatArticleProcessor wechatArticleProcessor;
 
     @Autowired
     private WechatAccountProcessor wechatAccountProcessor;
 
     @GetMapping("/testWebMagic")
-    public void testWebMagic() {
+    public String testWebMagic() {
         Spider.create(webMagicTestProcessor)
                 .addUrl("https://mp.weixin.qq.com/s/BeYIAdsEZ6TVzFaOO3C-Pw")
                 .thread(5)
                 .run();
+        // 会等processor处理完之后才回调testWebMagic success
+        return "testWebMagic success";
+    }
+
+    @GetMapping("/loadWechatArticleDetail")
+    public String loadWechatArticleDetail(@RequestParam("query") String query) {
+        Spider.create(wechatArticleDetailProcessor)
+                .addUrl("https://mp.weixin.qq.com/s/" + query)
+                .thread(5)
+                .run();
+        return "loadWechatArticleDetail success";
     }
 
     @GetMapping("/watchWechatOfficialArticleList")
-    public void watchWechatOfficialArticleList() {
+    public String watchWechatOfficialArticleList() {
         log.debug("watchWechatOfficialArticleList enter");
         String url = "https://mp.weixin.qq.com/cgi-bin/appmsg?action=list_ex&begin=0&count=5&fakeid=" + wechatConfig.getFakeid() + "&type=9&query=&token=" + wechatConfig.getToken() + "&lang=zh_CN&f=json&ajax=1";
         Request request = new Request(url);
@@ -52,10 +67,11 @@ public class WebMagicController {
                 .addRequest(request)
                 .thread(5)
                 .run();
+        return "watchWechatOfficialArticleList success";
     }
 
     @GetMapping("/loadWechatOfficialAccount")
-    public void loadWechatOfficialAccount(@RequestParam("query") String query) {
+    public String loadWechatOfficialAccount(@RequestParam("query") String query) {
         log.debug("loadWechatOfficialAccount : query = {}", query);
         String encodeQuery = URLEncoder.encode(query, StandardCharsets.UTF_8);
         String url = "https://mp.weixin.qq.com/cgi-bin/searchbiz?action=search_biz&begin=0&count=5&query=" + encodeQuery + "&token=" + wechatConfig.getToken() + "&lang=zh_CN&f=json&ajax=1";
@@ -66,5 +82,6 @@ public class WebMagicController {
                 .addRequest(request)
                 .thread(5)
                 .run();
+        return "loadWechatOfficialAccount success";
     }
 }
