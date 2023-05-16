@@ -28,7 +28,7 @@ import java.util.Map;
 public class WechatAccountProcessor implements PageProcessor, InitializingBean {
 
     private static final String BEGIN = "begin";
-    private static final int ACCOUNT_LIMIT = 50;
+    private static final int ACCOUNT_LIMIT = 100;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -56,11 +56,7 @@ public class WechatAccountProcessor implements PageProcessor, InitializingBean {
                             log.info("Load official account list to end, begin = {}", begin);
                         } else {
                             log.info("Load official account list successfully, begin = {}", begin);
-                            for (WechatOfficialAccountDto accountDto : accountDtoList) {
-                                if (!isInAccountDB(accountDto)) {
-                                    wechatOfficialAccountPOMapper.insert(TransformBeanUtil.dtoToPo(accountDto));
-                                }
-                            }
+                            saveAccountDtoListToDB(accountDtoList);
                             OtherUtil.sleep(3);
                             if (begin + accountDtoList.size() > ACCOUNT_LIMIT) {
                                 log.info("Load official account list more than {}", ACCOUNT_LIMIT);
@@ -100,6 +96,19 @@ public class WechatAccountProcessor implements PageProcessor, InitializingBean {
             wechatOfficialAccountPOList.addAll(officialAccountPOList);
         } catch (Exception e) {
             log.warn("Init the official account list failed");
+        }
+    }
+
+    private void saveAccountDtoListToDB(List<WechatOfficialAccountDto> accountDtoList) {
+        for (WechatOfficialAccountDto accountDto : accountDtoList) {
+            if (!isInAccountDB(accountDto)) {
+                wechatOfficialAccountPOMapper.insert(TransformBeanUtil.dtoToPo(accountDto));
+            } else {
+                WechatOfficialAccountPO accountPO = TransformBeanUtil.dtoToPo(accountDto);
+                WechatOfficialAccountPOExample example = new WechatOfficialAccountPOExample();
+                example.createCriteria().andFakeIdEqualTo(accountPO.getFakeId());
+                wechatOfficialAccountPOMapper.updateByExampleSelective(accountPO, example);
+            }
         }
     }
 

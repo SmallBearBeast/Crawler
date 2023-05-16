@@ -513,6 +513,66 @@ public class WechatOfficialAccountPOExample {
             addCriterion("signature not between", value1, value2, "signature");
             return (Criteria) this;
         }
+
+        public Criteria andNeedFetchIsNull() {
+            addCriterion("need_fetch is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andNeedFetchIsNotNull() {
+            addCriterion("need_fetch is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andNeedFetchEqualTo(Boolean value) {
+            addCriterion("need_fetch =", value, "needFetch");
+            return (Criteria) this;
+        }
+
+        public Criteria andNeedFetchNotEqualTo(Boolean value) {
+            addCriterion("need_fetch <>", value, "needFetch");
+            return (Criteria) this;
+        }
+
+        public Criteria andNeedFetchGreaterThan(Boolean value) {
+            addCriterion("need_fetch >", value, "needFetch");
+            return (Criteria) this;
+        }
+
+        public Criteria andNeedFetchGreaterThanOrEqualTo(Boolean value) {
+            addCriterion("need_fetch >=", value, "needFetch");
+            return (Criteria) this;
+        }
+
+        public Criteria andNeedFetchLessThan(Boolean value) {
+            addCriterion("need_fetch <", value, "needFetch");
+            return (Criteria) this;
+        }
+
+        public Criteria andNeedFetchLessThanOrEqualTo(Boolean value) {
+            addCriterion("need_fetch <=", value, "needFetch");
+            return (Criteria) this;
+        }
+
+        public Criteria andNeedFetchIn(List<Boolean> values) {
+            addCriterion("need_fetch in", values, "needFetch");
+            return (Criteria) this;
+        }
+
+        public Criteria andNeedFetchNotIn(List<Boolean> values) {
+            addCriterion("need_fetch not in", values, "needFetch");
+            return (Criteria) this;
+        }
+
+        public Criteria andNeedFetchBetween(Boolean value1, Boolean value2) {
+            addCriterion("need_fetch between", value1, value2, "needFetch");
+            return (Criteria) this;
+        }
+
+        public Criteria andNeedFetchNotBetween(Boolean value1, Boolean value2) {
+            addCriterion("need_fetch not between", value1, value2, "needFetch");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

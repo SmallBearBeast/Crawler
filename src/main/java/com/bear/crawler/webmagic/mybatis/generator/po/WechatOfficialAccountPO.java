@@ -22,6 +22,9 @@ public class WechatOfficialAccountPO implements Serializable {
     @ApiModelProperty(value = "公众号介绍说明")
     private String signature;
 
+    @ApiModelProperty(value = "是否需要抓取改公众号")
+    private Boolean needFetch;
+
     private static final long serialVersionUID = 1L;
 
     public Integer getId() {
@@ -72,6 +75,14 @@ public class WechatOfficialAccountPO implements Serializable {
         this.signature = signature;
     }
 
+    public Boolean getNeedFetch() {
+        return needFetch;
+    }
+
+    public void setNeedFetch(Boolean needFetch) {
+        this.needFetch = needFetch;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -84,6 +95,7 @@ public class WechatOfficialAccountPO implements Serializable {
         sb.append(", nickname=").append(nickname);
         sb.append(", headImg=").append(headImg);
         sb.append(", signature=").append(signature);
+        sb.append(", needFetch=").append(needFetch);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();
