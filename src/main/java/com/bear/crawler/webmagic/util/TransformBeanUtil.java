@@ -1,15 +1,15 @@
 package com.bear.crawler.webmagic.util;
 
-import com.bear.crawler.webmagic.mybatis.generator.po.WechatArticleItemPO;
-import com.bear.crawler.webmagic.mybatis.generator.po.WechatOfficialAccountPO;
-import com.bear.crawler.webmagic.pojo.dto.WechatArticleItemDto;
-import com.bear.crawler.webmagic.pojo.dto.WechatOfficialAccountDto;
+import com.bear.crawler.webmagic.mybatis.generator.po.WArticleItemPO;
+import com.bear.crawler.webmagic.mybatis.generator.po.WPublicAccountPO;
+import com.bear.crawler.webmagic.pojo.dto.WArticleItemDto;
+import com.bear.crawler.webmagic.pojo.dto.WPublicAccountDto;
 
 import java.util.Date;
 
 public class TransformBeanUtil {
-    public static WechatArticleItemPO dtoToPo(WechatArticleItemDto dto) {
-        WechatArticleItemPO po = new WechatArticleItemPO();
+    public static WArticleItemPO dtoToPo(WArticleItemDto dto) {
+        WArticleItemPO po = new WArticleItemPO();
         po.setAid(dto.getAid());
         po.setAppmsgid(dto.getAppmsgid());
         po.setCover(dto.getCover());
@@ -21,8 +21,8 @@ public class TransformBeanUtil {
         return po;
     }
 
-    public static WechatOfficialAccountPO dtoToPo(WechatOfficialAccountDto dto) {
-        WechatOfficialAccountPO po = new WechatOfficialAccountPO();
+    public static WPublicAccountPO dtoToPo(WPublicAccountDto dto) {
+        WPublicAccountPO po = new WPublicAccountPO();
         po.setAlias(dto.getAlias());
         po.setFakeId(dto.getFakeId());
         po.setHeadImg(dto.getHeadImg());

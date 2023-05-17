@@ -1,10 +1,12 @@
 package com.bear.crawler.webmagic.controller;
 
+import com.bear.crawler.webmagic.dao.WPublicAccountDao;
+import com.bear.crawler.webmagic.mybatis.generator.po.WPublicAccountPO;
 import com.bear.crawler.webmagic.pojo.WechatConfig;
 import com.bear.crawler.webmagic.processor.WebMagicTestProcessor;
-import com.bear.crawler.webmagic.processor.WechatAccountProcessor;
-import com.bear.crawler.webmagic.processor.WechatArticleDetailProcessor;
-import com.bear.crawler.webmagic.processor.WechatArticleProcessor;
+import com.bear.crawler.webmagic.processor.WPublicAccountProcessor;
+import com.bear.crawler.webmagic.processor.WArticleDetailProcessor;
+import com.bear.crawler.webmagic.processor.WArticleProcessor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +18,7 @@ import us.codecraft.webmagic.Spider;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 @Slf4j
 @RequestMapping("/webMagic")
@@ -29,13 +32,16 @@ public class WebMagicController {
     private WebMagicTestProcessor webMagicTestProcessor;
 
     @Autowired
-    private WechatArticleDetailProcessor wechatArticleDetailProcessor;
+    private WArticleDetailProcessor wArticleDetailProcessor;
 
     @Autowired
-    private WechatArticleProcessor wechatArticleProcessor;
+    private WArticleProcessor wArticleProcessor;
 
     @Autowired
-    private WechatAccountProcessor wechatAccountProcessor;
+    private WPublicAccountProcessor wPublicAccountProcessor;
+
+    @Autowired
+    private WPublicAccountDao wPublicAccountDao;
 
     @GetMapping("/testWebMagic")
     public String testWebMagic() {
@@ -47,41 +53,43 @@ public class WebMagicController {
         return "testWebMagic success";
     }
 
-    @GetMapping("/loadWechatArticleDetail")
-    public String loadWechatArticleDetail(@RequestParam("query") String query) {
-        Spider.create(wechatArticleDetailProcessor)
+    @GetMapping("/loadWArticleDetail")
+    public String loadWArticleDetail(@RequestParam("query") String query) {
+        Spider.create(wArticleDetailProcessor)
                 .addUrl("https://mp.weixin.qq.com/s/" + query)
                 .thread(5)
                 .run();
-        return "loadWechatArticleDetail success";
+        return "loadWArticleDetail success";
     }
 
-    @GetMapping("/watchWechatOfficialArticleList")
-    public String watchWechatOfficialArticleList() {
-        log.debug("watchWechatOfficialArticleList enter");
-        String url = "https://mp.weixin.qq.com/cgi-bin/appmsg?action=list_ex&begin=0&count=5&fakeid=" + wechatConfig.getFakeid() + "&type=9&query=&token=" + wechatConfig.getToken() + "&lang=zh_CN&f=json&ajax=1";
-        Request request = new Request(url);
-        request.addHeader("cookie", wechatConfig.getCookie());
-        request.addHeader("user-agent", wechatConfig.getUserAgent());
-        Spider.create(wechatArticleProcessor)
-                .addRequest(request)
-                .thread(5)
-                .run();
-        return "watchWechatOfficialArticleList success";
+    @GetMapping("/watchWArticles")
+    public String watchWArticles() {
+        log.debug("watchWArticles enter");
+        List<WPublicAccountPO> accountPOS = wPublicAccountDao.selectNeedFetchPublicAccounts();
+        Spider spider = Spider.create(wArticleProcessor);
+        for (WPublicAccountPO accountPO : accountPOS) {
+            String url = "https://mp.weixin.qq.com/cgi-bin/appmsg?action=list_ex&begin=0&count=5&fakeid=" + accountPO.getFakeId() + "&type=9&query=&token=" + wechatConfig.getToken() + "&lang=zh_CN&f=json&ajax=1";
+            Request request = new Request(url);
+            request.addHeader("cookie", wechatConfig.getCookie());
+            request.addHeader("user-agent", wechatConfig.getUserAgent());
+            spider.addRequest(request);
+        }
+        spider.thread(5).start();
+        return "watchWArticles success";
     }
 
-    @GetMapping("/loadWechatOfficialAccount")
-    public String loadWechatOfficialAccount(@RequestParam("query") String query) {
-        log.debug("loadWechatOfficialAccount : query = {}", query);
+    @GetMapping("/loadWPublicAccount")
+    public String loadWPublicAccount(@RequestParam("query") String query) {
+        log.debug("loadWPublicAccount : query = {}", query);
         String encodeQuery = URLEncoder.encode(query, StandardCharsets.UTF_8);
         String url = "https://mp.weixin.qq.com/cgi-bin/searchbiz?action=search_biz&begin=0&count=5&query=" + encodeQuery + "&token=" + wechatConfig.getToken() + "&lang=zh_CN&f=json&ajax=1";
         Request request = new Request(url);
         request.addHeader("cookie", wechatConfig.getCookie());
         request.addHeader("user-agent", wechatConfig.getUserAgent());
-        Spider.create(wechatAccountProcessor)
+        Spider.create(wPublicAccountProcessor)
                 .addRequest(request)
                 .thread(5)
                 .run();
-        return "loadWechatOfficialAccount success";
+        return "loadWPublicAccount success";
     }
 }

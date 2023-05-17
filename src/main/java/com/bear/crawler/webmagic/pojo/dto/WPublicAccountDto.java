@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonAlias;
 import lombok.Data;
 
 @Data
-public class WechatOfficialAccountDto {
+public class WPublicAccountDto {
     @JsonAlias("alias")
     private String alias;
 

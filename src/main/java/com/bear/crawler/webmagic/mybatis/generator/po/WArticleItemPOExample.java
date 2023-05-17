@@ -4,14 +4,14 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class WechatArticleItemPOExample {
+public class WArticleItemPOExample {
     protected String orderByClause;
 
     protected boolean distinct;
 
     protected List<Criteria> oredCriteria;
 
-    public WechatArticleItemPOExample() {
+    public WArticleItemPOExample() {
         oredCriteria = new ArrayList<>();
     }
 

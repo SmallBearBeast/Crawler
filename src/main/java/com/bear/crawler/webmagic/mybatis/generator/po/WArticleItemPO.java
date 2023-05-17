@@ -4,7 +4,7 @@ import io.swagger.annotations.ApiModelProperty;
 import java.io.Serializable;
 import java.util.Date;
 
-public class WechatArticleItemPO implements Serializable {
+public class WArticleItemPO implements Serializable {
     @ApiModelProperty(value = "自定义文章id，唯一标识，主键")
     private Integer id;
 

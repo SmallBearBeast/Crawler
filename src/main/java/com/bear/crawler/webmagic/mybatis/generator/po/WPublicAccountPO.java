@@ -3,7 +3,7 @@ package com.bear.crawler.webmagic.mybatis.generator.po;
 import io.swagger.annotations.ApiModelProperty;
 import java.io.Serializable;
 
-public class WechatOfficialAccountPO implements Serializable {
+public class WPublicAccountPO implements Serializable {
     @ApiModelProperty(value = "自定义公众号id，唯一标识，主键")
     private Integer id;
 

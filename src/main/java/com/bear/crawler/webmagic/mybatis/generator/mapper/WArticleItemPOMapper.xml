@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.bear.crawler.webmagic.mybatis.generator.mapper.WechatArticleItemPOMapper">
-  <resultMap id="BaseResultMap" type="com.bear.crawler.webmagic.mybatis.generator.po.WechatArticleItemPO">
+<mapper namespace="com.bear.crawler.webmagic.mybatis.generator.mapper.WArticleItemPOMapper">
+  <resultMap id="BaseResultMap" type="com.bear.crawler.webmagic.mybatis.generator.po.WArticleItemPO">
     <id column="id" jdbcType="INTEGER" property="id" />
     <result column="aid" jdbcType="VARCHAR" property="aid" />
     <result column="appmsgid" jdbcType="BIGINT" property="appmsgid" />
@@ -77,14 +77,14 @@
     id, aid, appmsgid, cover, create_time, itemidx, link, title, update_time, official_account_id, 
     official_account_fake_id, official_account_title
   </sql>
-  <select id="selectByExample" parameterType="com.bear.crawler.webmagic.mybatis.generator.po.WechatArticleItemPOExample" resultMap="BaseResultMap">
+  <select id="selectByExample" parameterType="com.bear.crawler.webmagic.mybatis.generator.po.WArticleItemPOExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
       distinct
     </if>
     'true' as QUERYID,
     <include refid="Base_Column_List" />
-    from wechat_article_item
+    from w_article_item
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
@@ -95,24 +95,24 @@
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
-    from wechat_article_item
+    from w_article_item
     where id = #{id,jdbcType=INTEGER}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
-    delete from wechat_article_item
+    delete from w_article_item
     where id = #{id,jdbcType=INTEGER}
   </delete>
-  <delete id="deleteByExample" parameterType="com.bear.crawler.webmagic.mybatis.generator.po.WechatArticleItemPOExample">
-    delete from wechat_article_item
+  <delete id="deleteByExample" parameterType="com.bear.crawler.webmagic.mybatis.generator.po.WArticleItemPOExample">
+    delete from w_article_item
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="com.bear.crawler.webmagic.mybatis.generator.po.WechatArticleItemPO">
+  <insert id="insert" parameterType="com.bear.crawler.webmagic.mybatis.generator.po.WArticleItemPO">
     <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
       SELECT LAST_INSERT_ID()
     </selectKey>
-    insert into wechat_article_item (aid, appmsgid, cover, 
+    insert into w_article_item (aid, appmsgid, cover, 
       create_time, itemidx, link, 
       title, update_time, official_account_id, 
       official_account_fake_id, official_account_title
@@ -123,11 +123,11 @@
       #{officialAccountFakeId,jdbcType=VARCHAR}, #{officialAccountTitle,jdbcType=VARCHAR}
       )
   </insert>
-  <insert id="insertSelective" parameterType="com.bear.crawler.webmagic.mybatis.generator.po.WechatArticleItemPO">
+  <insert id="insertSelective" parameterType="com.bear.crawler.webmagic.mybatis.generator.po.WArticleItemPO">
     <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
       SELECT LAST_INSERT_ID()
     </selectKey>
-    insert into wechat_article_item
+    insert into w_article_item
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="aid != null">
         aid,
@@ -199,14 +199,14 @@
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="com.bear.crawler.webmagic.mybatis.generator.po.WechatArticleItemPOExample" resultType="java.lang.Long">
-    select count(*) from wechat_article_item
+  <select id="countByExample" parameterType="com.bear.crawler.webmagic.mybatis.generator.po.WArticleItemPOExample" resultType="java.lang.Long">
+    select count(*) from w_article_item
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </select>
   <update id="updateByExampleSelective" parameterType="map">
-    update wechat_article_item
+    update w_article_item
     <set>
       <if test="record.id != null">
         id = #{record.id,jdbcType=INTEGER},
@@ -250,7 +250,7 @@
     </if>
   </update>
   <update id="updateByExample" parameterType="map">
-    update wechat_article_item
+    update w_article_item
     set id = #{record.id,jdbcType=INTEGER},
       aid = #{record.aid,jdbcType=VARCHAR},
       appmsgid = #{record.appmsgid,jdbcType=BIGINT},
@@ -267,8 +267,8 @@
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="com.bear.crawler.webmagic.mybatis.generator.po.WechatArticleItemPO">
-    update wechat_article_item
+  <update id="updateByPrimaryKeySelective" parameterType="com.bear.crawler.webmagic.mybatis.generator.po.WArticleItemPO">
+    update w_article_item
     <set>
       <if test="aid != null">
         aid = #{aid,jdbcType=VARCHAR},
@@ -306,8 +306,8 @@
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.bear.crawler.webmagic.mybatis.generator.po.WechatArticleItemPO">
-    update wechat_article_item
+  <update id="updateByPrimaryKey" parameterType="com.bear.crawler.webmagic.mybatis.generator.po.WArticleItemPO">
+    update w_article_item
     set aid = #{aid,jdbcType=VARCHAR},
       appmsgid = #{appmsgid,jdbcType=BIGINT},
       cover = #{cover,jdbcType=VARCHAR},

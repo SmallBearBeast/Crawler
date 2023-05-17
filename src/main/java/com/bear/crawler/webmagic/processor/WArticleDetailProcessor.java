@@ -13,7 +13,7 @@ import java.util.List;
 
 @Component
 @Slf4j
-public class WechatArticleDetailProcessor implements PageProcessor {
+public class WArticleDetailProcessor implements PageProcessor {
     @Override
     public void process(Page page) {
         try {

@@ -65,7 +65,7 @@
                              targetProject="src/main/java"/>
         <!--生成全部表tableName设为%-->
         <!-- 要生成的表 tableName是数据库中的表名或视图名 domainObjectName是实体类名-->
-        <table tableName="wechat_article_item" enableCountByExample="true"
+        <table tableName="w_article_item" enableCountByExample="true"
                enableUpdateByExample="true" enableDeleteByExample="true"
                enableSelectByExample="true" selectByExampleQueryId="true">
             <!-- 是否使用实际列名
@@ -78,7 +78,7 @@
             <!-- 需要加上括号 -->
             <domainObjectRenamingRule searchString="(\w+)" replaceString="$1PO" />
         </table>
-        <table tableName="wechat_official_account" enableCountByExample="true"
+        <table tableName="w_public_account" enableCountByExample="true"
                enableUpdateByExample="true" enableDeleteByExample="true"
                enableSelectByExample="true" selectByExampleQueryId="true">
             <!-- 是否使用实际列名

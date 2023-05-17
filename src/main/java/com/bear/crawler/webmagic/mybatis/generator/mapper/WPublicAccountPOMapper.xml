@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.bear.crawler.webmagic.mybatis.generator.mapper.WechatOfficialAccountPOMapper">
-  <resultMap id="BaseResultMap" type="com.bear.crawler.webmagic.mybatis.generator.po.WechatOfficialAccountPO">
+<mapper namespace="com.bear.crawler.webmagic.mybatis.generator.mapper.WPublicAccountPOMapper">
+  <resultMap id="BaseResultMap" type="com.bear.crawler.webmagic.mybatis.generator.po.WPublicAccountPO">
     <id column="id" jdbcType="INTEGER" property="id" />
     <result column="alias" jdbcType="VARCHAR" property="alias" />
     <result column="fake_id" jdbcType="VARCHAR" property="fakeId" />
@@ -71,14 +71,14 @@
   <sql id="Base_Column_List">
     id, alias, fake_id, nickname, head_img, signature, need_fetch
   </sql>
-  <select id="selectByExample" parameterType="com.bear.crawler.webmagic.mybatis.generator.po.WechatOfficialAccountPOExample" resultMap="BaseResultMap">
+  <select id="selectByExample" parameterType="com.bear.crawler.webmagic.mybatis.generator.po.WPublicAccountPOExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
       distinct
     </if>
     'true' as QUERYID,
     <include refid="Base_Column_List" />
-    from wechat_official_account
+    from w_public_account
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
@@ -89,35 +89,35 @@
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
-    from wechat_official_account
+    from w_public_account
     where id = #{id,jdbcType=INTEGER}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
-    delete from wechat_official_account
+    delete from w_public_account
     where id = #{id,jdbcType=INTEGER}
   </delete>
-  <delete id="deleteByExample" parameterType="com.bear.crawler.webmagic.mybatis.generator.po.WechatOfficialAccountPOExample">
-    delete from wechat_official_account
+  <delete id="deleteByExample" parameterType="com.bear.crawler.webmagic.mybatis.generator.po.WPublicAccountPOExample">
+    delete from w_public_account
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="com.bear.crawler.webmagic.mybatis.generator.po.WechatOfficialAccountPO">
+  <insert id="insert" parameterType="com.bear.crawler.webmagic.mybatis.generator.po.WPublicAccountPO">
     <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
       SELECT LAST_INSERT_ID()
     </selectKey>
-    insert into wechat_official_account (alias, fake_id, nickname, 
+    insert into w_public_account (alias, fake_id, nickname, 
       head_img, signature, need_fetch
       )
     values (#{alias,jdbcType=VARCHAR}, #{fakeId,jdbcType=VARCHAR}, #{nickname,jdbcType=VARCHAR}, 
       #{headImg,jdbcType=VARCHAR}, #{signature,jdbcType=VARCHAR}, #{needFetch,jdbcType=BIT}
       )
   </insert>
-  <insert id="insertSelective" parameterType="com.bear.crawler.webmagic.mybatis.generator.po.WechatOfficialAccountPO">
+  <insert id="insertSelective" parameterType="com.bear.crawler.webmagic.mybatis.generator.po.WPublicAccountPO">
     <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
       SELECT LAST_INSERT_ID()
     </selectKey>
-    insert into wechat_official_account
+    insert into w_public_account
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="alias != null">
         alias,
@@ -159,14 +159,14 @@
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="com.bear.crawler.webmagic.mybatis.generator.po.WechatOfficialAccountPOExample" resultType="java.lang.Long">
-    select count(*) from wechat_official_account
+  <select id="countByExample" parameterType="com.bear.crawler.webmagic.mybatis.generator.po.WPublicAccountPOExample" resultType="java.lang.Long">
+    select count(*) from w_public_account
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </select>
   <update id="updateByExampleSelective" parameterType="map">
-    update wechat_official_account
+    update w_public_account
     <set>
       <if test="record.id != null">
         id = #{record.id,jdbcType=INTEGER},
@@ -195,7 +195,7 @@
     </if>
   </update>
   <update id="updateByExample" parameterType="map">
-    update wechat_official_account
+    update w_public_account
     set id = #{record.id,jdbcType=INTEGER},
       alias = #{record.alias,jdbcType=VARCHAR},
       fake_id = #{record.fakeId,jdbcType=VARCHAR},
@@ -207,8 +207,8 @@
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="com.bear.crawler.webmagic.mybatis.generator.po.WechatOfficialAccountPO">
-    update wechat_official_account
+  <update id="updateByPrimaryKeySelective" parameterType="com.bear.crawler.webmagic.mybatis.generator.po.WPublicAccountPO">
+    update w_public_account
     <set>
       <if test="alias != null">
         alias = #{alias,jdbcType=VARCHAR},
@@ -231,8 +231,8 @@
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.bear.crawler.webmagic.mybatis.generator.po.WechatOfficialAccountPO">
-    update wechat_official_account
+  <update id="updateByPrimaryKey" parameterType="com.bear.crawler.webmagic.mybatis.generator.po.WPublicAccountPO">
+    update w_public_account
     set alias = #{alias,jdbcType=VARCHAR},
       fake_id = #{fakeId,jdbcType=VARCHAR},
       nickname = #{nickname,jdbcType=VARCHAR},

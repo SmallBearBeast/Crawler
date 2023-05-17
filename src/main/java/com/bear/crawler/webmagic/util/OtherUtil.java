@@ -1,7 +1,11 @@
 package com.bear.crawler.webmagic.util;
 
+import com.bear.crawler.webmagic.pojo.dto.CommonRespDto;
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.Random;
 
+@Slf4j
 public class OtherUtil {
 
     private static final Random random = new Random();
@@ -13,5 +17,23 @@ public class OtherUtil {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public static boolean checkCommonRespDto(CommonRespDto respDto, String tag) {
+        if (respDto != null) {
+            int ret = respDto.getRet();
+            String errMsg = respDto.getErrMsg();
+            if (ret == 0) {
+                log.warn("Request is ok tag = {}", tag);
+                return true;
+            } else if (ret == 200013) {
+                log.warn("The account has been blocked and needs to wait for a few hours to be unblocked, ret = {}, err_msg = {}, tag = {}", ret, errMsg, tag);
+            } else if (ret == 200002) {
+                log.warn("Parameter error, check the fakeid, ret = {}, err_msg = {}, tag = {}", ret, errMsg, tag);
+            } else {
+                log.warn("Other error, ret = {}, err_msg = {}, tag = {}", ret, errMsg, tag);
+            }
+        }
+        return false;
     }
 }

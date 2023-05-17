@@ -3,14 +3,14 @@ package com.bear.crawler.webmagic.mybatis.generator.po;
 import java.util.ArrayList;
 import java.util.List;
 
-public class WechatOfficialAccountPOExample {
+public class WPublicAccountPOExample {
     protected String orderByClause;
 
     protected boolean distinct;
 
     protected List<Criteria> oredCriteria;
 
-    public WechatOfficialAccountPOExample() {
+    public WPublicAccountPOExample() {
         oredCriteria = new ArrayList<>();
     }
 

@@ -2,12 +2,12 @@ package com.bear.crawler.webmagic.processor;
 
 import cn.hutool.core.net.url.UrlBuilder;
 import cn.hutool.core.net.url.UrlQuery;
-import com.bear.crawler.webmagic.mybatis.generator.mapper.WechatOfficialAccountPOMapper;
-import com.bear.crawler.webmagic.mybatis.generator.po.WechatOfficialAccountPO;
-import com.bear.crawler.webmagic.mybatis.generator.po.WechatOfficialAccountPOExample;
+import com.bear.crawler.webmagic.mybatis.generator.mapper.WPublicAccountPOMapper;
+import com.bear.crawler.webmagic.mybatis.generator.po.WPublicAccountPO;
+import com.bear.crawler.webmagic.mybatis.generator.po.WPublicAccountPOExample;
 import com.bear.crawler.webmagic.pojo.dto.CommonRespDto;
-import com.bear.crawler.webmagic.pojo.dto.WechatOfficialAccountDto;
-import com.bear.crawler.webmagic.pojo.dto.WechatOfficialAccountListRespDto;
+import com.bear.crawler.webmagic.pojo.dto.WPublicAccountDto;
+import com.bear.crawler.webmagic.pojo.dto.WPublicAccountsRespDto;
 import com.bear.crawler.webmagic.util.OtherUtil;
 import com.bear.crawler.webmagic.util.TransformBeanUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -25,7 +25,7 @@ import java.util.Map;
 
 @Slf4j
 @Component
-public class WechatAccountProcessor implements PageProcessor, InitializingBean {
+public class WPublicAccountProcessor implements PageProcessor, InitializingBean {
 
     private static final String BEGIN = "begin";
     private static final int ACCOUNT_LIMIT = 100;
@@ -34,32 +34,32 @@ public class WechatAccountProcessor implements PageProcessor, InitializingBean {
     private ObjectMapper objectMapper;
 
     @Autowired
-    private WechatOfficialAccountPOMapper wechatOfficialAccountPOMapper;
+    private WPublicAccountPOMapper wPublicAccountPOMapper;
 
-    private List<WechatOfficialAccountPO> wechatOfficialAccountPOList = new ArrayList<>();
+    private final List<WPublicAccountPO> wPublicAccountPOS = new ArrayList<>();
 
     @Override
     public void process(Page page) {
         try {
-            WechatOfficialAccountListRespDto accountListRespDto = objectMapper.readValue(page.getRawText(), WechatOfficialAccountListRespDto.class);
-            CommonRespDto commonRespDto = accountListRespDto.getCommonRespDto();
+            WPublicAccountsRespDto accountsRespDto = objectMapper.readValue(page.getRawText(), WPublicAccountsRespDto.class);
+            CommonRespDto commonRespDto = accountsRespDto.getCommonRespDto();
             if (commonRespDto != null) {
                 int ret = commonRespDto.getRet();
                 String errMsg = commonRespDto.getErrMsg();
                 if (ret == 0) {
                     int begin = getBegin(page);
-                    List<WechatOfficialAccountDto> accountDtoList = accountListRespDto.getOfficialAccountDtoList();
-                    if (accountDtoList == null) {
+                    List<WPublicAccountDto> accountDtos = accountsRespDto.getPublicAccountDtos();
+                    if (accountDtos == null) {
                         log.info("accountDtoList is null");
                     } else {
-                        if (accountDtoList.isEmpty()) {
-                            log.info("Load official account list to end, begin = {}", begin);
+                        if (accountDtos.isEmpty()) {
+                            log.info("Load public account list to end, begin = {}", begin);
                         } else {
-                            log.info("Load official account list successfully, begin = {}", begin);
-                            saveAccountDtoListToDB(accountDtoList);
+                            log.info("Load public account list successfully, begin = {}", begin);
+                            saveAccountDtosToDB(accountDtos);
                             OtherUtil.sleep(3);
-                            if (begin + accountDtoList.size() > ACCOUNT_LIMIT) {
-                                log.info("Load official account list more than {}", ACCOUNT_LIMIT);
+                            if (begin + accountDtos.size() > ACCOUNT_LIMIT) {
+                                log.info("Load public account list more than {}", ACCOUNT_LIMIT);
                             } else {
                                 addNextTargetRequest(page, begin);
                             }
@@ -70,7 +70,7 @@ public class WechatAccountProcessor implements PageProcessor, InitializingBean {
                 } else if (ret == 200002) {
                     log.warn("Parameter error, check the fakeid, ret = {}, err_msg = {}", ret, errMsg);
                 } else {
-                    log.warn("Load official account list error, ret = {}, err_msg = {}", ret, errMsg);
+                    log.warn("Load public account list error, ret = {}, err_msg = {}", ret, errMsg);
                 }
             }
         } catch (Exception e) {
@@ -91,23 +91,23 @@ public class WechatAccountProcessor implements PageProcessor, InitializingBean {
     @Override
     public void afterPropertiesSet() {
         try {
-            WechatOfficialAccountPOExample example = new WechatOfficialAccountPOExample();
-            List<WechatOfficialAccountPO> officialAccountPOList = wechatOfficialAccountPOMapper.selectByExample(example);
-            wechatOfficialAccountPOList.addAll(officialAccountPOList);
+            WPublicAccountPOExample example = new WPublicAccountPOExample();
+            List<WPublicAccountPO> publicAccountPOS = wPublicAccountPOMapper.selectByExample(example);
+            wPublicAccountPOS.addAll(publicAccountPOS);
         } catch (Exception e) {
-            log.warn("Init the official account list failed");
+            log.warn("Init the public account list failed");
         }
     }
 
-    private void saveAccountDtoListToDB(List<WechatOfficialAccountDto> accountDtoList) {
-        for (WechatOfficialAccountDto accountDto : accountDtoList) {
+    private void saveAccountDtosToDB(List<WPublicAccountDto> accountDtos) {
+        for (WPublicAccountDto accountDto : accountDtos) {
             if (!isInAccountDB(accountDto)) {
-                wechatOfficialAccountPOMapper.insert(TransformBeanUtil.dtoToPo(accountDto));
+                wPublicAccountPOMapper.insert(TransformBeanUtil.dtoToPo(accountDto));
             } else {
-                WechatOfficialAccountPO accountPO = TransformBeanUtil.dtoToPo(accountDto);
-                WechatOfficialAccountPOExample example = new WechatOfficialAccountPOExample();
+                WPublicAccountPO accountPO = TransformBeanUtil.dtoToPo(accountDto);
+                WPublicAccountPOExample example = new WPublicAccountPOExample();
                 example.createCriteria().andFakeIdEqualTo(accountPO.getFakeId());
-                wechatOfficialAccountPOMapper.updateByExampleSelective(accountPO, example);
+                wPublicAccountPOMapper.updateByExampleSelective(accountPO, example);
             }
         }
     }
@@ -132,8 +132,8 @@ public class WechatAccountProcessor implements PageProcessor, InitializingBean {
         page.addTargetRequest(nextUrl);
     }
 
-    private boolean isInAccountDB(WechatOfficialAccountDto accountDto) {
-        for (WechatOfficialAccountPO accountPO : wechatOfficialAccountPOList) {
+    private boolean isInAccountDB(WPublicAccountDto accountDto) {
+        for (WPublicAccountPO accountPO : wPublicAccountPOS) {
             if (accountPO.getFakeId().equals(accountDto.getFakeId())) {
                 return true;
             }
