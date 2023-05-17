@@ -6,11 +6,10 @@ import com.bear.crawler.webmagic.mybatis.generator.mapper.WArticleItemPOMapper;
 import com.bear.crawler.webmagic.mybatis.generator.mapper.WPublicAccountPOMapper;
 import com.bear.crawler.webmagic.mybatis.generator.po.WArticleItemPO;
 import com.bear.crawler.webmagic.mybatis.generator.po.WArticleItemPOExample;
-import com.bear.crawler.webmagic.mybatis.generator.po.WPublicAccountPO;
-import com.bear.crawler.webmagic.mybatis.generator.po.WPublicAccountPOExample;
 import com.bear.crawler.webmagic.pojo.dto.CommonRespDto;
 import com.bear.crawler.webmagic.pojo.dto.WArticleItemDto;
 import com.bear.crawler.webmagic.pojo.dto.WArticleItemsRespDto;
+import com.bear.crawler.webmagic.provider.WPublicAccountProvider;
 import com.bear.crawler.webmagic.util.OtherUtil;
 import com.bear.crawler.webmagic.util.TransformBeanUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -42,9 +41,10 @@ public class WArticleProcessor implements PageProcessor, InitializingBean {
     @Autowired
     private WPublicAccountPOMapper wPublicAccountPOMapper;
 
-    private final List<WArticleItemPO> wArticleItemPOS = new ArrayList<>();
+    @Autowired
+    private WPublicAccountProvider wPublicAccountProvider;
 
-    private final List<WPublicAccountPO> wPublicAccountPOS = new ArrayList<>();
+    private final List<WArticleItemPO> wArticleItemPOS = new ArrayList<>();
 
     @Override
     public void process(Page page) {
@@ -135,15 +135,6 @@ public class WArticleProcessor implements PageProcessor, InitializingBean {
             wArticleItemPOS.addAll(publicAccountPOS);
         } catch (Exception e) {
             log.warn("Init the article list failed");
-        }
-
-        try {
-            WPublicAccountPOExample example = new WPublicAccountPOExample();
-            example.createCriteria().andNeedFetchEqualTo(true);
-            List<WPublicAccountPO> publicAccountPOS = wPublicAccountPOMapper.selectByExample(example);
-            wPublicAccountPOS.addAll(publicAccountPOS);
-        } catch (Exception e) {
-            log.warn("Init the public account list failed");
         }
     }
 }

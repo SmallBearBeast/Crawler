@@ -8,24 +8,23 @@ import com.bear.crawler.webmagic.mybatis.generator.po.WPublicAccountPOExample;
 import com.bear.crawler.webmagic.pojo.dto.CommonRespDto;
 import com.bear.crawler.webmagic.pojo.dto.WPublicAccountDto;
 import com.bear.crawler.webmagic.pojo.dto.WPublicAccountsRespDto;
+import com.bear.crawler.webmagic.provider.WPublicAccountProvider;
 import com.bear.crawler.webmagic.util.OtherUtil;
 import com.bear.crawler.webmagic.util.TransformBeanUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Site;
 import us.codecraft.webmagic.processor.PageProcessor;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 @Slf4j
 @Component
-public class WPublicAccountProcessor implements PageProcessor, InitializingBean {
+public class WPublicAccountProcessor implements PageProcessor {
 
     private static final String BEGIN = "begin";
     private static final int ACCOUNT_LIMIT = 100;
@@ -36,41 +35,32 @@ public class WPublicAccountProcessor implements PageProcessor, InitializingBean 
     @Autowired
     private WPublicAccountPOMapper wPublicAccountPOMapper;
 
-    private final List<WPublicAccountPO> wPublicAccountPOS = new ArrayList<>();
+    @Autowired
+    private WPublicAccountProvider wPublicAccountProvider;
 
     @Override
     public void process(Page page) {
         try {
             WPublicAccountsRespDto accountsRespDto = objectMapper.readValue(page.getRawText(), WPublicAccountsRespDto.class);
             CommonRespDto commonRespDto = accountsRespDto.getCommonRespDto();
-            if (commonRespDto != null) {
-                int ret = commonRespDto.getRet();
-                String errMsg = commonRespDto.getErrMsg();
-                if (ret == 0) {
-                    int begin = getBegin(page);
-                    List<WPublicAccountDto> accountDtos = accountsRespDto.getPublicAccountDtos();
-                    if (accountDtos == null) {
-                        log.info("accountDtoList is null");
+            if (OtherUtil.checkCommonRespDto(commonRespDto, "WPublicAccountProcessor.process()")) {
+                int begin = getBegin(page);
+                List<WPublicAccountDto> accountDtos = accountsRespDto.getPublicAccountDtos();
+                if (accountDtos == null) {
+                    log.info("accountDtos is null");
+                } else {
+                    if (accountDtos.isEmpty()) {
+                        log.info("Load public account list to end, begin = {}", begin);
                     } else {
-                        if (accountDtos.isEmpty()) {
-                            log.info("Load public account list to end, begin = {}", begin);
+                        log.info("Load public account list successfully, begin = {}", begin);
+                        saveAccountDtosToDB(accountDtos);
+                        OtherUtil.sleep(3);
+                        if (begin + accountDtos.size() > ACCOUNT_LIMIT) {
+                            log.info("Load public account list more than {}", ACCOUNT_LIMIT);
                         } else {
-                            log.info("Load public account list successfully, begin = {}", begin);
-                            saveAccountDtosToDB(accountDtos);
-                            OtherUtil.sleep(3);
-                            if (begin + accountDtos.size() > ACCOUNT_LIMIT) {
-                                log.info("Load public account list more than {}", ACCOUNT_LIMIT);
-                            } else {
-                                addNextTargetRequest(page, begin);
-                            }
+                            addNextTargetRequest(page, begin);
                         }
                     }
-                } else if (ret == 200013) {
-                    log.warn("The account has been blocked and needs to wait for a few hours to be unblocked, ret = {}, err_msg = {}", ret, errMsg);
-                } else if (ret == 200002) {
-                    log.warn("Parameter error, check the fakeid, ret = {}, err_msg = {}", ret, errMsg);
-                } else {
-                    log.warn("Load public account list error, ret = {}, err_msg = {}", ret, errMsg);
                 }
             }
         } catch (Exception e) {
@@ -86,17 +76,6 @@ public class WPublicAccountProcessor implements PageProcessor, InitializingBean 
                 .setTimeOut(10 * 1000)
                 .setRetryTimes(3)
                 .setRetrySleepTime(3000);
-    }
-
-    @Override
-    public void afterPropertiesSet() {
-        try {
-            WPublicAccountPOExample example = new WPublicAccountPOExample();
-            List<WPublicAccountPO> publicAccountPOS = wPublicAccountPOMapper.selectByExample(example);
-            wPublicAccountPOS.addAll(publicAccountPOS);
-        } catch (Exception e) {
-            log.warn("Init the public account list failed");
-        }
     }
 
     private void saveAccountDtosToDB(List<WPublicAccountDto> accountDtos) {
@@ -133,6 +112,7 @@ public class WPublicAccountProcessor implements PageProcessor, InitializingBean 
     }
 
     private boolean isInAccountDB(WPublicAccountDto accountDto) {
+        List<WPublicAccountPO> wPublicAccountPOS = wPublicAccountProvider.getWPublicAccountPOS();
         for (WPublicAccountPO accountPO : wPublicAccountPOS) {
             if (accountPO.getFakeId().equals(accountDto.getFakeId())) {
                 return true;
