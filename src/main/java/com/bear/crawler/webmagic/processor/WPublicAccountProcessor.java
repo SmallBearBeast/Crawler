@@ -1,7 +1,5 @@
 package com.bear.crawler.webmagic.processor;
 
-import cn.hutool.core.net.url.UrlBuilder;
-import cn.hutool.core.net.url.UrlQuery;
 import com.bear.crawler.webmagic.dao.WPublicAccountDao;
 import com.bear.crawler.webmagic.mybatis.generator.po.WPublicAccountPO;
 import com.bear.crawler.webmagic.pojo.dto.CommonRespDto;
@@ -19,13 +17,11 @@ import us.codecraft.webmagic.Site;
 import us.codecraft.webmagic.processor.PageProcessor;
 
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @Component
 public class WPublicAccountProcessor implements PageProcessor {
 
-    private static final String BEGIN = "begin";
     private static final int ACCOUNT_LIMIT = 100;
 
     @Autowired
@@ -79,42 +75,22 @@ public class WPublicAccountProcessor implements PageProcessor {
 
     private void saveAccountDtosToDB(List<WPublicAccountDto> accountDtos) {
         for (WPublicAccountDto accountDto : accountDtos) {
-            if (!isInAccountDB(accountDto)) {
-                wPublicAccountDao.insert(TransformBeanUtil.dtoToPo(accountDto));
+            WPublicAccountPO accountPO = TransformBeanUtil.dtoToPo(accountDto);
+            if (!wPublicAccountProvider.isInAccountDB(accountPO)) {
+                wPublicAccountDao.insert(accountPO);
             } else {
-                wPublicAccountDao.updateByFakeId(TransformBeanUtil.dtoToPo(accountDto));
+                wPublicAccountDao.updateByFakeId(accountPO);
             }
+            wPublicAccountProvider.updateCache(accountPO);
         }
     }
 
     private int getBegin(Page page) {
-        String url = page.getUrl().get();
-        UrlQuery urlQuery = UrlBuilder.of(url).getQuery();
-        return Integer.parseInt(String.valueOf(urlQuery.get(BEGIN)));
+        return Integer.parseInt(OtherUtil.getQuery(page, OtherUtil.BEGIN));
     }
 
     private void addNextTargetRequest(Page page, int begin) {
-        String url = page.getUrl().get();
-        UrlQuery urlQuery = UrlBuilder.of(url).getQuery();
-        UrlQuery newUrlQuery = new UrlQuery();
-        for (Map.Entry<CharSequence, CharSequence> entry : urlQuery.getQueryMap().entrySet()) {
-            if (!BEGIN.contentEquals(entry.getKey())) {
-                newUrlQuery.add(entry.getKey(), entry.getValue());
-            }
-        }
-        newUrlQuery.add(BEGIN, begin + 5);
-        String nextUrl = UrlBuilder.of(url).setQuery(newUrlQuery).build();
-        page.addTargetRequest(nextUrl);
-    }
-
-    private boolean isInAccountDB(WPublicAccountDto accountDto) {
-        List<WPublicAccountPO> wPublicAccountPOS = wPublicAccountProvider.getAll();
-        for (WPublicAccountPO accountPO : wPublicAccountPOS) {
-            if (accountPO.getFakeId().equals(accountDto.getFakeId())) {
-                return true;
-            }
-        }
-        return false;
+        OtherUtil.addNextTargetRequest(page, begin);
     }
 
     // TODO: 5/15/23 private boolean checkChange()

@@ -1,51 +1,41 @@
 package com.bear.crawler.webmagic.provider;
 
-import cn.hutool.core.thread.ThreadUtil;
-import com.bear.crawler.webmagic.dao.WPublicAccountDao;
 import com.bear.crawler.webmagic.mybatis.generator.po.WPublicAccountPO;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Component
-public class WPublicAccountProvider implements InitializingBean {
+public class WPublicAccountProvider {
 
     @Autowired
-    private WPublicAccountDao wPublicAccountDao;
+    private WPublicAccountCache wPublicAccountCache;
 
-    // TODO: 5/18/23 更新列表，监听变化
-    private final List<WPublicAccountPO> wPublicAccountPOS = new ArrayList<>();
-    private final List<WPublicAccountPO> wNeedFetchPublicAccountPOS = new ArrayList<>();
-
-    // TODO: 5/17/23 还没加载完成case处理 加锁wait直到完成
-    @Override
-    public void afterPropertiesSet() {
-        ThreadUtil.execute(() -> {
-            wNeedFetchPublicAccountPOS.addAll(wPublicAccountDao.selectNeedFetch());
-            wPublicAccountPOS.addAll(wPublicAccountDao.selectAll());
-        });
+    public void updateCache(WPublicAccountPO accountPO) {
+        Map<String, WPublicAccountPO> allAccountMap = wPublicAccountCache.getAllAccountMap();
+        allAccountMap.put(accountPO.getFakeId(), accountPO);
     }
 
-    public @NonNull List<WPublicAccountPO> getAll() {
-        return wPublicAccountPOS;
+    public boolean isInAccountDB(WPublicAccountPO accountPO) {
+        Map<String, WPublicAccountPO> map = wPublicAccountCache.getAllAccountMap();
+        return map.containsKey(accountPO.getFakeId());
     }
 
-    public @NonNull List<WPublicAccountPO> getNeedFetch() {
-        return wNeedFetchPublicAccountPOS;
+    public @Nullable WPublicAccountPO findByFakeId(String fakeId) {
+        Map<String, WPublicAccountPO> allAccountMap = wPublicAccountCache.getAllAccountMap();
+        return allAccountMap.get(fakeId);
     }
 
-    public WPublicAccountPO findByFakeId(String fakeId) {
-        for (WPublicAccountPO publicAccountPO : wPublicAccountPOS) {
-            if (fakeId.equals(publicAccountPO.getFakeId())) {
-                return publicAccountPO;
-            }
-        }
-        return null;
+    public @NonNull Map<String, WPublicAccountPO> getAllAccountMap() {
+        return wPublicAccountCache.getAllAccountMap();
+    }
+
+    public @NonNull Map<String, WPublicAccountPO> getNeedFetchAccountMap() {
+        return wPublicAccountCache.getNeedFetchAccountMap();
     }
 }

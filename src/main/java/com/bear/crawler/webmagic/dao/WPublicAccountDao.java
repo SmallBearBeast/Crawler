@@ -17,7 +17,7 @@ public class WPublicAccountDao {
     @Autowired
     private WPublicAccountPOMapper wPublicAccountPOMapper;
 
-    public List<WPublicAccountPO> selectNeedFetch() {
+    public List<WPublicAccountPO> selectByNeedFetch() {
         try {
             WPublicAccountPOExample example = new WPublicAccountPOExample();
             example.createCriteria().andNeedFetchEqualTo(true);

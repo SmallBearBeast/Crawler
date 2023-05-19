@@ -1,7 +1,7 @@
 package com.bear.crawler.webmagic.processor;
 
-import cn.hutool.core.net.url.UrlBuilder;
-import cn.hutool.core.net.url.UrlQuery;
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.date.DateUtil;
 import com.bear.crawler.webmagic.dao.WArticleDao;
 import com.bear.crawler.webmagic.mybatis.generator.po.WArticleItemPO;
 import com.bear.crawler.webmagic.mybatis.generator.po.WPublicAccountPO;
@@ -20,15 +20,16 @@ import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Site;
 import us.codecraft.webmagic.processor.PageProcessor;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 @Slf4j
 public class WArticleProcessor implements PageProcessor {
-
-    private static final String BEGIN = "begin";
-    private static final String FAKE_ID = "fakeid";
     private static final int ARTICLE_LIMIT = 20;
 
     @Autowired
@@ -42,6 +43,8 @@ public class WArticleProcessor implements PageProcessor {
 
     @Autowired
     private WArticleProvider wArticleProvider;
+
+    private final Map<String, List<WArticleItemPO>> fakeIdArticlesMap = new ConcurrentHashMap<>();
 
     @Override
     public void process(Page page) {
@@ -59,14 +62,25 @@ public class WArticleProcessor implements PageProcessor {
                         log.info("Load article list to end, begin = {}", begin);
                     } else {
                         log.info("Load article list successfully, begin = {}", begin);
-                        saveAccountDtosToDB(articleItemDtos, fakeId);
-                        OtherUtil.sleep(3);
-                        // TODO: 5/18/23 比较最近文章的时间
-                        if (begin + articleItemDtos.size() > ARTICLE_LIMIT) {
-                            log.info("Load article list more than {}", ARTICLE_LIMIT);
-                            // TODO: 5/18/23 某个公众号的文章收集完毕，写文件收集数据
+                        articleItemDtos.sort((first, second) -> (int) (second.getUpdateTime() - first.getUpdateTime()));
+                        long lastLatestTime = wArticleProvider.getLastLatestTime(fakeId);
+                        long curNewestTime = CollectionUtil.getFirst(articleItemDtos).getUpdateTime();
+                        if (begin == 0) {
+                            fakeIdArticlesMap.remove(fakeId);
+                        }
+                        if (curNewestTime > lastLatestTime) {
+                            saveAccountDtosToDB(articleItemDtos, fakeId);
+                            OtherUtil.sleep(3);
+                            int articleSize = fakeIdArticlesMap.get(fakeId).size();
+                            if (articleSize >= ARTICLE_LIMIT) {
+                                log.info("Load article list more than {}", ARTICLE_LIMIT);
+                                onFetchArticlesEnd(fakeId);
+                            } else {
+                                addNextTargetRequest(page, begin);
+                            }
                         } else {
-                            addNextTargetRequest(page, begin);
+                            log.info("Load the last latest article");
+                            onFetchArticlesEnd(fakeId);
                         }
                     }
                 }
@@ -97,32 +111,79 @@ public class WArticleProcessor implements PageProcessor {
                 wArticleDao.updateByAid(articleItemPO);
             } else {
                 wArticleDao.insert(articleItemPO);
-                // TODO: 5/18/23 打印出距离上次diff的条数 
-                // TODO: 5/18/23 打印今日抓取的条数 
+                addToFakeIdArticlesMap(articleItemPO);
             }
-            wArticleProvider.put(articleItemPO);
+            wArticleProvider.updateCache(articleItemPO);
+        }
+    }
+
+    private void addToFakeIdArticlesMap(WArticleItemPO articleItemPO) {
+        String fakeId = articleItemPO.getOfficialAccountFakeId();
+        if (!fakeIdArticlesMap.containsKey(fakeId)) {
+            fakeIdArticlesMap.put(fakeId, new ArrayList<>());
+        }
+        fakeIdArticlesMap.get(fakeId).add(articleItemPO);
+    }
+
+    private void onFetchArticlesEnd(String fakeId) {
+        saveFetchContentToFile(fakeId);
+        updateLatestTime(fakeId);
+        fakeIdArticlesMap.remove(fakeId);
+    }
+
+    // TODO: 5/18/23 某个公众号的文章收集完毕，写文件收集数据
+    private void saveFetchContentToFile(String fakeId) {
+        StringBuilder builder = new StringBuilder();
+        List<WArticleItemPO> fetchArticleItemPOS = fakeIdArticlesMap.get(fakeId);
+        WPublicAccountPO publicAccountPO = wPublicAccountProvider.findByFakeId(fakeId);
+        String accountNickname = publicAccountPO == null ? "未知公众号" : publicAccountPO.getNickname();
+        builder.append("公众号：").append(accountNickname).append("\n");
+        if (CollectionUtil.isEmpty(fetchArticleItemPOS)) {
+            builder.append("没有抓到最新的文章").append("\n");
+        } else {
+            long lastLatestTime = wArticleProvider.getLastLatestTime(fakeId) * 1000;
+            String formatLastLatestDate = DateUtil.format(new Date(lastLatestTime), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
+            builder.append("距离上一次时间").append(formatLastLatestDate).append("抓到了").append(fetchArticleItemPOS.size()).append("篇文章").append("\n");
+            collectArticleInfo(builder, fetchArticleItemPOS);
+        }
+
+        List<WArticleItemPO> curDateArticleItemPOS = wArticleProvider.getCurDateArticles(fakeId);
+        if (CollectionUtil.isEmpty(curDateArticleItemPOS)) {
+            builder.append("当天尚未更新文章").append("\n");
+        } else {
+            String formatCurDate = DateUtil.format(new Date(), new SimpleDateFormat("yyyy-MM-dd"));
+            builder.append("当天").append(formatCurDate).append("发布了").append(curDateArticleItemPOS.size()).append("篇文章").append("\n");
+            collectArticleInfo(builder, curDateArticleItemPOS);
+        }
+        log.debug("getFetchContent: content = {}", builder.toString());
+    }
+
+    private void collectArticleInfo(StringBuilder builder, List<WArticleItemPO> articleItemPOS) {
+        for (WArticleItemPO articleItemPO : articleItemPOS) {
+            builder.append("标题：").append(articleItemPO.getTitle()).append("\n")
+                    .append("文章链接：").append(articleItemPO.getLink()).append("\n")
+                    .append("封面图片链接：").append(articleItemPO.getCover()).append("\n")
+                    .append("发布日期：").append(DateUtil.format(articleItemPO.getUpdateTime(), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"))).append("\n");
+        }
+    }
+
+    private void updateLatestTime(String fakeId) {
+        List<WArticleItemPO> articleItemPOS = fakeIdArticlesMap.get(fakeId);
+        WArticleItemPO articleItemPO = CollectionUtil.getFirst(articleItemPOS);
+        if (articleItemPO != null) {
+            wArticleProvider.setLastLatestTime(fakeId, articleItemPO.getUpdateTime().getTime() / 1000);
         }
     }
 
     private int getBegin(Page page) {
-        return Integer.parseInt(OtherUtil.getQuery(page, BEGIN));
+        return Integer.parseInt(OtherUtil.getQuery(page, OtherUtil.BEGIN));
     }
 
     private String getFakeId(Page page) {
-        return OtherUtil.getQuery(page, FAKE_ID);
+        return OtherUtil.getQuery(page, OtherUtil.FAKE_ID);
     }
 
     private void addNextTargetRequest(Page page, int begin) {
-        String url = page.getUrl().get();
-        UrlQuery urlQuery = UrlBuilder.of(url).getQuery();
-        UrlQuery newUrlQuery = new UrlQuery();
-        for (Map.Entry<CharSequence, CharSequence> entry : urlQuery.getQueryMap().entrySet()) {
-            if (!BEGIN.contentEquals(entry.getKey())) {
-                newUrlQuery.add(entry.getKey(), entry.getValue());
-            }
-        }
-        newUrlQuery.add(BEGIN, begin + 5);
-        String nextUrl = UrlBuilder.of(url).setQuery(newUrlQuery).build();
-        page.addTargetRequest(nextUrl);
+        OtherUtil.addNextTargetRequest(page, begin);
     }
 }

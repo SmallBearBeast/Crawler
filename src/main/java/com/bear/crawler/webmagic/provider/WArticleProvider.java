@@ -1,47 +1,53 @@
 package com.bear.crawler.webmagic.provider;
 
-import cn.hutool.core.thread.ThreadUtil;
-import com.bear.crawler.webmagic.dao.WArticleDao;
-import com.bear.crawler.webmagic.mybatis.generator.mapper.WArticleItemPOMapper;
+import cn.hutool.core.date.DateUtil;
 import com.bear.crawler.webmagic.mybatis.generator.po.WArticleItemPO;
-import com.bear.crawler.webmagic.pojo.dto.WArticleItemDto;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Map;
 
 @Slf4j
 @Component
-public class WArticleProvider implements InitializingBean {
+public class WArticleProvider {
 
     @Autowired
-    private WArticleDao wArticleDao;
+    private WArticleCache wArticleCache;
 
-    private final ConcurrentHashMap<String, WArticleItemPO> articleItemPOMap = new ConcurrentHashMap<>();
-
-    private WArticleItemPO latestArticleItemPO;
-
-    // TODO: 5/17/23 还没加载完成case处理 加锁wait直到完成
-    // TODO: 5/18/23 考虑用缓存cache实现
-    @Override
-    public void afterPropertiesSet() {
-        ThreadUtil.execute(() -> {
-            articleItemPOMap.clear();
-            List<WArticleItemPO> articleItemPOS = wArticleDao.selectAll();
-            for (WArticleItemPO articleItemPO : articleItemPOS) {
-                articleItemPOMap.put(articleItemPO.getAid(), articleItemPO);
-            }
-        });
+    public void updateCache(WArticleItemPO articleItemPO) {
+        String fakeId = articleItemPO.getOfficialAccountFakeId();
+        Map<String, WArticleItemPO> map = wArticleCache.getArticleMap(fakeId);
+        wArticleCache.updateArticleMap(articleItemPO, map);
+        List<WArticleItemPO> list = wArticleCache.getCurDateArticles(fakeId);
+        // 只有当天的Article才更新缓存。
+        if (DateUtil.isSameDay(articleItemPO.getUpdateTime(), new Date())) {
+            wArticleCache.updateCurDateArticles(articleItemPO, list);
+        }
     }
 
     public boolean isInArticleDB(WArticleItemPO articleItemPO) {
-        return articleItemPOMap.containsKey(articleItemPO.getAid());
+        String fakeId = articleItemPO.getOfficialAccountFakeId();
+        Map<String, WArticleItemPO> map = wArticleCache.getArticleMap(fakeId);
+        return map.containsKey(articleItemPO.getAid());
     }
 
-    public void put(WArticleItemPO articleItemPO) {
-        articleItemPOMap.put(articleItemPO.getAid(), articleItemPO);
+    public long getLastLatestTime(String fakeId) {
+        return wArticleCache.getLastLatestTime(fakeId);
+    }
+
+    public void setLastLatestTime(String fakeId, long time) {
+        wArticleCache.setLastLatestTime(fakeId, time);
+    }
+
+    public List<WArticleItemPO> getCurDateArticles(String fakeId) {
+        return wArticleCache.getCurDateArticles(fakeId);
+    }
+
+    public List<WArticleItemPO> getArticles(String fakeId) {
+        return new ArrayList<>(wArticleCache.getArticleMap(fakeId).values());
     }
 }

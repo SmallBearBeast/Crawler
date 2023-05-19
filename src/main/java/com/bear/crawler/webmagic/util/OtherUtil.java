@@ -6,10 +6,14 @@ import com.bear.crawler.webmagic.pojo.dto.CommonRespDto;
 import lombok.extern.slf4j.Slf4j;
 import us.codecraft.webmagic.Page;
 
+import java.util.Map;
 import java.util.Random;
 
 @Slf4j
 public class OtherUtil {
+
+    public static final String BEGIN = "begin";
+    public static final String FAKE_ID = "fakeid";
 
     private static final Random random = new Random();
 
@@ -44,5 +48,19 @@ public class OtherUtil {
         String url = page.getUrl().get();
         UrlQuery urlQuery = UrlBuilder.of(url).getQuery();
         return String.valueOf(urlQuery.get(query));
+    }
+
+    public static void addNextTargetRequest(Page page, int begin) {
+        String url = page.getUrl().get();
+        UrlQuery urlQuery = UrlBuilder.of(url).getQuery();
+        UrlQuery newUrlQuery = new UrlQuery();
+        for (Map.Entry<CharSequence, CharSequence> entry : urlQuery.getQueryMap().entrySet()) {
+            if (!BEGIN.contentEquals(entry.getKey())) {
+                newUrlQuery.add(entry.getKey(), entry.getValue());
+            }
+        }
+        newUrlQuery.add(BEGIN, begin + 5);
+        String nextUrl = UrlBuilder.of(url).setQuery(newUrlQuery).build();
+        page.addTargetRequest(nextUrl);
     }
 }

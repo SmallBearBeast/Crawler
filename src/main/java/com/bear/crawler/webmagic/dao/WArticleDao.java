@@ -1,18 +1,20 @@
 package com.bear.crawler.webmagic.dao;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.date.DateUtil;
 import com.bear.crawler.webmagic.mybatis.custom.WArticleItemPOCustomMapper;
 import com.bear.crawler.webmagic.mybatis.generator.mapper.WArticleItemPOMapper;
 import com.bear.crawler.webmagic.mybatis.generator.po.WArticleItemPO;
 import com.bear.crawler.webmagic.mybatis.generator.po.WArticleItemPOExample;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
-// TODO: 5/18/23 数组如何缓存
 @Slf4j
 @Repository
 public class WArticleDao {
@@ -33,10 +35,13 @@ public class WArticleDao {
         return new ArrayList<>();
     }
 
-    public List<WArticleItemPO> selectByFakeId(String fakeId) {
+    public List<WArticleItemPO> selectByFakeId(String fakeId, int limit) {
         try {
             WArticleItemPOExample example = new WArticleItemPOExample();
             example.createCriteria().andOfficialAccountFakeIdEqualTo(fakeId);
+            if (limit > 0) {
+                example.setLimit(limit);
+            }
             return wArticleItemPOMapper.selectByExample(example);
         } catch (Exception e) {
             log.warn("Select the article list by fakeId failed, fakeId = {}, e = {}", fakeId, e.getMessage());
@@ -64,11 +69,21 @@ public class WArticleDao {
 
     public void delete() {
         WArticleItemPOExample example = new WArticleItemPOExample();
+        example.setLimit(10);
         wArticleItemPOMapper.deleteByExample(example);
     }
 
-    public WArticleItemPO selectByLatestDate(String fakeId) {
+    public @Nullable WArticleItemPO selectLatest(String fakeId) {
         List<WArticleItemPO> articleItemPOS = wArticleItemPOCustomMapper.selectLatest(fakeId);
         return CollectionUtil.getFirst(articleItemPOS);
+    }
+
+    public List<WArticleItemPO> selectByCurDate(String fakeId) {
+        WArticleItemPOExample example = new WArticleItemPOExample();
+        Date date = new Date();
+        Date startDate = DateUtil.beginOfDay(date);
+        Date endDate = DateUtil.endOfDay(date);
+        example.createCriteria().andUpdateTimeBetween(startDate, endDate).andOfficialAccountFakeIdEqualTo(fakeId);
+        return wArticleItemPOMapper.selectByExample(example);
     }
 }
