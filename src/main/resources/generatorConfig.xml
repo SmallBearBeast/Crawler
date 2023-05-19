@@ -20,6 +20,8 @@
 <!--        <plugin type="org.mybatis.generator.plugins.EqualsHashCodePlugin">-->
 <!--            <property name="useEqualsHashCodeFromRoot" value="true"/>-->
 <!--        </plugin>-->
+        <!-- example支持limit和offset -->
+        <plugin type="com.bear.crawler.webmagic.mybatis.plugin.MySQLLimitPlugin"/>
         <!--可以自定义生成model的代码注释-->
         <commentGenerator type="com.bear.crawler.webmagic.mybatis.CommentGenerator">
             <!-- 是否去除自动生成的注释 true：是 ： false:否 -->

@@ -11,6 +11,10 @@ public class WArticleItemPOExample {
 
     protected List<Criteria> oredCriteria;
 
+    private Integer limit;
+
+    private Integer offset;
+
     public WArticleItemPOExample() {
         oredCriteria = new ArrayList<>();
     }
@@ -62,6 +66,24 @@ public class WArticleItemPOExample {
         oredCriteria.clear();
         orderByClause = null;
         distinct = false;
+        offset = null;
+        limit = null;
+    }
+
+    public void setLimit(Integer limit) {
+        this.limit = limit;
+    }
+
+    public Integer getLimit() {
+        return limit;
+    }
+
+    public void setOffset(Integer offset) {
+        this.offset = offset;
+    }
+
+    public Integer getOffset() {
+        return offset;
     }
 
     protected abstract static class GeneratedCriteria {
