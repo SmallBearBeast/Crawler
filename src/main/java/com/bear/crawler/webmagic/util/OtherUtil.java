@@ -1,7 +1,10 @@
 package com.bear.crawler.webmagic.util;
 
+import cn.hutool.core.net.url.UrlBuilder;
+import cn.hutool.core.net.url.UrlQuery;
 import com.bear.crawler.webmagic.pojo.dto.CommonRespDto;
 import lombok.extern.slf4j.Slf4j;
+import us.codecraft.webmagic.Page;
 
 import java.util.Random;
 
@@ -35,5 +38,11 @@ public class OtherUtil {
             }
         }
         return false;
+    }
+
+    public static String getQuery(Page page, String query) {
+        String url = page.getUrl().get();
+        UrlQuery urlQuery = UrlBuilder.of(url).getQuery();
+        return String.valueOf(urlQuery.get(query));
     }
 }

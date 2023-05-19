@@ -2,49 +2,46 @@ package com.bear.crawler.webmagic.processor;
 
 import cn.hutool.core.net.url.UrlBuilder;
 import cn.hutool.core.net.url.UrlQuery;
-import com.bear.crawler.webmagic.mybatis.generator.mapper.WArticleItemPOMapper;
-import com.bear.crawler.webmagic.mybatis.generator.mapper.WPublicAccountPOMapper;
+import com.bear.crawler.webmagic.dao.WArticleDao;
 import com.bear.crawler.webmagic.mybatis.generator.po.WArticleItemPO;
-import com.bear.crawler.webmagic.mybatis.generator.po.WArticleItemPOExample;
+import com.bear.crawler.webmagic.mybatis.generator.po.WPublicAccountPO;
 import com.bear.crawler.webmagic.pojo.dto.CommonRespDto;
 import com.bear.crawler.webmagic.pojo.dto.WArticleItemDto;
 import com.bear.crawler.webmagic.pojo.dto.WArticleItemsRespDto;
+import com.bear.crawler.webmagic.provider.WArticleProvider;
 import com.bear.crawler.webmagic.provider.WPublicAccountProvider;
 import com.bear.crawler.webmagic.util.OtherUtil;
 import com.bear.crawler.webmagic.util.TransformBeanUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Site;
 import us.codecraft.webmagic.processor.PageProcessor;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 @Component
 @Slf4j
-public class WArticleProcessor implements PageProcessor, InitializingBean {
+public class WArticleProcessor implements PageProcessor {
 
     private static final String BEGIN = "begin";
+    private static final String FAKE_ID = "fakeid";
     private static final int ARTICLE_LIMIT = 20;
 
     @Autowired
     private ObjectMapper objectMapper;
 
     @Autowired
-    private WArticleItemPOMapper wArticleItemPOMapper;
-
-    @Autowired
-    private WPublicAccountPOMapper wPublicAccountPOMapper;
+    private WArticleDao wArticleDao;
 
     @Autowired
     private WPublicAccountProvider wPublicAccountProvider;
 
-    private final List<WArticleItemPO> wArticleItemPOS = new ArrayList<>();
+    @Autowired
+    private WArticleProvider wArticleProvider;
 
     @Override
     public void process(Page page) {
@@ -53,25 +50,27 @@ public class WArticleProcessor implements PageProcessor, InitializingBean {
             CommonRespDto commonRespDto = articleItemsRespDto.getCommonRespDto();
             if (OtherUtil.checkCommonRespDto(commonRespDto, "WArticleProcessor.process()")) {
                 int begin = getBegin(page);
+                String fakeId = getFakeId(page);
                 List<WArticleItemDto> articleItemDtos = articleItemsRespDto.getArticleItemDtos();
                 if (articleItemDtos == null) {
-                    log.info("articleItemDtoList is null");
+                    log.info("articleItemDtos is null");
                 } else {
                     if (articleItemDtos.isEmpty()) {
                         log.info("Load article list to end, begin = {}", begin);
                     } else {
                         log.info("Load article list successfully, begin = {}", begin);
-                        saveAccountDtosToDB(articleItemDtos);
+                        saveAccountDtosToDB(articleItemDtos, fakeId);
                         OtherUtil.sleep(3);
+                        // TODO: 5/18/23 比较最近文章的时间
                         if (begin + articleItemDtos.size() > ARTICLE_LIMIT) {
-                            log.info("Load public account list more than {}", ARTICLE_LIMIT);
+                            log.info("Load article list more than {}", ARTICLE_LIMIT);
+                            // TODO: 5/18/23 某个公众号的文章收集完毕，写文件收集数据
                         } else {
                             addNextTargetRequest(page, begin);
                         }
                     }
                 }
             }
-
         } catch (Exception e) {
             log.error("process fail, e = {}", e.getMessage());
         }
@@ -87,21 +86,30 @@ public class WArticleProcessor implements PageProcessor, InitializingBean {
                 .setRetrySleepTime(3000);
     }
 
-    private void saveAccountDtosToDB(List<WArticleItemDto> articleItemDtos) {
+    private void saveAccountDtosToDB(List<WArticleItemDto> articleItemDtos, String fakeId) {
+        WPublicAccountPO publicAccountPO = wPublicAccountProvider.findByFakeId(fakeId);
         for (WArticleItemDto articleItemDto : articleItemDtos) {
             WArticleItemPO articleItemPO = TransformBeanUtil.dtoToPo(articleItemDto);
-            articleItemPO.setOfficialAccountId(0);
-
-            articleItemPO.setOfficialAccountFakeId("FakeId");
-            articleItemPO.setOfficialAccountTitle("Title");
-            wArticleItemPOMapper.insert(articleItemPO);
+            articleItemPO.setOfficialAccountId(publicAccountPO.getId());
+            articleItemPO.setOfficialAccountFakeId(publicAccountPO.getFakeId());
+            articleItemPO.setOfficialAccountTitle(publicAccountPO.getNickname());
+            if (wArticleProvider.isInArticleDB(articleItemPO)) {
+                wArticleDao.updateByAid(articleItemPO);
+            } else {
+                wArticleDao.insert(articleItemPO);
+                // TODO: 5/18/23 打印出距离上次diff的条数 
+                // TODO: 5/18/23 打印今日抓取的条数 
+            }
+            wArticleProvider.put(articleItemPO);
         }
     }
 
     private int getBegin(Page page) {
-        String url = page.getUrl().get();
-        UrlQuery urlQuery = UrlBuilder.of(url).getQuery();
-        return Integer.parseInt(String.valueOf(urlQuery.get(BEGIN)));
+        return Integer.parseInt(OtherUtil.getQuery(page, BEGIN));
+    }
+
+    private String getFakeId(Page page) {
+        return OtherUtil.getQuery(page, FAKE_ID);
     }
 
     private void addNextTargetRequest(Page page, int begin) {
@@ -116,25 +124,5 @@ public class WArticleProcessor implements PageProcessor, InitializingBean {
         newUrlQuery.add(BEGIN, begin + 5);
         String nextUrl = UrlBuilder.of(url).setQuery(newUrlQuery).build();
         page.addTargetRequest(nextUrl);
-    }
-
-    private boolean isInArticleDB(WArticleItemDto articleItemDto) {
-        for (WArticleItemPO articleItemPO : wArticleItemPOS) {
-            if (articleItemPO.getAid().equals(articleItemDto.getAid())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        try {
-            WArticleItemPOExample example = new WArticleItemPOExample();
-            List<WArticleItemPO> publicAccountPOS = wArticleItemPOMapper.selectByExample(example);
-            wArticleItemPOS.addAll(publicAccountPOS);
-        } catch (Exception e) {
-            log.warn("Init the article list failed");
-        }
     }
 }

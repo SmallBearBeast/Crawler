@@ -1,5 +1,6 @@
 package com.bear.crawler.webmagic.controller;
 
+import com.bear.crawler.webmagic.dao.WArticleDao;
 import com.bear.crawler.webmagic.mybatis.generator.po.WPublicAccountPO;
 import com.bear.crawler.webmagic.pojo.WechatConfig;
 import com.bear.crawler.webmagic.processor.WebMagicTestProcessor;
@@ -43,12 +44,16 @@ public class WebMagicController {
     @Autowired
     private WPublicAccountProvider wPublicAccountProvider;
 
+    @Autowired
+    private WArticleDao wArticleDao;
+
     @GetMapping("/testWebMagic")
     public String testWebMagic() {
-        Spider.create(webMagicTestProcessor)
-                .addUrl("https://mp.weixin.qq.com/s/BeYIAdsEZ6TVzFaOO3C-Pw")
-                .thread(5)
-                .run();
+        wArticleDao.selectByLatestDate("FakeId");
+//        Spider.create(webMagicTestProcessor)
+//                .addUrl("https://mp.weixin.qq.com/s/BeYIAdsEZ6TVzFaOO3C-Pw")
+//                .thread(5)
+//                .run();
         // 会等processor处理完之后才回调testWebMagic success
         return "testWebMagic success";
     }
@@ -65,7 +70,7 @@ public class WebMagicController {
     @GetMapping("/watchWArticles")
     public String watchWArticles() {
         log.debug("watchWArticles enter");
-        List<WPublicAccountPO> accountPOS = wPublicAccountProvider.getWNeedFetchPublicAccountPOS();
+        List<WPublicAccountPO> accountPOS = wPublicAccountProvider.getNeedFetch();
         Spider spider = Spider.create(wArticleProcessor);
         for (WPublicAccountPO accountPO : accountPOS) {
             String url = "https://mp.weixin.qq.com/cgi-bin/appmsg?action=list_ex&begin=0&count=5&fakeid=" + accountPO.getFakeId() + "&type=9&query=&token=" + wechatConfig.getToken() + "&lang=zh_CN&f=json&ajax=1";

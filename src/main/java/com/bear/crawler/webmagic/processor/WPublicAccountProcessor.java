@@ -2,9 +2,8 @@ package com.bear.crawler.webmagic.processor;
 
 import cn.hutool.core.net.url.UrlBuilder;
 import cn.hutool.core.net.url.UrlQuery;
-import com.bear.crawler.webmagic.mybatis.generator.mapper.WPublicAccountPOMapper;
+import com.bear.crawler.webmagic.dao.WPublicAccountDao;
 import com.bear.crawler.webmagic.mybatis.generator.po.WPublicAccountPO;
-import com.bear.crawler.webmagic.mybatis.generator.po.WPublicAccountPOExample;
 import com.bear.crawler.webmagic.pojo.dto.CommonRespDto;
 import com.bear.crawler.webmagic.pojo.dto.WPublicAccountDto;
 import com.bear.crawler.webmagic.pojo.dto.WPublicAccountsRespDto;
@@ -33,7 +32,7 @@ public class WPublicAccountProcessor implements PageProcessor {
     private ObjectMapper objectMapper;
 
     @Autowired
-    private WPublicAccountPOMapper wPublicAccountPOMapper;
+    private WPublicAccountDao wPublicAccountDao;
 
     @Autowired
     private WPublicAccountProvider wPublicAccountProvider;
@@ -81,12 +80,9 @@ public class WPublicAccountProcessor implements PageProcessor {
     private void saveAccountDtosToDB(List<WPublicAccountDto> accountDtos) {
         for (WPublicAccountDto accountDto : accountDtos) {
             if (!isInAccountDB(accountDto)) {
-                wPublicAccountPOMapper.insert(TransformBeanUtil.dtoToPo(accountDto));
+                wPublicAccountDao.insert(TransformBeanUtil.dtoToPo(accountDto));
             } else {
-                WPublicAccountPO accountPO = TransformBeanUtil.dtoToPo(accountDto);
-                WPublicAccountPOExample example = new WPublicAccountPOExample();
-                example.createCriteria().andFakeIdEqualTo(accountPO.getFakeId());
-                wPublicAccountPOMapper.updateByExampleSelective(accountPO, example);
+                wPublicAccountDao.updateByFakeId(TransformBeanUtil.dtoToPo(accountDto));
             }
         }
     }
@@ -112,7 +108,7 @@ public class WPublicAccountProcessor implements PageProcessor {
     }
 
     private boolean isInAccountDB(WPublicAccountDto accountDto) {
-        List<WPublicAccountPO> wPublicAccountPOS = wPublicAccountProvider.getWPublicAccountPOS();
+        List<WPublicAccountPO> wPublicAccountPOS = wPublicAccountProvider.getAll();
         for (WPublicAccountPO accountPO : wPublicAccountPOS) {
             if (accountPO.getFakeId().equals(accountDto.getFakeId())) {
                 return true;
