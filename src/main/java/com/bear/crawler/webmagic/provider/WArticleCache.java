@@ -53,14 +53,19 @@ public class WArticleCache {
         return map;
     }
 
-    @Cacheable(key = "'curDateArticles_'+#fakeId")
-    public List<WArticleItemPO> getCurDateArticles(String fakeId) {
-        return wArticleDao.selectByCurDate(fakeId);
+    @Cacheable(key = "'curDateArticleMap_'+#fakeId")
+    public Map<String, WArticleItemPO> getCurDateArticleMap(String fakeId) {
+        Map<String, WArticleItemPO> map = new ConcurrentHashMap<>();
+        List<WArticleItemPO> articleItemPOS = wArticleDao.selectByCurDate(fakeId);
+        for (WArticleItemPO articleItemPO : articleItemPOS) {
+            map.put(articleItemPO.getAid(), articleItemPO);
+        }
+        return map;
     }
 
-    @CachePut(key = "'curDateArticles_'+#articleItemPO.getOfficialAccountFakeId()")
-    public List<WArticleItemPO> updateCurDateArticles(WArticleItemPO articleItemPO, List<WArticleItemPO> list) {
-        list.add(articleItemPO);
-        return list;
+    @CachePut(key = "'curDateArticleMap_'+#articleItemPO.getOfficialAccountFakeId()")
+    public Map<String, WArticleItemPO> updateCurDateArticles(WArticleItemPO articleItemPO, Map<String, WArticleItemPO> map) {
+        map.put(articleItemPO.getAid(), articleItemPO);
+        return map;
     }
 }

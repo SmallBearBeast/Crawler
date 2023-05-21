@@ -1,5 +1,6 @@
 package com.bear.crawler.webmagic.processor;
 
+import cn.hutool.core.util.RandomUtil;
 import com.bear.crawler.webmagic.dao.WPublicAccountDao;
 import com.bear.crawler.webmagic.mybatis.generator.po.WPublicAccountPO;
 import com.bear.crawler.webmagic.pojo.dto.CommonRespDto;
@@ -70,7 +71,8 @@ public class WPublicAccountProcessor implements PageProcessor {
                 .setCharset("utf-8")
                 .setTimeOut(10 * 1000)
                 .setRetryTimes(3)
-                .setRetrySleepTime(3000);
+                .setSleepTime(RandomUtil.randomInt(3, 6))
+                .setRetrySleepTime(RandomUtil.randomInt(3, 6));
     }
 
     private void saveAccountDtosToDB(List<WPublicAccountDto> accountDtos) {

@@ -2,6 +2,8 @@ package com.bear.crawler.webmagic.processor;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.util.RandomUtil;
 import com.bear.crawler.webmagic.dao.WArticleDao;
 import com.bear.crawler.webmagic.mybatis.generator.po.WArticleItemPO;
 import com.bear.crawler.webmagic.mybatis.generator.po.WPublicAccountPO;
@@ -15,11 +17,13 @@ import com.bear.crawler.webmagic.util.TransformBeanUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Site;
 import us.codecraft.webmagic.processor.PageProcessor;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -27,10 +31,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Component
 @Slf4j
+@Component
 public class WArticleProcessor implements PageProcessor {
     private static final int ARTICLE_LIMIT = 20;
+
+    @Value("${wechat.fetchArticleDir}")
+    private String fetchArticleDir;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -70,7 +77,6 @@ public class WArticleProcessor implements PageProcessor {
                         }
                         if (curNewestTime > lastLatestTime) {
                             saveAccountDtosToDB(articleItemDtos, fakeId);
-                            OtherUtil.sleep(3);
                             int articleSize = fakeIdArticlesMap.get(fakeId).size();
                             if (articleSize >= ARTICLE_LIMIT) {
                                 log.info("Load article list more than {}", ARTICLE_LIMIT);
@@ -97,7 +103,8 @@ public class WArticleProcessor implements PageProcessor {
                 .setCharset("utf-8")
                 .setTimeOut(10 * 1000)
                 .setRetryTimes(3)
-                .setRetrySleepTime(3000);
+                .setSleepTime(RandomUtil.randomInt(3, 6))
+                .setRetrySleepTime(RandomUtil.randomInt(3, 6));
     }
 
     private void saveAccountDtosToDB(List<WArticleItemDto> articleItemDtos, String fakeId) {
@@ -127,35 +134,55 @@ public class WArticleProcessor implements PageProcessor {
 
     private void onFetchArticlesEnd(String fakeId) {
         saveFetchContentToFile(fakeId);
+        saveSummaryContentToFile(fakeId);
         updateLatestTime(fakeId);
         fakeIdArticlesMap.remove(fakeId);
     }
 
-    // TODO: 5/18/23 某个公众号的文章收集完毕，写文件收集数据
+    // TODO: 5/21/23 格式markdown 
+    // TODO: 5/21/23 追加文件内容而不是直接覆盖
     private void saveFetchContentToFile(String fakeId) {
         StringBuilder builder = new StringBuilder();
         List<WArticleItemPO> fetchArticleItemPOS = fakeIdArticlesMap.get(fakeId);
         WPublicAccountPO publicAccountPO = wPublicAccountProvider.findByFakeId(fakeId);
+        builder.append("保存时间：").append(DateUtil.format(new Date(), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"))).append("\n");
         String accountNickname = publicAccountPO == null ? "未知公众号" : publicAccountPO.getNickname();
-        builder.append("公众号：").append(accountNickname).append("\n");
+        builder.append("公众号：").append(accountNickname).append(" 公众号fakeId：").append(fakeId).append("\n");
         if (CollectionUtil.isEmpty(fetchArticleItemPOS)) {
             builder.append("没有抓到最新的文章").append("\n");
         } else {
             long lastLatestTime = wArticleProvider.getLastLatestTime(fakeId) * 1000;
-            String formatLastLatestDate = DateUtil.format(new Date(lastLatestTime), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
-            builder.append("距离上一次时间").append(formatLastLatestDate).append("抓到了").append(fetchArticleItemPOS.size()).append("篇文章").append("\n");
+            String formatLastLatestDateStr = DateUtil.format(new Date(lastLatestTime), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
+            builder.append("距离上一次时间").append(formatLastLatestDateStr).append("抓到了").append(fetchArticleItemPOS.size()).append("篇文章").append("\n\n");
             collectArticleInfo(builder, fetchArticleItemPOS);
         }
+        log.debug("saveFetchContentToFile: content = {}", builder.toString());
 
+        String formatCurDateStr = DateUtil.format(new Date(), new SimpleDateFormat("yyyy-MM-dd"));
+        String dir = fetchArticleDir + File.separator + formatCurDateStr + File.separator + accountNickname;
+        File fetchRecordFile = FileUtil.file(dir, "抓取记录.md");
+        FileUtil.appendString(builder.toString(), fetchRecordFile, "utf-8");
+    }
+
+    private void saveSummaryContentToFile(String fakeId) {
+        StringBuilder builder = new StringBuilder();
+        WPublicAccountPO publicAccountPO = wPublicAccountProvider.findByFakeId(fakeId);
+        String accountNickname = publicAccountPO == null ? "未知公众号" : publicAccountPO.getNickname();
+        builder.append("公众号：").append(accountNickname).append(" 公众号fakeId：").append(fakeId).append("\n");
         List<WArticleItemPO> curDateArticleItemPOS = wArticleProvider.getCurDateArticles(fakeId);
         if (CollectionUtil.isEmpty(curDateArticleItemPOS)) {
             builder.append("当天尚未更新文章").append("\n");
         } else {
-            String formatCurDate = DateUtil.format(new Date(), new SimpleDateFormat("yyyy-MM-dd"));
-            builder.append("当天").append(formatCurDate).append("发布了").append(curDateArticleItemPOS.size()).append("篇文章").append("\n");
+            String formatCurDateStr = DateUtil.format(new Date(), new SimpleDateFormat("yyyy-MM-dd"));
+            builder.append("当天").append(formatCurDateStr).append("发布了").append(curDateArticleItemPOS.size()).append("篇文章").append("\n\n");
             collectArticleInfo(builder, curDateArticleItemPOS);
         }
-        log.debug("getFetchContent: content = {}", builder.toString());
+        log.debug("saveSummaryContentToFile: content = {}", builder.toString());
+
+        String formatCurDateStr = DateUtil.format(new Date(), new SimpleDateFormat("yyyy-MM-dd"));
+        String dir = fetchArticleDir + File.separator + formatCurDateStr + File.separator + accountNickname;
+        File summaryRecordFile = FileUtil.file(dir, "汇总记录.md");
+        FileUtil.writeString(builder.toString(), summaryRecordFile, "utf-8");
     }
 
     private void collectArticleInfo(StringBuilder builder, List<WArticleItemPO> articleItemPOS) {
@@ -163,7 +190,7 @@ public class WArticleProcessor implements PageProcessor {
             builder.append("标题：").append(articleItemPO.getTitle()).append("\n")
                     .append("文章链接：").append(articleItemPO.getLink()).append("\n")
                     .append("封面图片链接：").append(articleItemPO.getCover()).append("\n")
-                    .append("发布日期：").append(DateUtil.format(articleItemPO.getUpdateTime(), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"))).append("\n");
+                    .append("发布日期：").append(DateUtil.format(articleItemPO.getUpdateTime(), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"))).append("\n\n");
         }
     }
 

@@ -20,7 +20,6 @@ import us.codecraft.webmagic.Spider;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -69,24 +68,25 @@ public class WebMagicController {
         return "loadWArticleDetail success";
     }
 
+    // TODO: 5/21/23 spider添加delay，可以继承QueueScheduler在poll方法加上随机sleep，先观察看看。
     @GetMapping("/watchWArticles")
     public String watchWArticles() {
         log.debug("watchWArticles enter");
         Map<String, WPublicAccountPO> accountPOMap = wPublicAccountProvider.getNeedFetchAccountMap();
         Spider spider = Spider.create(wArticleProcessor);
-//        for (WPublicAccountPO accountPO : accountPOMap.values()) {
-//            String url = "https://mp.weixin.qq.com/cgi-bin/appmsg?action=list_ex&begin=0&count=5&fakeid=" + accountPO.getFakeId() + "&type=9&query=&token=" + wechatConfig.getToken() + "&lang=zh_CN&f=json&ajax=1";
-//            Request request = new Request(url);
-//            request.addHeader("cookie", wechatConfig.getCookie());
-//            request.addHeader("user-agent", wechatConfig.getUserAgent());
-//            spider.addRequest(request);
-//        }
-        WPublicAccountPO accountPO = wPublicAccountProvider.findByFakeId("MjM5NjM0MDEwNg==");
-        String url = "https://mp.weixin.qq.com/cgi-bin/appmsg?action=list_ex&begin=0&count=5&fakeid=" + accountPO.getFakeId() + "&type=9&query=&token=" + wechatConfig.getToken() + "&lang=zh_CN&f=json&ajax=1";
-        Request request = new Request(url);
-        request.addHeader("cookie", wechatConfig.getCookie());
-        request.addHeader("user-agent", wechatConfig.getUserAgent());
-        spider.addRequest(request);
+        for (WPublicAccountPO accountPO : accountPOMap.values()) {
+            String url = "https://mp.weixin.qq.com/cgi-bin/appmsg?action=list_ex&begin=0&count=5&fakeid=" + accountPO.getFakeId() + "&type=9&query=&token=" + wechatConfig.getToken() + "&lang=zh_CN&f=json&ajax=1";
+            Request request = new Request(url);
+            request.addHeader("cookie", wechatConfig.getCookie());
+            request.addHeader("user-agent", wechatConfig.getUserAgent());
+            spider.addRequest(request);
+        }
+//        WPublicAccountPO accountPO = wPublicAccountProvider.findByFakeId("MjM5NjM0MDEwNg==");
+//        String url = "https://mp.weixin.qq.com/cgi-bin/appmsg?action=list_ex&begin=0&count=5&fakeid=" + accountPO.getFakeId() + "&type=9&query=&token=" + wechatConfig.getToken() + "&lang=zh_CN&f=json&ajax=1";
+//        Request request = new Request(url);
+//        request.addHeader("cookie", wechatConfig.getCookie());
+//        request.addHeader("user-agent", wechatConfig.getUserAgent());
+//        spider.addRequest(request);
         spider.thread(5).start();
         return "watchWArticles success";
     }
