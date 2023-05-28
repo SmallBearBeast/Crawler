@@ -17,9 +17,7 @@
         <!-- 为生成的Java模型创建一个toString方法 -->
         <plugin type="org.mybatis.generator.plugins.ToStringPlugin"/>
         <!-- 为生成的Java模型创建一个equal，hashcode方法 -->
-<!--        <plugin type="org.mybatis.generator.plugins.EqualsHashCodePlugin">-->
-<!--            <property name="useEqualsHashCodeFromRoot" value="true"/>-->
-<!--        </plugin>-->
+        <plugin type="com.bear.crawler.webmagic.mybatis.plugin.MyEqualsHashCodePlugin"/>
         <!-- example支持limit和offset -->
         <plugin type="com.bear.crawler.webmagic.mybatis.plugin.MySQLLimitPlugin"/>
         <!--可以自定义生成model的代码注释-->
