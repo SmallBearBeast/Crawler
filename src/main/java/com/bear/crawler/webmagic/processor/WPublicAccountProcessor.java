@@ -50,7 +50,6 @@ public class WPublicAccountProcessor implements PageProcessor {
                     } else {
                         log.info("Load public account list successfully, begin = {}", begin);
                         saveAccountDtosToDB(accountDtos);
-                        OtherUtil.sleep(3);
                         if (begin + accountDtos.size() > ACCOUNT_LIMIT) {
                             log.info("Load public account list more than {}", ACCOUNT_LIMIT);
                         } else {
@@ -71,8 +70,8 @@ public class WPublicAccountProcessor implements PageProcessor {
                 .setCharset("utf-8")
                 .setTimeOut(10 * 1000)
                 .setRetryTimes(3)
-                .setSleepTime(RandomUtil.randomInt(3, 6))
-                .setRetrySleepTime(RandomUtil.randomInt(3, 6));
+                .setSleepTime(RandomUtil.randomInt(3, 6) * 1000)
+                .setRetrySleepTime(RandomUtil.randomInt(3, 6) * 1000);
     }
 
     private void saveAccountDtosToDB(List<WPublicAccountDto> accountDtos) {

@@ -1,5 +1,6 @@
 package com.bear.crawler.webmagic.processor;
 
+import cn.hutool.core.util.RandomUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -46,7 +47,8 @@ public class WArticleDetailProcessor implements PageProcessor {
                 .setCharset("utf-8")
                 .setTimeOut(10 * 1000)
                 .setRetryTimes(3)
-                .setRetrySleepTime(3000);
+                .setSleepTime(RandomUtil.randomInt(3, 6) * 1000)
+                .setRetrySleepTime(RandomUtil.randomInt(3, 6) * 1000);
     }
 
     private int webMagicOrderNumber = 1;

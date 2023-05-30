@@ -103,8 +103,8 @@ public class WArticleProcessor implements PageProcessor {
                 .setCharset("utf-8")
                 .setTimeOut(10 * 1000)
                 .setRetryTimes(3)
-                .setSleepTime(RandomUtil.randomInt(3, 6))
-                .setRetrySleepTime(RandomUtil.randomInt(3, 6));
+                .setSleepTime(RandomUtil.randomInt(3, 6) * 1000)
+                .setRetrySleepTime(RandomUtil.randomInt(3, 6) * 1000);
     }
 
     private void saveAccountDtosToDB(List<WArticleItemDto> articleItemDtos, String fakeId) {
@@ -140,7 +140,6 @@ public class WArticleProcessor implements PageProcessor {
     }
 
     // TODO: 5/21/23 格式markdown 
-    // TODO: 5/21/23 追加文件内容而不是直接覆盖
     private void saveFetchContentToFile(String fakeId) {
         StringBuilder builder = new StringBuilder();
         List<WArticleItemPO> fetchArticleItemPOS = fakeIdArticlesMap.get(fakeId);
