@@ -1,11 +1,20 @@
 package com.bear.crawler.webmagic.util;
 
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.net.url.UrlBuilder;
 import cn.hutool.core.net.url.UrlQuery;
+import com.bear.crawler.webmagic.mybatis.generator.po.WArticleItemPO;
+import com.bear.crawler.webmagic.mybatis.generator.po.WPublicAccountPO;
 import com.bear.crawler.webmagic.pojo.dto.CommonRespDto;
 import lombok.extern.slf4j.Slf4j;
 import us.codecraft.webmagic.Page;
 
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -62,5 +71,33 @@ public class OtherUtil {
         newUrlQuery.add(BEGIN, begin + 5);
         String nextUrl = UrlBuilder.of(url).setQuery(newUrlQuery).build();
         page.addTargetRequest(nextUrl);
+    }
+
+    public static void saveSummaryContentToFile(WPublicAccountPO publicAccountPO, List<WArticleItemPO> articleItemPOS, String fetchArticleDir) {
+        StringBuilder builder = new StringBuilder();
+        String accountNickname = publicAccountPO == null ? "未知公众号" : publicAccountPO.getNickname();
+        builder.append("公众号：").append(accountNickname).append(" 公众号fakeId：").append(publicAccountPO.getFakeId()).append("\n");
+        if (CollectionUtil.isEmpty(articleItemPOS)) {
+            builder.append("当天尚未更新文章").append("\n");
+        } else {
+            String formatCurDateStr = DateUtil.format(new Date(), new SimpleDateFormat("yyyy-MM-dd"));
+            builder.append("当天").append(formatCurDateStr).append("发布了").append(articleItemPOS.size()).append("篇文章").append("\n\n");
+            collectArticleInfo(builder, articleItemPOS);
+        }
+        log.debug("saveSummaryContentToFile: content = {}", builder.toString());
+
+        String formatCurDateStr = DateUtil.format(new Date(), new SimpleDateFormat("yyyy-MM-dd"));
+        String dir = fetchArticleDir + File.separator + formatCurDateStr + File.separator + accountNickname;
+        File summaryRecordFile = FileUtil.file(dir, "汇总记录.md");
+        FileUtil.writeString(builder.toString(), summaryRecordFile, "utf-8");
+    }
+
+    public static void collectArticleInfo(StringBuilder builder, List<WArticleItemPO> articleItemPOS) {
+        for (WArticleItemPO articleItemPO : articleItemPOS) {
+            builder.append("标题：").append(articleItemPO.getTitle()).append("\n")
+                    .append("文章链接：").append(articleItemPO.getLink()).append("\n")
+                    .append("封面图片链接：").append(articleItemPO.getCover()).append("\n")
+                    .append("发布日期：").append(DateUtil.format(articleItemPO.getUpdateTime(), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"))).append("\n\n");
+        }
     }
 }

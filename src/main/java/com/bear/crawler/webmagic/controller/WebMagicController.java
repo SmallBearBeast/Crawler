@@ -1,6 +1,7 @@
 package com.bear.crawler.webmagic.controller;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.http.HttpUtil;
 import com.bear.crawler.webmagic.dao.WArticleDao;
 import com.bear.crawler.webmagic.mybatis.generator.po.WPublicAccountPO;
 import com.bear.crawler.webmagic.pojo.WechatConfig;
@@ -9,9 +10,11 @@ import com.bear.crawler.webmagic.processor.WPublicAccountProcessor;
 import com.bear.crawler.webmagic.processor.WArticleDetailProcessor;
 import com.bear.crawler.webmagic.processor.WArticleProcessor;
 import com.bear.crawler.webmagic.provider.WPublicAccountProvider;
+import com.bear.crawler.webmagic.service.WechatService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,6 +23,7 @@ import us.codecraft.webmagic.Spider;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -47,6 +51,9 @@ public class WebMagicController {
 
     @Autowired
     private WArticleDao wArticleDao;
+
+    @Autowired
+    private WechatService wechatService;
 
     @GetMapping("/testWebMagic")
     public String testWebMagic() {
@@ -104,5 +111,46 @@ public class WebMagicController {
                 .thread(5)
                 .run();
         return "loadWPublicAccount success";
+    }
+
+    @PostMapping("/updatePublicAccountNeedToFetchByName")
+    public String updatePublicAccountNeedToFetchByName(@RequestParam("accountNames") List<String> accountNames, @RequestParam("needToFetch") boolean needToFetch) {
+        if (!CollectionUtil.isEmpty(accountNames)) {
+            wechatService.updateAccountNeedToFetchByName(accountNames, needToFetch);
+        }
+        return "updatePublicAccountNeedToFetchByName success";
+    }
+
+    @PostMapping("/updatePublicAccountNeedToFetchByFakeId")
+    public String updatePublicAccountNeedToFetchByFakeId(@RequestParam("fakeIds") List<String> fakeIds, @RequestParam("needToFetch") boolean needToFetch) {
+        if (!CollectionUtil.isEmpty(fakeIds)) {
+            wechatService.updateAccountNeedToFetchByFakeId(fakeIds, needToFetch);
+        }
+        return "updatePublicAccountNeedToFetchByFakeId success";
+    }
+
+    @PostMapping("/searchPublicAccountAndInsert")
+    public void searchPublicAccountAndInsert(@RequestParam("accountName") String accountName) {
+//        String encodeAccountName = URLEncoder.encode(accountName, StandardCharsets.UTF_8);
+//        String url = "https://mp.weixin.qq.com/cgi-bin/searchbiz?action=search_biz&begin=0&count=5&query=" + encodeAccountName + "&token=" + wechatConfig.getToken() + "&lang=zh_CN&f=json&ajax=1";
+//        HttpUtil.createGet().executeAsync()
+    }
+
+    @PostMapping("/updateWechatConfig")
+    public String updateWechatConfig(@RequestParam("token") String token, @RequestParam("cookie") String cookie) {
+        wechatService.updateWechatProperties(token, cookie);
+        return "updateWechatConfig success";
+    }
+
+    public String updateArticleNeedToPublish() {
+        return "";
+    }
+
+    public void loadTotalArticles() {
+
+    }
+
+    public void sendMessageToAllUser() {
+
     }
 }
