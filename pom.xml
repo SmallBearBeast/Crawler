@@ -122,9 +122,10 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
         </plugins>
-        <!--项目打包会将java目录中的*.xml文件进行打包-->
-        <!--不然生成在java文件夹上的mapper.xml文件在target目录下会丢失-->
+
         <resources>
+            <!--项目打包会将java目录中的*.xml文件进行打包-->
+            <!--不然生成在java文件夹上的mapper.xml文件在target目录下会丢失-->
             <resource>
                 <directory>src/main/java</directory>
                 <includes>
@@ -133,6 +134,10 @@
             </resource>
             <resource>
                 <directory>src/main/resources</directory>
+                <!-- 保证删除了target里面resource的配置文件重新编译可以编译回来 -->
+                <includes>
+                    <include>**/*.*</include>
+                </includes>
             </resource>
         </resources>
     </build>
