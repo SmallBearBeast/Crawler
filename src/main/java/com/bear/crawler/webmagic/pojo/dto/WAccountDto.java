@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonAlias;
 import lombok.Data;
 
 @Data
-public class WPublicAccountDto {
+public class WAccountDto {
     @JsonAlias("alias")
     private String alias;
 

@@ -1,9 +1,9 @@
 package com.bear.crawler.webmagic.util;
 
 import com.bear.crawler.webmagic.mybatis.generator.po.WArticleItemPO;
-import com.bear.crawler.webmagic.mybatis.generator.po.WPublicAccountPO;
+import com.bear.crawler.webmagic.mybatis.generator.po.WAccountPO;
 import com.bear.crawler.webmagic.pojo.dto.WArticleItemDto;
-import com.bear.crawler.webmagic.pojo.dto.WPublicAccountDto;
+import com.bear.crawler.webmagic.pojo.dto.WAccountDto;
 
 import java.util.Date;
 
@@ -21,8 +21,8 @@ public class TransformBeanUtil {
         return po;
     }
 
-    public static WPublicAccountPO dtoToPo(WPublicAccountDto dto) {
-        WPublicAccountPO po = new WPublicAccountPO();
+    public static WAccountPO dtoToPo(WAccountDto dto) {
+        WAccountPO po = new WAccountPO();
         po.setAlias(dto.getAlias());
         po.setFakeId(dto.getFakeId());
         po.setHeadImg(dto.getHeadImg());

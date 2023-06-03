@@ -6,12 +6,12 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.RandomUtil;
 import com.bear.crawler.webmagic.dao.WArticleDao;
 import com.bear.crawler.webmagic.mybatis.generator.po.WArticleItemPO;
-import com.bear.crawler.webmagic.mybatis.generator.po.WPublicAccountPO;
+import com.bear.crawler.webmagic.mybatis.generator.po.WAccountPO;
 import com.bear.crawler.webmagic.pojo.dto.CommonRespDto;
 import com.bear.crawler.webmagic.pojo.dto.WArticleItemDto;
 import com.bear.crawler.webmagic.pojo.dto.WArticleItemsRespDto;
 import com.bear.crawler.webmagic.provider.WArticleProvider;
-import com.bear.crawler.webmagic.provider.WPublicAccountProvider;
+import com.bear.crawler.webmagic.provider.WAccountProvider;
 import com.bear.crawler.webmagic.util.OtherUtil;
 import com.bear.crawler.webmagic.util.TransformBeanUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -46,7 +46,7 @@ public class WArticleProcessor implements PageProcessor {
     private WArticleDao wArticleDao;
 
     @Autowired
-    private WPublicAccountProvider wPublicAccountProvider;
+    private WAccountProvider wAccountProvider;
 
     @Autowired
     private WArticleProvider wArticleProvider;
@@ -108,12 +108,12 @@ public class WArticleProcessor implements PageProcessor {
     }
 
     private void saveAccountDtosToDB(List<WArticleItemDto> articleItemDtos, String fakeId) {
-        WPublicAccountPO publicAccountPO = wPublicAccountProvider.findByFakeId(fakeId);
+        WAccountPO accountPO = wAccountProvider.findByFakeId(fakeId);
         for (WArticleItemDto articleItemDto : articleItemDtos) {
             WArticleItemPO articleItemPO = TransformBeanUtil.dtoToPo(articleItemDto);
-            articleItemPO.setOfficialAccountId(publicAccountPO.getId());
-            articleItemPO.setOfficialAccountFakeId(publicAccountPO.getFakeId());
-            articleItemPO.setOfficialAccountTitle(publicAccountPO.getNickname());
+            articleItemPO.setOfficialAccountId(accountPO.getId());
+            articleItemPO.setOfficialAccountFakeId(accountPO.getFakeId());
+            articleItemPO.setOfficialAccountTitle(accountPO.getNickname());
             if (wArticleProvider.isInArticleDB(articleItemPO)) {
                 wArticleDao.updateByAid(articleItemPO);
             } else {
@@ -143,9 +143,9 @@ public class WArticleProcessor implements PageProcessor {
     private void saveFetchContentToFile(String fakeId) {
         StringBuilder builder = new StringBuilder();
         List<WArticleItemPO> fetchArticleItemPOS = fakeIdArticlesMap.get(fakeId);
-        WPublicAccountPO publicAccountPO = wPublicAccountProvider.findByFakeId(fakeId);
+        WAccountPO accountPO = wAccountProvider.findByFakeId(fakeId);
         builder.append("保存时间：").append(DateUtil.format(new Date(), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"))).append("\n");
-        String accountNickname = publicAccountPO == null ? "未知公众号" : publicAccountPO.getNickname();
+        String accountNickname = accountPO == null ? "未知公众号" : accountPO.getNickname();
         builder.append("公众号：").append(accountNickname).append(" 公众号fakeId：").append(fakeId).append("\n");
         if (CollectionUtil.isEmpty(fetchArticleItemPOS)) {
             builder.append("没有抓到最新的文章").append("\n");
@@ -165,8 +165,8 @@ public class WArticleProcessor implements PageProcessor {
 
     private void saveSummaryContentToFile(String fakeId) {
         StringBuilder builder = new StringBuilder();
-        WPublicAccountPO publicAccountPO = wPublicAccountProvider.findByFakeId(fakeId);
-        String accountNickname = publicAccountPO == null ? "未知公众号" : publicAccountPO.getNickname();
+        WAccountPO accountPO = wAccountProvider.findByFakeId(fakeId);
+        String accountNickname = accountPO == null ? "未知公众号" : accountPO.getNickname();
         builder.append("公众号：").append(accountNickname).append(" 公众号fakeId：").append(fakeId).append("\n");
         List<WArticleItemPO> curDateArticleItemPOS = wArticleProvider.getCurDateArticles(fakeId);
         curDateArticleItemPOS.sort((first, second) -> second.getUpdateTime().compareTo(first.getUpdateTime()));

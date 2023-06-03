@@ -6,7 +6,7 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.net.url.UrlBuilder;
 import cn.hutool.core.net.url.UrlQuery;
 import com.bear.crawler.webmagic.mybatis.generator.po.WArticleItemPO;
-import com.bear.crawler.webmagic.mybatis.generator.po.WPublicAccountPO;
+import com.bear.crawler.webmagic.mybatis.generator.po.WAccountPO;
 import com.bear.crawler.webmagic.pojo.dto.CommonRespDto;
 import lombok.extern.slf4j.Slf4j;
 import us.codecraft.webmagic.Page;
@@ -73,10 +73,10 @@ public class OtherUtil {
         page.addTargetRequest(nextUrl);
     }
 
-    public static void saveSummaryContentToFile(WPublicAccountPO publicAccountPO, List<WArticleItemPO> articleItemPOS, String fetchArticleDir) {
+    public static void saveSummaryContentToFile(WAccountPO accountPO, List<WArticleItemPO> articleItemPOS, String fetchArticleDir) {
         StringBuilder builder = new StringBuilder();
-        String accountNickname = publicAccountPO == null ? "未知公众号" : publicAccountPO.getNickname();
-        builder.append("公众号：").append(accountNickname).append(" 公众号fakeId：").append(publicAccountPO.getFakeId()).append("\n");
+        String accountNickname = accountPO == null ? "未知公众号" : accountPO.getNickname();
+        builder.append("公众号：").append(accountNickname).append(" 公众号fakeId：").append(accountPO.getFakeId()).append("\n");
         articleItemPOS.sort((first, second) -> second.getUpdateTime().compareTo(first.getUpdateTime()));
         if (CollectionUtil.isEmpty(articleItemPOS)) {
             builder.append("当天尚未更新文章").append("\n");

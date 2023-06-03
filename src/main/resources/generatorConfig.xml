@@ -78,11 +78,12 @@
             <generatedKey column="id" sqlStatement="MySql" identity="true"/>
             <!-- 需要加上括号，表示捕获组，替换用$开头获取命名组的内容
             正则方式适用于对于某一类表名，以一定规则命名开头的统一重命名-->
-            <domainObjectRenamingRule searchString="(\w+)" replaceString="$1PO" />
+            <domainObjectRenamingRule searchString="(\w+)" replaceString="$1PO"/>
         </table>
-        <table tableName="w_public_account" enableCountByExample="true"
-               enableUpdateByExample="true" enableDeleteByExample="true"
-               enableSelectByExample="true" selectByExampleQueryId="true">
+        <table tableName="w_public_account" domainObjectName="WAccountPO"
+               enableCountByExample="true" enableUpdateByExample="true"
+               enableDeleteByExample="true" enableSelectByExample="true"
+               selectByExampleQueryId="true">
             <!-- 是否使用实际列名
             true MyBatis Generator会使用数据库中实际的字段名字作为生成的实体类的属性名。
             false(默认值)。如果设置为false,则MyBatis Generator会将数据库中实际的字段名字转换为驼峰式风格作为生成的实体类的属性名。
@@ -90,7 +91,6 @@
             <property name="useActualColumnNames" value="false"/>
             <!-- 数据库表主键，必须配置在property标签的后面，否则解析失败，会报错-->
             <generatedKey column="id" sqlStatement="MySql" identity="true"/>
-            <domainObjectRenamingRule searchString="(\w+)" replaceString="$1PO" />
         </table>
     </context>
 </generatorConfiguration>

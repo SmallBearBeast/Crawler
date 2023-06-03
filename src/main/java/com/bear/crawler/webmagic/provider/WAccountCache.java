@@ -1,7 +1,7 @@
 package com.bear.crawler.webmagic.provider;
 
-import com.bear.crawler.webmagic.dao.WPublicAccountDao;
-import com.bear.crawler.webmagic.mybatis.generator.po.WPublicAccountPO;
+import com.bear.crawler.webmagic.dao.WAccountDao;
+import com.bear.crawler.webmagic.mybatis.generator.po.WAccountPO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
@@ -15,40 +15,40 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Component
-@CacheConfig(cacheNames = "WArticleCache")
-public class WPublicAccountCache {
+@CacheConfig(cacheNames = "WAccountCache")
+public class WAccountCache {
 
     @Autowired
-    private WPublicAccountDao wPublicAccountDao;
+    private WAccountDao wAccountDao;
 
     @Cacheable(key = "'allAccountsMap'")
-    public Map<String, WPublicAccountPO> getAllAccountMap() {
-        Map<String, WPublicAccountPO> map = new ConcurrentHashMap<>();
-        List<WPublicAccountPO> accountPOS = wPublicAccountDao.selectAll();
-        for (WPublicAccountPO accountPO : accountPOS) {
+    public Map<String, WAccountPO> getAllAccountMap() {
+        Map<String, WAccountPO> map = new ConcurrentHashMap<>();
+        List<WAccountPO> accountPOS = wAccountDao.selectAll();
+        for (WAccountPO accountPO : accountPOS) {
             map.put(accountPO.getFakeId(), accountPO);
         }
         return map;
     }
 
     @CachePut(key = "'allAccountsMap'")
-    public Map<String, WPublicAccountPO> updateAllAccountMap(WPublicAccountPO accountPO, Map<String, WPublicAccountPO> map) {
+    public Map<String, WAccountPO> updateAllAccountMap(WAccountPO accountPO, Map<String, WAccountPO> map) {
         map.put(accountPO.getFakeId(), accountPO);
         return map;
     }
 
     @Cacheable(key = "'needFetchAccountMap'")
-    public Map<String, WPublicAccountPO> getNeedFetchAccountMap() {
-        Map<String, WPublicAccountPO> map = new ConcurrentHashMap<>();
-        List<WPublicAccountPO> accountPOS = wPublicAccountDao.selectByNeedFetch();
-        for (WPublicAccountPO accountPO : accountPOS) {
+    public Map<String, WAccountPO> getNeedFetchAccountMap() {
+        Map<String, WAccountPO> map = new ConcurrentHashMap<>();
+        List<WAccountPO> accountPOS = wAccountDao.selectByNeedFetch();
+        for (WAccountPO accountPO : accountPOS) {
             map.put(accountPO.getFakeId(), accountPO);
         }
         return map;
     }
 
     @CachePut(key = "'needFetchAccountMap'")
-    public Map<String, WPublicAccountPO> updateAccountMapByNeedFetch(WPublicAccountPO accountPO, Map<String, WPublicAccountPO> map) {
+    public Map<String, WAccountPO> updateAccountMapByNeedFetch(WAccountPO accountPO, Map<String, WAccountPO> map) {
         if (accountPO.getNeedFetch()) {
             map.put(accountPO.getFakeId(), accountPO);
         } else {

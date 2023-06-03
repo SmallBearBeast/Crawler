@@ -2,15 +2,15 @@ package com.bear.crawler.webmagic.service;
 
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.map.MapUtil;
-import com.bear.crawler.webmagic.dao.WPublicAccountDao;
+import com.bear.crawler.webmagic.dao.WAccountDao;
 import com.bear.crawler.webmagic.basic.http.OkHttp;
 import com.bear.crawler.webmagic.mybatis.generator.po.WArticleItemPO;
-import com.bear.crawler.webmagic.mybatis.generator.po.WPublicAccountPO;
+import com.bear.crawler.webmagic.mybatis.generator.po.WAccountPO;
 import com.bear.crawler.webmagic.pojo.WechatConfig;
-import com.bear.crawler.webmagic.pojo.dto.WPublicAccountDto;
-import com.bear.crawler.webmagic.pojo.dto.WPublicAccountsRespDto;
+import com.bear.crawler.webmagic.pojo.dto.WAccountDto;
+import com.bear.crawler.webmagic.pojo.dto.WAccountsRespDto;
 import com.bear.crawler.webmagic.provider.WArticleProvider;
-import com.bear.crawler.webmagic.provider.WPublicAccountProvider;
+import com.bear.crawler.webmagic.provider.WAccountProvider;
 import com.bear.crawler.webmagic.util.OtherUtil;
 import com.bear.crawler.webmagic.util.TransformBeanUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -33,10 +33,10 @@ public class WechatService {
     private WechatConfig wechatConfig;
 
     @Autowired
-    private WPublicAccountDao wPublicAccountDao;
+    private WAccountDao wAccountDao;
 
     @Autowired
-    private WPublicAccountProvider wPublicAccountProvider;
+    private WAccountProvider wAccountProvider;
 
     @Autowired
     private WArticleProvider wArticleProvider;
@@ -44,58 +44,58 @@ public class WechatService {
     @Autowired
     private OkHttp okHttp;
 
-    public void updateAccountNeedToFetchByName(@NonNull List<String> accountNames, boolean needToFetch) {
-        log.debug("updateAccountNeedToFetchByName, accountNames = {}, needToFetch = {}", accountNames, needToFetch);
+    public void updateWAccountNeedToFetchByName(@NonNull List<String> accountNames, boolean needToFetch) {
+        log.debug("updateWAccountNeedToFetchByName, accountNames = {}, needToFetch = {}", accountNames, needToFetch);
         for (String accountName : accountNames) {
-            WPublicAccountPO accountPO = wPublicAccountProvider.findByNickname(accountName);
+            WAccountPO accountPO = wAccountProvider.findByNickname(accountName);
             if (accountPO != null && needToFetch != accountPO.getNeedFetch()) {
                 accountPO.setNeedFetch(needToFetch);
-                wPublicAccountDao.updateByFakeId(accountPO);
-                wPublicAccountProvider.updateNeedToFetchCache(accountPO);
+                wAccountDao.updateByFakeId(accountPO);
+                wAccountProvider.updateNeedToFetchCache(accountPO);
             }
         }
     }
 
-    public void updateAccountNeedToFetchByFakeId(@NonNull List<String> fakeIds, boolean needToFetch) {
-        log.debug("updateAccountNeedToFetchByFakeId, fakeIds = {}, needToFetch = {}", fakeIds, needToFetch);
+    public void updateWAccountNeedToFetchByFakeId(@NonNull List<String> fakeIds, boolean needToFetch) {
+        log.debug("updateWAccountNeedToFetchByFakeId, fakeIds = {}, needToFetch = {}", fakeIds, needToFetch);
         for (String fakeId : fakeIds) {
-            WPublicAccountPO accountPO = wPublicAccountProvider.findByFakeId(fakeId);
+            WAccountPO accountPO = wAccountProvider.findByFakeId(fakeId);
             if (accountPO != null && needToFetch != accountPO.getNeedFetch()) {
                 accountPO.setNeedFetch(needToFetch);
-                wPublicAccountDao.updateByFakeId(accountPO);
-                wPublicAccountProvider.updateNeedToFetchCache(accountPO);
+                wAccountDao.updateByFakeId(accountPO);
+                wAccountProvider.updateNeedToFetchCache(accountPO);
             }
         }
     }
 
     public void findAndInsertWAccount(String url, String accountName, boolean needToFetch) {
         log.debug("findAndInsertWAccount: accountName = {}, needToFetch = {}", accountName, needToFetch);
-        WPublicAccountPO existAccountPO = wPublicAccountProvider.findByNickname(accountName);
+        WAccountPO existAccountPO = wAccountProvider.findByNickname(accountName);
         if (existAccountPO != null) {
             log.debug("findAndInsertWAccount: exist accountPO, needToFetch = {}", existAccountPO.getNeedFetch());
             if (existAccountPO.getNeedFetch() != needToFetch) {
                 existAccountPO.setNeedFetch(needToFetch);
-                wPublicAccountDao.updateByFakeId(existAccountPO);
-                wPublicAccountProvider.updateNeedToFetchCache(existAccountPO);
+                wAccountDao.updateByFakeId(existAccountPO);
+                wAccountProvider.updateNeedToFetchCache(existAccountPO);
             }
         } else  {
             Map<String, String> headers = MapUtil.builder("Cookie", wechatConfig.getCookie())
                     .put("User-Agent", wechatConfig.getUserAgent()).build();
-            WPublicAccountsRespDto accountsRespDto = okHttp.get(url, null, headers, WPublicAccountsRespDto.class);
+            WAccountsRespDto accountsRespDto = okHttp.get(url, null, headers, WAccountsRespDto.class);
             if (OtherUtil.checkCommonRespDto(accountsRespDto.getCommonRespDto(), "WechatService.searchAccountAndInsert()")) {
-                List<WPublicAccountDto> accountDtos = accountsRespDto.getPublicAccountDtos();
-                for (WPublicAccountDto accountDto : accountDtos) {
+                List<WAccountDto> accountDtos = accountsRespDto.getAccountDtos();
+                for (WAccountDto accountDto : accountDtos) {
                     if (accountName.equals(accountDto.getNickname())) {
-                        WPublicAccountPO accountPO = TransformBeanUtil.dtoToPo(accountDto);
+                        WAccountPO accountPO = TransformBeanUtil.dtoToPo(accountDto);
                         accountPO.setNeedFetch(needToFetch);
                         log.debug("findAndInsertWAccount: insert or update accountPO, id = {}", accountPO.getId());
-                        if (wPublicAccountProvider.isInAccountDB(accountPO)) {
-                            wPublicAccountDao.updateByFakeId(accountPO);
+                        if (wAccountProvider.isInAccountDB(accountPO)) {
+                            wAccountDao.updateByFakeId(accountPO);
                         } else {
-                            wPublicAccountDao.insert(accountPO);
+                            wAccountDao.insert(accountPO);
                         }
-                        wPublicAccountProvider.updateCache(accountPO);
-                        wPublicAccountProvider.updateNeedToFetchCache(accountPO);
+                        wAccountProvider.updateCache(accountPO);
+                        wAccountProvider.updateNeedToFetchCache(accountPO);
                         return;
                     }
                 }
@@ -138,8 +138,8 @@ public class WechatService {
     public void loadTodayArticles() {
         log.debug("loadTodayArticles");
         StringBuilder builder = new StringBuilder();
-        List<WPublicAccountPO> accountPOS = wPublicAccountProvider.getNeedFetchAccounts();
-        for (WPublicAccountPO accountPO : accountPOS) {
+        List<WAccountPO> accountPOS = wAccountProvider.getNeedFetchAccounts();
+        for (WAccountPO accountPO : accountPOS) {
             List<WArticleItemPO> articlePOS = wArticleProvider.getCurDateArticles(accountPO.getFakeId());
         }
     }

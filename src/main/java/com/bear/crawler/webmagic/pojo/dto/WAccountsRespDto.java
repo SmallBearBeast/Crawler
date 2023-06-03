@@ -8,9 +8,9 @@ import java.util.List;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class WPublicAccountsRespDto {
+public class WAccountsRespDto {
     @JsonAlias("list")
-    private List<WPublicAccountDto> publicAccountDtos;
+    private List<WAccountDto> accountDtos;
 
     @JsonAlias("base_resp")
     private CommonRespDto commonRespDto;

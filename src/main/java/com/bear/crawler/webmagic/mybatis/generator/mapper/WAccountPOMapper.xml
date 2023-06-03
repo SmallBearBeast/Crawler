@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.bear.crawler.webmagic.mybatis.generator.mapper.WPublicAccountPOMapper">
-  <resultMap id="BaseResultMap" type="com.bear.crawler.webmagic.mybatis.generator.po.WPublicAccountPO">
+<mapper namespace="com.bear.crawler.webmagic.mybatis.generator.mapper.WAccountPOMapper">
+  <resultMap id="BaseResultMap" type="com.bear.crawler.webmagic.mybatis.generator.po.WAccountPO">
     <id column="id" jdbcType="INTEGER" property="id" />
     <result column="alias" jdbcType="VARCHAR" property="alias" />
     <result column="fake_id" jdbcType="VARCHAR" property="fakeId" />
@@ -71,7 +71,7 @@
   <sql id="Base_Column_List">
     id, alias, fake_id, nickname, head_img, signature, need_fetch
   </sql>
-  <select id="selectByExample" parameterType="com.bear.crawler.webmagic.mybatis.generator.po.WPublicAccountPOExample" resultMap="BaseResultMap">
+  <select id="selectByExample" parameterType="com.bear.crawler.webmagic.mybatis.generator.po.WAccountPOExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
       distinct
@@ -104,13 +104,13 @@
     delete from w_public_account
     where id = #{id,jdbcType=INTEGER}
   </delete>
-  <delete id="deleteByExample" parameterType="com.bear.crawler.webmagic.mybatis.generator.po.WPublicAccountPOExample">
+  <delete id="deleteByExample" parameterType="com.bear.crawler.webmagic.mybatis.generator.po.WAccountPOExample">
     delete from w_public_account
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="com.bear.crawler.webmagic.mybatis.generator.po.WPublicAccountPO">
+  <insert id="insert" parameterType="com.bear.crawler.webmagic.mybatis.generator.po.WAccountPO">
     <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
       SELECT LAST_INSERT_ID()
     </selectKey>
@@ -121,7 +121,7 @@
       #{headImg,jdbcType=VARCHAR}, #{signature,jdbcType=VARCHAR}, #{needFetch,jdbcType=BIT}
       )
   </insert>
-  <insert id="insertSelective" parameterType="com.bear.crawler.webmagic.mybatis.generator.po.WPublicAccountPO">
+  <insert id="insertSelective" parameterType="com.bear.crawler.webmagic.mybatis.generator.po.WAccountPO">
     <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
       SELECT LAST_INSERT_ID()
     </selectKey>
@@ -167,7 +167,7 @@
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="com.bear.crawler.webmagic.mybatis.generator.po.WPublicAccountPOExample" resultType="java.lang.Long">
+  <select id="countByExample" parameterType="com.bear.crawler.webmagic.mybatis.generator.po.WAccountPOExample" resultType="java.lang.Long">
     select count(*) from w_public_account
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
@@ -215,7 +215,7 @@
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="com.bear.crawler.webmagic.mybatis.generator.po.WPublicAccountPO">
+  <update id="updateByPrimaryKeySelective" parameterType="com.bear.crawler.webmagic.mybatis.generator.po.WAccountPO">
     update w_public_account
     <set>
       <if test="alias != null">
@@ -239,7 +239,7 @@
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.bear.crawler.webmagic.mybatis.generator.po.WPublicAccountPO">
+  <update id="updateByPrimaryKey" parameterType="com.bear.crawler.webmagic.mybatis.generator.po.WAccountPO">
     update w_public_account
     set alias = #{alias,jdbcType=VARCHAR},
       fake_id = #{fakeId,jdbcType=VARCHAR},

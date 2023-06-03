@@ -3,7 +3,7 @@ package com.bear.crawler.webmagic.mybatis.generator.po;
 import java.util.ArrayList;
 import java.util.List;
 
-public class WPublicAccountPOExample {
+public class WAccountPOExample {
     protected String orderByClause;
 
     protected boolean distinct;
@@ -14,7 +14,7 @@ public class WPublicAccountPOExample {
 
     private Integer offset;
 
-    public WPublicAccountPOExample() {
+    public WAccountPOExample() {
         oredCriteria = new ArrayList<>();
     }
 

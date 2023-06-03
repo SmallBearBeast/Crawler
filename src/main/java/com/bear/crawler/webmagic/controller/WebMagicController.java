@@ -2,13 +2,13 @@ package com.bear.crawler.webmagic.controller;
 
 import cn.hutool.core.collection.CollectionUtil;
 import com.bear.crawler.webmagic.dao.WArticleDao;
-import com.bear.crawler.webmagic.mybatis.generator.po.WPublicAccountPO;
+import com.bear.crawler.webmagic.mybatis.generator.po.WAccountPO;
 import com.bear.crawler.webmagic.pojo.WechatConfig;
 import com.bear.crawler.webmagic.processor.WebMagicTestProcessor;
-import com.bear.crawler.webmagic.processor.WPublicAccountProcessor;
+import com.bear.crawler.webmagic.processor.WAccountProcessor;
 import com.bear.crawler.webmagic.processor.WArticleDetailProcessor;
 import com.bear.crawler.webmagic.processor.WArticleProcessor;
-import com.bear.crawler.webmagic.provider.WPublicAccountProvider;
+import com.bear.crawler.webmagic.provider.WAccountProvider;
 import com.bear.crawler.webmagic.service.WechatService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,10 +43,10 @@ public class WebMagicController {
     private WArticleProcessor wArticleProcessor;
 
     @Autowired
-    private WPublicAccountProcessor wPublicAccountProcessor;
+    private WAccountProcessor wAccountProcessor;
 
     @Autowired
-    private WPublicAccountProvider wPublicAccountProvider;
+    private WAccountProvider wAccountProvider;
 
     @Autowired
     private WArticleDao wArticleDao;
@@ -78,16 +78,16 @@ public class WebMagicController {
     @GetMapping("/watchWArticles")
     public String watchWArticles() {
         log.debug("watchWArticles enter");
-        Map<String, WPublicAccountPO> accountPOMap = wPublicAccountProvider.getNeedFetchAccountMap();
+        Map<String, WAccountPO> accountPOMap = wAccountProvider.getNeedFetchAccountMap();
         Spider spider = Spider.create(wArticleProcessor);
-        for (WPublicAccountPO accountPO : accountPOMap.values()) {
+        for (WAccountPO accountPO : accountPOMap.values()) {
             String url = "https://mp.weixin.qq.com/cgi-bin/appmsg?action=list_ex&begin=0&count=5&fakeid=" + accountPO.getFakeId() + "&type=9&query=&token=" + wechatConfig.getToken() + "&lang=zh_CN&f=json&ajax=1";
             Request request = new Request(url);
             request.addHeader("cookie", wechatConfig.getCookie());
             request.addHeader("user-agent", wechatConfig.getUserAgent());
             spider.addRequest(request);
         }
-//        WPublicAccountPO accountPO = wPublicAccountProvider.findByFakeId("MjM5NjM0MDEwNg==");
+//        WAccountPO accountPO = wAccountProvider.findByFakeId("MjM5NjM0MDEwNg==");
 //        String url = "https://mp.weixin.qq.com/cgi-bin/appmsg?action=list_ex&begin=0&count=5&fakeid=" + accountPO.getFakeId() + "&type=9&query=&token=" + wechatConfig.getToken() + "&lang=zh_CN&f=json&ajax=1";
 //        Request request = new Request(url);
 //        request.addHeader("cookie", wechatConfig.getCookie());
@@ -97,35 +97,35 @@ public class WebMagicController {
         return "watchWArticles success";
     }
 
-    @GetMapping("/loadWPublicAccount")
-    public String loadWPublicAccount(@RequestParam("query") String query) {
-        log.debug("loadWPublicAccount : query = {}", query);
+    @GetMapping("/loadWAccount")
+    public String loadWAccount(@RequestParam("query") String query) {
+        log.debug("loadWAccount : query = {}", query);
         String encodeQuery = URLEncoder.encode(query, StandardCharsets.UTF_8);
         String url = "https://mp.weixin.qq.com/cgi-bin/searchbiz?action=search_biz&begin=0&count=5&query=" + encodeQuery + "&token=" + wechatConfig.getToken() + "&lang=zh_CN&f=json&ajax=1";
         Request request = new Request(url);
         request.addHeader("cookie", wechatConfig.getCookie());
         request.addHeader("user-agent", wechatConfig.getUserAgent());
-        Spider.create(wPublicAccountProcessor)
+        Spider.create(wAccountProcessor)
                 .addRequest(request)
                 .thread(5)
                 .run();
-        return "loadWPublicAccount success";
+        return "loadWAccount success";
     }
 
-    @PostMapping("/updatePublicAccountNeedToFetchByName")
-    public String updatePublicAccountNeedToFetchByName(@RequestParam("accountNames") List<String> accountNames, @RequestParam("needToFetch") boolean needToFetch) {
+    @PostMapping("/updateWAccountNeedToFetchByName")
+    public String updateWAccountNeedToFetchByName(@RequestParam("accountNames") List<String> accountNames, @RequestParam("needToFetch") boolean needToFetch) {
         if (!CollectionUtil.isEmpty(accountNames)) {
-            wechatService.updateAccountNeedToFetchByName(accountNames, needToFetch);
+            wechatService.updateWAccountNeedToFetchByName(accountNames, needToFetch);
         }
-        return "updatePublicAccountNeedToFetchByName success";
+        return "updateWAccountNeedToFetchByName success";
     }
 
-    @PostMapping("/updatePublicAccountNeedToFetchByFakeId")
-    public String updatePublicAccountNeedToFetchByFakeId(@RequestParam("fakeIds") List<String> fakeIds, @RequestParam("needToFetch") boolean needToFetch) {
+    @PostMapping("/updateWAccountNeedToFetchByFakeId")
+    public String updateWAccountNeedToFetchByFakeId(@RequestParam("fakeIds") List<String> fakeIds, @RequestParam("needToFetch") boolean needToFetch) {
         if (!CollectionUtil.isEmpty(fakeIds)) {
-            wechatService.updateAccountNeedToFetchByFakeId(fakeIds, needToFetch);
+            wechatService.updateWAccountNeedToFetchByFakeId(fakeIds, needToFetch);
         }
-        return "updatePublicAccountNeedToFetchByFakeId success";
+        return "updateWAccountNeedToFetchByFakeId success";
     }
 
     @PostMapping("/findAndInsertWAccount")

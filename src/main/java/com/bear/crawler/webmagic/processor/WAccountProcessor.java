@@ -1,12 +1,12 @@
 package com.bear.crawler.webmagic.processor;
 
 import cn.hutool.core.util.RandomUtil;
-import com.bear.crawler.webmagic.dao.WPublicAccountDao;
-import com.bear.crawler.webmagic.mybatis.generator.po.WPublicAccountPO;
+import com.bear.crawler.webmagic.dao.WAccountDao;
+import com.bear.crawler.webmagic.mybatis.generator.po.WAccountPO;
 import com.bear.crawler.webmagic.pojo.dto.CommonRespDto;
-import com.bear.crawler.webmagic.pojo.dto.WPublicAccountDto;
-import com.bear.crawler.webmagic.pojo.dto.WPublicAccountsRespDto;
-import com.bear.crawler.webmagic.provider.WPublicAccountProvider;
+import com.bear.crawler.webmagic.pojo.dto.WAccountDto;
+import com.bear.crawler.webmagic.pojo.dto.WAccountsRespDto;
+import com.bear.crawler.webmagic.provider.WAccountProvider;
 import com.bear.crawler.webmagic.util.OtherUtil;
 import com.bear.crawler.webmagic.util.TransformBeanUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -21,7 +21,7 @@ import java.util.List;
 
 @Slf4j
 @Component
-public class WPublicAccountProcessor implements PageProcessor {
+public class WAccountProcessor implements PageProcessor {
 
     private static final int ACCOUNT_LIMIT = 100;
 
@@ -29,19 +29,19 @@ public class WPublicAccountProcessor implements PageProcessor {
     private ObjectMapper objectMapper;
 
     @Autowired
-    private WPublicAccountDao wPublicAccountDao;
+    private WAccountDao wAccountDao;
 
     @Autowired
-    private WPublicAccountProvider wPublicAccountProvider;
+    private WAccountProvider wAccountProvider;
 
     @Override
     public void process(Page page) {
         try {
-            WPublicAccountsRespDto accountsRespDto = objectMapper.readValue(page.getRawText(), WPublicAccountsRespDto.class);
+            WAccountsRespDto accountsRespDto = objectMapper.readValue(page.getRawText(), WAccountsRespDto.class);
             CommonRespDto commonRespDto = accountsRespDto.getCommonRespDto();
-            if (OtherUtil.checkCommonRespDto(commonRespDto, "WPublicAccountProcessor.process()")) {
+            if (OtherUtil.checkCommonRespDto(commonRespDto, "WAccountProcessor.process()")) {
                 int begin = getBegin(page);
-                List<WPublicAccountDto> accountDtos = accountsRespDto.getPublicAccountDtos();
+                List<WAccountDto> accountDtos = accountsRespDto.getAccountDtos();
                 if (accountDtos == null) {
                     log.info("accountDtos is null");
                 } else {
@@ -74,15 +74,15 @@ public class WPublicAccountProcessor implements PageProcessor {
                 .setRetrySleepTime(RandomUtil.randomInt(3, 6) * 1000);
     }
 
-    private void saveAccountDtosToDB(List<WPublicAccountDto> accountDtos) {
-        for (WPublicAccountDto accountDto : accountDtos) {
-            WPublicAccountPO accountPO = TransformBeanUtil.dtoToPo(accountDto);
-            if (!wPublicAccountProvider.isInAccountDB(accountPO)) {
-                wPublicAccountDao.insert(accountPO);
+    private void saveAccountDtosToDB(List<WAccountDto> accountDtos) {
+        for (WAccountDto accountDto : accountDtos) {
+            WAccountPO accountPO = TransformBeanUtil.dtoToPo(accountDto);
+            if (!wAccountProvider.isInAccountDB(accountPO)) {
+                wAccountDao.insert(accountPO);
             } else {
-                wPublicAccountDao.updateByFakeId(accountPO);
+                wAccountDao.updateByFakeId(accountPO);
             }
-            wPublicAccountProvider.updateCache(accountPO);
+            wAccountProvider.updateCache(accountPO);
         }
     }
 

@@ -3,7 +3,7 @@ package com.bear.crawler.webmagic.mybatis.generator.po;
 import io.swagger.annotations.ApiModelProperty;
 import java.io.Serializable;
 
-public class WPublicAccountPO implements Serializable {
+public class WAccountPO implements Serializable {
     @ApiModelProperty(value = "自定义公众号id，唯一标识，主键")
     private Integer id;
 
@@ -112,7 +112,7 @@ public class WPublicAccountPO implements Serializable {
         if (getClass() != that.getClass()) {
             return false;
         }
-        WPublicAccountPO other = (WPublicAccountPO) that;
+        WAccountPO other = (WAccountPO) that;
         return (this.getId() == null ? other.getId() == null : this.getId().equals(other.getId()));
     }
 
