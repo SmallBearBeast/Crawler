@@ -92,7 +92,7 @@ public class WArticleProcessor implements PageProcessor {
                 }
             }
         } catch (Exception e) {
-            log.error("process fail, e = {}", e.getMessage());
+            log.error("process fail, fakeId = {}, e = {}", e.getMessage(), getFakeId(page));
         }
     }
 
@@ -169,6 +169,7 @@ public class WArticleProcessor implements PageProcessor {
         String accountNickname = publicAccountPO == null ? "未知公众号" : publicAccountPO.getNickname();
         builder.append("公众号：").append(accountNickname).append(" 公众号fakeId：").append(fakeId).append("\n");
         List<WArticleItemPO> curDateArticleItemPOS = wArticleProvider.getCurDateArticles(fakeId);
+        curDateArticleItemPOS.sort((first, second) -> second.getUpdateTime().compareTo(first.getUpdateTime()));
         if (CollectionUtil.isEmpty(curDateArticleItemPOS)) {
             builder.append("当天尚未更新文章").append("\n");
         } else {

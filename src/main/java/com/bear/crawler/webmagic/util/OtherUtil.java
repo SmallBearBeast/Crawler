@@ -77,6 +77,7 @@ public class OtherUtil {
         StringBuilder builder = new StringBuilder();
         String accountNickname = publicAccountPO == null ? "未知公众号" : publicAccountPO.getNickname();
         builder.append("公众号：").append(accountNickname).append(" 公众号fakeId：").append(publicAccountPO.getFakeId()).append("\n");
+        articleItemPOS.sort((first, second) -> second.getUpdateTime().compareTo(first.getUpdateTime()));
         if (CollectionUtil.isEmpty(articleItemPOS)) {
             builder.append("当天尚未更新文章").append("\n");
         } else {

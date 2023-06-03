@@ -14,7 +14,7 @@ public class WArticleItemDto {
     private String albumId;
 
     @JsonAlias("appmsg_album_infos")
-    private List<String> appmsgAlbumInfos;
+    private List<AlbumInfoDto> albumInfoDtos;
 
     @JsonAlias("appmsgid")
     private long appmsgid;
