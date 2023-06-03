@@ -8,7 +8,6 @@ import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -30,8 +29,7 @@ public class WPublicAccountProvider {
     }
 
     public boolean isInAccountDB(WPublicAccountPO accountPO) {
-        Map<String, WPublicAccountPO> map = wPublicAccountCache.getAllAccountMap();
-        return map.containsKey(accountPO.getFakeId());
+        return findByFakeId(accountPO.getFakeId()) != null;
     }
 
     public @Nullable WPublicAccountPO findByFakeId(String fakeId) {

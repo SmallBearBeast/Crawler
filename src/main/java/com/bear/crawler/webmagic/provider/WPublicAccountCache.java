@@ -49,7 +49,11 @@ public class WPublicAccountCache {
 
     @CachePut(key = "'needFetchAccountMap'")
     public Map<String, WPublicAccountPO> updateAccountMapByNeedFetch(WPublicAccountPO accountPO, Map<String, WPublicAccountPO> map) {
-        map.put(accountPO.getFakeId(), accountPO);
+        if (accountPO.getNeedFetch()) {
+            map.put(accountPO.getFakeId(), accountPO);
+        } else {
+            map.remove(accountPO.getFakeId());
+        }
         return map;
     }
 }

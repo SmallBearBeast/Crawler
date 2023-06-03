@@ -1,7 +1,6 @@
 package com.bear.crawler.webmagic.controller;
 
 import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.http.HttpUtil;
 import com.bear.crawler.webmagic.dao.WArticleDao;
 import com.bear.crawler.webmagic.mybatis.generator.po.WPublicAccountPO;
 import com.bear.crawler.webmagic.pojo.WechatConfig;
@@ -129,11 +128,16 @@ public class WebMagicController {
         return "updatePublicAccountNeedToFetchByFakeId success";
     }
 
-    @PostMapping("/searchPublicAccountAndInsert")
-    public void searchPublicAccountAndInsert(@RequestParam("accountName") String accountName) {
-//        String encodeAccountName = URLEncoder.encode(accountName, StandardCharsets.UTF_8);
-//        String url = "https://mp.weixin.qq.com/cgi-bin/searchbiz?action=search_biz&begin=0&count=5&query=" + encodeAccountName + "&token=" + wechatConfig.getToken() + "&lang=zh_CN&f=json&ajax=1";
-//        HttpUtil.createGet().executeAsync()
+    @PostMapping("/findAndInsertWAccount")
+    public String findAndInsertWAccount(
+            @RequestParam("accountName") String accountName,
+            @RequestParam(name = "needToFetch", required = false, defaultValue = "false") boolean needToFetch) {
+        String encodeAccountName = URLEncoder.encode(accountName, StandardCharsets.UTF_8);
+        String url = "https://mp.weixin.qq.com/cgi-bin/searchbiz?action=search_biz&begin=0&count=5&query=" + encodeAccountName + "&token=" + wechatConfig.getToken() + "&lang=zh_CN&f=json&ajax=1";
+        // get请求没有添加header的方法
+        // 使用RestTemplate拿不到list数据，为空，因此使用okhttp。
+        wechatService.findAndInsertWAccount(url, accountName, needToFetch);
+        return null;
     }
 
     @PostMapping("/updateWechatConfig")

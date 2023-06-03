@@ -8,7 +8,10 @@ import java.util.List;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class WPublicAccountsRespDto extends BaseRespDto {
+public class WPublicAccountsRespDto {
     @JsonAlias("list")
     private List<WPublicAccountDto> publicAccountDtos;
+
+    @JsonAlias("base_resp")
+    private CommonRespDto commonRespDto;
 }
