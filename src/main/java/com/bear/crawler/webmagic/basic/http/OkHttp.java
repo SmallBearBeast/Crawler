@@ -32,6 +32,7 @@ public class OkHttp {
     }
 
     public <T> T get(String url, Map<String, String> params, Map<String, String> headers, Class<T> clz) {
+        Request.Builder builder = new Request.Builder();
         StringBuilder sb = new StringBuilder(url);
         if (params != null && params.keySet().size() > 0) {
             boolean firstFlag = true;
@@ -44,7 +45,6 @@ public class OkHttp {
                 }
             }
         }
-        Request.Builder builder = new Request.Builder();
         if (headers != null && headers.size() > 0) {
             for (String key : headers.keySet()) {
                 builder.addHeader(key, headers.get(key));
@@ -60,19 +60,19 @@ public class OkHttp {
     }
 
     public <T> T post(String url, Map<String, String> params, Map<String, String> headers, Class<T> clz) {
+        Request.Builder builder = new Request.Builder();
         FormBody.Builder bodyBuilder = new FormBody.Builder();
         if (params != null && params.keySet().size() > 0) {
             for (String key : params.keySet()) {
                 bodyBuilder.add(key, params.get(key));
             }
         }
-        Request.Builder builder = new Request.Builder();
         if (headers != null && headers.size() > 0) {
             for (String key : headers.keySet()) {
                 builder.addHeader(key, headers.get(key));
             }
         }
-        Request request = new Request.Builder().url(url).post(bodyBuilder.build()).build();
+        Request request = builder.url(url).post(bodyBuilder.build()).build();
         log.info("post: url = {}", url);
         return execute(request, clz);
     }

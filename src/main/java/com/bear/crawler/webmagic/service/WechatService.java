@@ -3,13 +3,16 @@ package com.bear.crawler.webmagic.service;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.util.RandomUtil;
 import com.bear.crawler.webmagic.dao.WAccountDao;
 import com.bear.crawler.webmagic.basic.http.OkHttp;
 import com.bear.crawler.webmagic.dao.WUserInfoDao;
 import com.bear.crawler.webmagic.mybatis.generator.po.WAccountPO;
 import com.bear.crawler.webmagic.mybatis.generator.po.WUserInfoPO;
 import com.bear.crawler.webmagic.pojo.WechatConfig;
+import com.bear.crawler.webmagic.pojo.dto.BaseRespDto;
 import com.bear.crawler.webmagic.pojo.dto.ConversationsRespDto;
+import com.bear.crawler.webmagic.pojo.dto.SendMsgRespDto;
 import com.bear.crawler.webmagic.pojo.dto.WUserInfoDto;
 import com.bear.crawler.webmagic.pojo.dto.UserInfosRespDto;
 import com.bear.crawler.webmagic.pojo.dto.WAccountDto;
@@ -227,20 +230,29 @@ public class WechatService {
     }
 
     public void sendMessageToAllUser() {
+        log.debug("sendMessageToAllUser: enter");
         String url = "https://mp.weixin.qq.com/cgi-bin/singlesend?t=ajax-response&f=json";
         String referer = "https://mp.weixin.qq.com/cgi-bin/message?t=message/list&count=20&day=7&token=" + wechatConfig.getToken() + "&lang=zh_CN";
         Map<String, String> headerMap = MapUtil.of("referer", referer);
-        Map<String, String> paramMap = MapUtil.builder("tofakeid", "")
-                .put("quickreplyid", "")
-                .put("imgcode", "")
-                .put("type", "1")
-                .put("content", "Yes")
-                .put("token", wechatConfig.getToken())
-                .put("lang", "zh_CN")
-                .put("f", "json")
-                .put("ajax", "1")
-                .build();
-        okHttp.post(url, paramMap, headerMap, String.class);
+        List<WUserInfoPO> userInfoPOS = wUserInfoProvider.getRecentUserInfos();
+        for (WUserInfoPO userInfoPO : userInfoPOS) {
+            Map<String, String> paramMap = MapUtil.builder("tofakeid", userInfoPO.getOpenid())
+                    .put("quickreplyid", "")
+                    .put("imgcode", "")
+                    .put("type", "10")
+                    .put("appmsgid", "2247483856")
+                    .put("token", wechatConfig.getToken())
+                    .put("lang", "zh_CN")
+                    .put("f", "json")
+                    .put("ajax", "1")
+                    .build();
+            SendMsgRespDto respDto = okHttp.post(url, paramMap, headerMap, SendMsgRespDto.class);
+            if (OtherUtil.checkCommonRespDto(respDto.getCommonRespDto(), "WechatService.sendMessageToAllUser()")) {
+                log.info("sendMessageToAllUser: send message to {} success", userInfoPO.getName());
+            } else {
+                log.info("sendMessageToAllUser: send message to {} fail", userInfoPO.getName());
+            }
+        }
     }
 
     public void syncUserInfos() {
@@ -264,7 +276,9 @@ public class WechatService {
             } else {
                 wUserInfoDao.insert(userInfoPO);
             }
+            wUserInfoProvider.updateCache(userInfoPO);
         }
+        OtherUtil.sleep(RandomUtil.randomInt(3, 6));
         syncUserInfosInternal(offset + userInfoDtos.size());
     }
 }
