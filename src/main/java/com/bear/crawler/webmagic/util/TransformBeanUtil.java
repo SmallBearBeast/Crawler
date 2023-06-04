@@ -2,6 +2,8 @@ package com.bear.crawler.webmagic.util;
 
 import com.bear.crawler.webmagic.mybatis.generator.po.WArticleItemPO;
 import com.bear.crawler.webmagic.mybatis.generator.po.WAccountPO;
+import com.bear.crawler.webmagic.mybatis.generator.po.WUserInfoPO;
+import com.bear.crawler.webmagic.pojo.dto.WUserInfoDto;
 import com.bear.crawler.webmagic.pojo.dto.WArticleItemDto;
 import com.bear.crawler.webmagic.pojo.dto.WAccountDto;
 
@@ -28,6 +30,17 @@ public class TransformBeanUtil {
         po.setHeadImg(dto.getHeadImg());
         po.setNickname(dto.getNickname());
         po.setSignature(dto.getSignature());
+        return po;
+    }
+
+    public static WUserInfoPO dtoToPo(WUserInfoDto dto) {
+        WUserInfoPO po = new WUserInfoPO();
+        po.setOpenid(dto.getUserOpenid());
+        po.setName(dto.getUserName());
+        po.setRemark(dto.getUserRemark());
+        po.setGroupId(dto.getUserGroupIds().toString());
+        po.setCreateTime(new Date(dto.getUserCreateTime() * 1000L));
+        po.setHeadImg(dto.getUserHeadImg());
         return po;
     }
 }

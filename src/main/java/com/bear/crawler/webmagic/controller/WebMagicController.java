@@ -70,7 +70,19 @@ public class WebMagicController {
         return "updateWechatConfig success";
     }
 
-    public void sendMessageToAllUser() {
+    @GetMapping("/syncRecentConversions")
+    public void syncRecentConversions() {
+        wechatService.syncRecentConversions();
+    }
 
+    @PostMapping("/syncUserInfos")
+    public String syncUserInfos() {
+        wechatService.syncUserInfos();
+        return "syncUserInfos success";
+    }
+
+    @PostMapping("/sendMessageToAllUser")
+    public void sendMessageToAllUser() {
+        wechatService.sendMessageToAllUser();
     }
 }

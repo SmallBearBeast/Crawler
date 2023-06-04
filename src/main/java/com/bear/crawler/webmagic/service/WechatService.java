@@ -5,16 +5,20 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.map.MapUtil;
 import com.bear.crawler.webmagic.dao.WAccountDao;
 import com.bear.crawler.webmagic.basic.http.OkHttp;
-import com.bear.crawler.webmagic.mybatis.generator.po.WArticleItemPO;
+import com.bear.crawler.webmagic.dao.WUserInfoDao;
 import com.bear.crawler.webmagic.mybatis.generator.po.WAccountPO;
+import com.bear.crawler.webmagic.mybatis.generator.po.WUserInfoPO;
 import com.bear.crawler.webmagic.pojo.WechatConfig;
+import com.bear.crawler.webmagic.pojo.dto.ConversationsRespDto;
+import com.bear.crawler.webmagic.pojo.dto.WUserInfoDto;
+import com.bear.crawler.webmagic.pojo.dto.UserInfosRespDto;
 import com.bear.crawler.webmagic.pojo.dto.WAccountDto;
 import com.bear.crawler.webmagic.pojo.dto.WAccountsRespDto;
 import com.bear.crawler.webmagic.processor.WAccountProcessor;
 import com.bear.crawler.webmagic.processor.WArticleDetailProcessor;
 import com.bear.crawler.webmagic.processor.WArticleProcessor;
-import com.bear.crawler.webmagic.provider.WArticleProvider;
 import com.bear.crawler.webmagic.provider.WAccountProvider;
+import com.bear.crawler.webmagic.provider.WUserInfoProvider;
 import com.bear.crawler.webmagic.util.OtherUtil;
 import com.bear.crawler.webmagic.util.TransformBeanUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -46,9 +50,6 @@ public class WechatService {
     private WAccountProvider wAccountProvider;
 
     @Autowired
-    private WArticleProvider wArticleProvider;
-
-    @Autowired
     private OkHttp okHttp;
 
     @Autowired
@@ -59,6 +60,12 @@ public class WechatService {
 
     @Autowired
     private WAccountProcessor wAccountProcessor;
+
+    @Autowired
+    private WUserInfoProvider wUserInfoProvider;
+
+    @Autowired
+    private WUserInfoDao wUserInfoDao;
 
     public void fetchWArticleDetail(String query) {
         Spider.create(wArticleDetailProcessor)
@@ -213,12 +220,51 @@ public class WechatService {
         }
     }
 
-    public void loadTodayArticles() {
-        log.debug("loadTodayArticles");
-        StringBuilder builder = new StringBuilder();
-        List<WAccountPO> accountPOS = wAccountProvider.getNeedFetchAccounts();
-        for (WAccountPO accountPO : accountPOS) {
-            List<WArticleItemPO> articlePOS = wArticleProvider.getCurDateArticles(accountPO.getFakeId());
+    public void syncRecentConversions() {
+        String url = "https://mp.weixin.qq.com/cgi-bin/message?frommsgid=&count=20&day=7&filtertype=0&getunreadmsg=0&withbizmsg=1&keyword=&filterivrmsg=1&filterspammsg=1&count_per_user=1&offset=&token={{token}}&lang=zh_CN&f=json&ajax=1";
+        ConversationsRespDto respDto = okHttp.get(url, null, null, ConversationsRespDto.class);
+        log.debug("syncRecentConversions: enter");
+    }
+
+    public void sendMessageToAllUser() {
+        String url = "https://mp.weixin.qq.com/cgi-bin/singlesend?t=ajax-response&f=json";
+        String referer = "https://mp.weixin.qq.com/cgi-bin/message?t=message/list&count=20&day=7&token=" + wechatConfig.getToken() + "&lang=zh_CN";
+        Map<String, String> headerMap = MapUtil.of("referer", referer);
+        Map<String, String> paramMap = MapUtil.builder("tofakeid", "")
+                .put("quickreplyid", "")
+                .put("imgcode", "")
+                .put("type", "1")
+                .put("content", "Yes")
+                .put("token", wechatConfig.getToken())
+                .put("lang", "zh_CN")
+                .put("f", "json")
+                .put("ajax", "1")
+                .build();
+        okHttp.post(url, paramMap, headerMap, String.class);
+    }
+
+    public void syncUserInfos() {
+        syncUserInfosInternal(0);
+    }
+
+    private void syncUserInfosInternal(int offset) {
+        log.debug("syncUserInfosInternal: offset = {}", offset);
+        String url = "https://mp.weixin.qq.com/cgi-bin/user_tag?action=get_user_list&groupid=-2&begin_openid=-1&begin_create_time=-1&limit=20&offset=0&backfoward=1&token={{token}}&lang=zh_CN&f=json&ajax=1&random=0.8786165673080111";
+        String newUrl = OtherUtil.getNewUrlByParams(url, MapUtil.of("offset", offset));
+        UserInfosRespDto respDto = okHttp.get(newUrl, null, null, UserInfosRespDto.class);
+        List<WUserInfoDto> userInfoDtos = respDto.getUserInfos();
+        if (CollectionUtil.isEmpty(userInfoDtos)) {
+            log.debug("syncUserInfosInternal: sync end");
+            return;
         }
+        for (WUserInfoDto dto : userInfoDtos) {
+            WUserInfoPO userInfoPO = TransformBeanUtil.dtoToPo(dto);
+            if (wUserInfoProvider.isInDB(userInfoPO)) {
+                wUserInfoDao.updateByOpenId(userInfoPO);
+            } else {
+                wUserInfoDao.insert(userInfoPO);
+            }
+        }
+        syncUserInfosInternal(offset + userInfoDtos.size());
     }
 }

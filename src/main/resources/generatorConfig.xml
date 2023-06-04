@@ -92,5 +92,12 @@
             <!-- 数据库表主键，必须配置在property标签的后面，否则解析失败，会报错-->
             <generatedKey column="id" sqlStatement="MySql" identity="true"/>
         </table>
+        <table tableName="w_user_info" domainObjectName="WUserInfoPO"
+               enableCountByExample="true" enableUpdateByExample="true"
+               enableDeleteByExample="true" enableSelectByExample="true"
+               selectByExampleQueryId="true">
+            <property name="useActualColumnNames" value="false"/>
+            <generatedKey column="id" sqlStatement="MySql" identity="true"/>
+        </table>
     </context>
 </generatorConfiguration>
