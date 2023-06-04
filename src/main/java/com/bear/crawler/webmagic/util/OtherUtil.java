@@ -53,10 +53,23 @@ public class OtherUtil {
         return false;
     }
 
-    public static String getQuery(Page page, String query) {
-        String url = page.getUrl().get();
+    public static String getQuery(String url, String query) {
         UrlQuery urlQuery = UrlBuilder.of(url).getQuery();
         return String.valueOf(urlQuery.get(query));
+    }
+
+    public static String getNewUrlByParams(String url, Map<String, Object> params) {
+        UrlQuery urlQuery = UrlBuilder.of(url).getQuery();
+        UrlQuery newUrlQuery = new UrlQuery();
+        for (Map.Entry<CharSequence, CharSequence> entry : urlQuery.getQueryMap().entrySet()) {
+            if (!params.containsKey(entry.getKey().toString())) {
+                newUrlQuery.add(entry.getKey(), entry.getValue());
+            }
+        }
+        for (Map.Entry<String, Object> entry : params.entrySet()) {
+            newUrlQuery.add(entry.getKey(), entry.getValue());
+        }
+        return UrlBuilder.of(url).setQuery(newUrlQuery).setCharset(null).build();
     }
 
     public static void addNextTargetRequest(Page page, int begin) {

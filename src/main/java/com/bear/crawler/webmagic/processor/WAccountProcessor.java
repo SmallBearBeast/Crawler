@@ -87,7 +87,7 @@ public class WAccountProcessor implements PageProcessor {
     }
 
     private int getBegin(Page page) {
-        return Integer.parseInt(OtherUtil.getQuery(page, OtherUtil.BEGIN));
+        return Integer.parseInt(OtherUtil.getQuery(page.getUrl().get(), OtherUtil.BEGIN));
     }
 
     private void addNextTargetRequest(Page page, int begin) {

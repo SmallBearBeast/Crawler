@@ -203,11 +203,11 @@ public class WArticleProcessor implements PageProcessor {
     }
 
     private int getBegin(Page page) {
-        return Integer.parseInt(OtherUtil.getQuery(page, OtherUtil.BEGIN));
+        return Integer.parseInt(OtherUtil.getQuery(page.getUrl().get(), OtherUtil.BEGIN));
     }
 
     private String getFakeId(Page page) {
-        return OtherUtil.getQuery(page, OtherUtil.FAKE_ID);
+        return OtherUtil.getQuery(page.getUrl().get(), OtherUtil.FAKE_ID);
     }
 
     private void addNextTargetRequest(Page page, int begin) {
