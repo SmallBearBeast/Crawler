@@ -3,7 +3,6 @@ package com.bear.crawler.webmagic.processor;
 import cn.hutool.core.util.RandomUtil;
 import com.bear.crawler.webmagic.dao.WAccountDao;
 import com.bear.crawler.webmagic.mybatis.generator.po.WAccountPO;
-import com.bear.crawler.webmagic.pojo.dto.CommonRespDto;
 import com.bear.crawler.webmagic.pojo.dto.WAccountDto;
 import com.bear.crawler.webmagic.pojo.dto.WAccountsRespDto;
 import com.bear.crawler.webmagic.provider.WAccountProvider;
@@ -38,8 +37,7 @@ public class WAccountProcessor implements PageProcessor {
     public void process(Page page) {
         try {
             WAccountsRespDto accountsRespDto = objectMapper.readValue(page.getRawText(), WAccountsRespDto.class);
-            CommonRespDto commonRespDto = accountsRespDto.getCommonRespDto();
-            if (OtherUtil.checkCommonRespDto(commonRespDto, "WAccountProcessor.process()")) {
+            if (OtherUtil.checkCommonRespDto(accountsRespDto, "WAccountProcessor.process()")) {
                 int begin = getBegin(page);
                 List<WAccountDto> accountDtos = accountsRespDto.getAccountDtos();
                 if (accountDtos == null) {

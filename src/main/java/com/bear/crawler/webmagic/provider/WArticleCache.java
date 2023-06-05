@@ -56,7 +56,7 @@ public class WArticleCache {
     @Cacheable(key = "'curDateArticleMap_'+#fakeId")
     public Map<String, WArticleItemPO> getCurDateArticleMap(String fakeId) {
         Map<String, WArticleItemPO> map = new ConcurrentHashMap<>();
-        List<WArticleItemPO> articleItemPOS = wArticleDao.selectByCurDate(fakeId);
+        List<WArticleItemPO> articleItemPOS = wArticleDao.selectByToday(fakeId);
         for (WArticleItemPO articleItemPO : articleItemPOS) {
             map.put(articleItemPO.getAid(), articleItemPO);
         }

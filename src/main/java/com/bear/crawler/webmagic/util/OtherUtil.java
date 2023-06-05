@@ -7,6 +7,7 @@ import cn.hutool.core.net.url.UrlBuilder;
 import cn.hutool.core.net.url.UrlQuery;
 import com.bear.crawler.webmagic.mybatis.generator.po.WArticleItemPO;
 import com.bear.crawler.webmagic.mybatis.generator.po.WAccountPO;
+import com.bear.crawler.webmagic.pojo.dto.BaseRespDto;
 import com.bear.crawler.webmagic.pojo.dto.CommonRespDto;
 import lombok.extern.slf4j.Slf4j;
 import us.codecraft.webmagic.Page;
@@ -35,10 +36,11 @@ public class OtherUtil {
         }
     }
 
-    public static boolean checkCommonRespDto(CommonRespDto respDto, String tag) {
-        if (respDto != null) {
-            int ret = respDto.getRet();
-            String errMsg = respDto.getErrMsg();
+    public static boolean checkCommonRespDto(BaseRespDto respDto, String tag) {
+        CommonRespDto commonRespDto = respDto == null ? null : respDto.getCommonRespDto();
+        if (commonRespDto != null) {
+            int ret = commonRespDto.getRet();
+            String errMsg = commonRespDto.getErrMsg();
             if (ret == 0) {
                 log.warn("Request is ok tag = {}", tag);
                 return true;

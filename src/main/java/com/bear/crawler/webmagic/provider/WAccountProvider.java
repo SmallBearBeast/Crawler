@@ -40,7 +40,7 @@ public class WAccountProvider {
     public @Nullable WAccountPO findByNickname(String nickname) {
         Map<String, WAccountPO> allAccountMap = wAccountCache.getAllAccountMap();
         for (WAccountPO accountPO : allAccountMap.values()) {
-            if (nickname.equals(accountPO.getNickname())) {
+            if (nickname.equalsIgnoreCase(accountPO.getNickname())) {
                 return accountPO;
             }
         }

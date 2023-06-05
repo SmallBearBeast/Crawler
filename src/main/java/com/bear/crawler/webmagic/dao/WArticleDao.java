@@ -19,6 +19,8 @@ import java.util.List;
 @Repository
 public class WArticleDao {
 
+    private static final String MY_FAKEID = "Mzg4MDk3MTI0OQ==";
+
     @Autowired
     private WArticleItemPOMapper wArticleItemPOMapper;
 
@@ -74,16 +76,42 @@ public class WArticleDao {
     }
 
     public @Nullable WArticleItemPO selectLatest(String fakeId) {
-        List<WArticleItemPO> articleItemPOS = wArticleItemPOCustomMapper.selectLatest(fakeId);
-        return CollectionUtil.getFirst(articleItemPOS);
+        try {
+            List<WArticleItemPO> articleItemPOS = wArticleItemPOCustomMapper.selectLatest(fakeId);
+            return CollectionUtil.getFirst(articleItemPOS);
+        } catch (Exception e) {
+            log.warn("Select the lastest article by fakeId failed, fakeId = {}, e = {}", fakeId, e.getMessage());
+        }
+        return null;
     }
 
-    public List<WArticleItemPO> selectByCurDate(String fakeId) {
-        WArticleItemPOExample example = new WArticleItemPOExample();
-        Date date = new Date();
-        Date startDate = DateUtil.beginOfDay(date);
-        Date endDate = DateUtil.endOfDay(date);
-        example.createCriteria().andUpdateTimeBetween(startDate, endDate).andOfficialAccountFakeIdEqualTo(fakeId);
-        return wArticleItemPOMapper.selectByExample(example);
+    public List<WArticleItemPO> selectByToday(String fakeId) {
+        try {
+            WArticleItemPOExample example = new WArticleItemPOExample();
+            Date date = new Date();
+            Date startDate = DateUtil.beginOfDay(date);
+            Date endDate = DateUtil.endOfDay(date);
+            example.createCriteria().andUpdateTimeBetween(startDate, endDate).andOfficialAccountFakeIdEqualTo(fakeId);
+            return wArticleItemPOMapper.selectByExample(example);
+        } catch (Exception e) {
+            log.warn("Select the today article list by fakeId failed, fakeId = {}, e = {}", fakeId, e.getMessage());
+        }
+        return new ArrayList<>();
+    }
+
+    public List<WArticleItemPO> selectMeByToday() {
+        return selectByToday(MY_FAKEID);
+    }
+
+    public WArticleItemPO selectByMeTitle(String title) {
+        try {
+            WArticleItemPOExample example = new WArticleItemPOExample();
+            example.createCriteria().andOfficialAccountFakeIdEqualTo(MY_FAKEID).andTitleLike("%" + title + "%");
+            List<WArticleItemPO> articleItemPOS = wArticleItemPOMapper.selectByExample(example);
+            return CollectionUtil.getFirst(articleItemPOS);
+        } catch (Exception e) {
+            log.warn("Select the my article by title failed, title = {}, e = {}", title, e.getMessage());
+        }
+        return null;
     }
 }

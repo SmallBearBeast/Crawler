@@ -22,38 +22,38 @@ public class WebMagicController {
     @GetMapping("/fetchWArticleDetail")
     public String fetchWArticleDetail(@RequestParam("query") String query) {
         wechatService.fetchWArticleDetail(query);
-        return "fetchWArticleDetail success";
+        return "fetchWArticleDetail successfully";
     }
 
     // TODO: 5/21/23 spider添加delay，可以继承QueueScheduler在poll方法加上随机sleep，先观察看看。
     @PostMapping("/listenWArticlesUpdate")
     public String listenWArticlesUpdate() {
         wechatService.listenWArticlesUpdate();
-        return "listenWArticlesUpdate success";
+        return "listenWArticlesUpdate successfully";
     }
 
     @PostMapping("/listenWArticlesUpdateForAccounts")
     public String listenWArticlesUpdateForAccounts(@RequestParam("accountNames") List<String> accountNames) {
         wechatService.listenWArticlesUpdate(accountNames);
-        return "listenWArticlesUpdateForAccounts success";
+        return "listenWArticlesUpdateForAccounts successfully";
     }
 
     @PostMapping("/searchAndInsertWAccount")
     public String searchAndInsertWAccount(@RequestParam("searchContent") String searchContent) {
         wechatService.searchAndInsertWAccount(searchContent);
-        return "searchAndInsertWAccount success";
+        return "searchAndInsertWAccount successfully";
     }
 
     @PostMapping("/updateWAccountNeedToFetchByName")
     public String updateWAccountNeedToFetchByName(@RequestParam("accountNames") List<String> accountNames, @RequestParam("needToFetch") boolean needToFetch) {
         wechatService.updateWAccountNeedToFetchByName(accountNames, needToFetch);
-        return "updateWAccountNeedToFetchByName success";
+        return "updateWAccountNeedToFetchByName successfully";
     }
 
     @PostMapping("/updateWAccountNeedToFetchByFakeId")
     public String updateWAccountNeedToFetchByFakeId(@RequestParam("fakeIds") List<String> fakeIds, @RequestParam("needToFetch") boolean needToFetch) {
         wechatService.updateWAccountNeedToFetchByFakeId(fakeIds, needToFetch);
-        return "updateWAccountNeedToFetchByFakeId success";
+        return "updateWAccountNeedToFetchByFakeId successfully";
     }
 
     @PostMapping("/findAndInsertWAccount")
@@ -61,13 +61,19 @@ public class WebMagicController {
             @RequestParam("accountName") String accountName,
             @RequestParam(name = "needToFetch", required = false, defaultValue = "false") boolean needToFetch) {
         wechatService.findAndInsertWAccount(accountName, needToFetch);
-        return "findAndInsertWAccount success";
+        return "findAndInsertWAccount successfully";
     }
 
     @PostMapping("/updateWechatConfig")
     public String updateWechatConfig(@RequestParam("token") String token, @RequestParam("cookie") String cookie) {
         wechatService.updateWechatProperties(token, cookie);
-        return "updateWechatConfig success";
+        return "updateWechatConfig successfully";
+    }
+
+    @PostMapping("/syncUserInfos")
+    public String syncUserInfos() {
+        wechatService.syncUserInfos();
+        return "syncUserInfos successfully";
     }
 
     @GetMapping("/syncRecentConversions")
@@ -75,14 +81,17 @@ public class WebMagicController {
         wechatService.syncRecentConversions();
     }
 
-    @PostMapping("/syncUserInfos")
-    public String syncUserInfos() {
-        wechatService.syncUserInfos();
-        return "syncUserInfos success";
+    @PostMapping("/sendMsgToRecentUser")
+    public String sendMsgToRecentUser(@RequestParam("aid") String aid) {
+        wechatService.sendMsgToRecentUser(aid);
+        return "sendMsgToRecentUser successfully";
     }
 
-    @PostMapping("/sendMessageToAllUser")
-    public void sendMessageToAllUser() {
-        wechatService.sendMessageToAllUser();
+    @PostMapping("/syncArticle")
+    public String syncArticle(
+            @RequestParam(name = "fakeIds", required = false, defaultValue = "") List<String> fakeIds,
+            @RequestParam(name = "accountNames", required = false, defaultValue = "") List<String> accountNames) {
+        wechatService.syncArticle(fakeIds, accountNames);
+        return "syncArticle successfully";
     }
 }

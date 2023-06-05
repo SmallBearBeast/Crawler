@@ -7,7 +7,6 @@ import cn.hutool.core.util.RandomUtil;
 import com.bear.crawler.webmagic.dao.WArticleDao;
 import com.bear.crawler.webmagic.mybatis.generator.po.WArticleItemPO;
 import com.bear.crawler.webmagic.mybatis.generator.po.WAccountPO;
-import com.bear.crawler.webmagic.pojo.dto.CommonRespDto;
 import com.bear.crawler.webmagic.pojo.dto.WArticleItemDto;
 import com.bear.crawler.webmagic.pojo.dto.WArticleItemsRespDto;
 import com.bear.crawler.webmagic.provider.WArticleProvider;
@@ -57,38 +56,34 @@ public class WArticleProcessor implements PageProcessor {
     public void process(Page page) {
         try {
             WArticleItemsRespDto articleItemsRespDto = objectMapper.readValue(page.getRawText(), WArticleItemsRespDto.class);
-            CommonRespDto commonRespDto = articleItemsRespDto.getCommonRespDto();
-            if (OtherUtil.checkCommonRespDto(commonRespDto, "WArticleProcessor.process()")) {
+            if (OtherUtil.checkCommonRespDto(articleItemsRespDto, "WArticleProcessor.process()")) {
                 int begin = getBegin(page);
                 String fakeId = getFakeId(page);
                 List<WArticleItemDto> articleItemDtos = articleItemsRespDto.getArticleItemDtos();
-                if (articleItemDtos == null) {
-                    log.info("articleItemDtos is null");
-                } else {
-                    if (articleItemDtos.isEmpty()) {
-                        log.info("Load article list to end, begin = {}", begin);
+                if (CollectionUtil.isEmpty(articleItemDtos)) {
+                    log.info("process: articleItemDtos is empty, begin = {}", begin);
+                    onFetchArticlesEnd(fakeId);
+                    return;
+                }
+                log.info("process: load article list successfully, begin = {}", begin);
+                articleItemDtos.sort((first, second) -> (int) (second.getUpdateTime() - first.getUpdateTime()));
+                long lastLatestTime = wArticleProvider.getLastLatestTime(fakeId);
+                long curNewestTime = CollectionUtil.getFirst(articleItemDtos).getUpdateTime();
+                if (begin == 0) {
+                    fakeIdArticlesMap.remove(fakeId);
+                }
+                if (curNewestTime > lastLatestTime) {
+                    saveArticleItemDtoToDB(articleItemDtos, fakeId);
+                    int articleSize = fakeIdArticlesMap.get(fakeId).size();
+                    if (articleSize >= ARTICLE_LIMIT) {
+                        log.info("process: load article list more than {}", ARTICLE_LIMIT);
+                        onFetchArticlesEnd(fakeId);
                     } else {
-                        log.info("Load article list successfully, begin = {}", begin);
-                        articleItemDtos.sort((first, second) -> (int) (second.getUpdateTime() - first.getUpdateTime()));
-                        long lastLatestTime = wArticleProvider.getLastLatestTime(fakeId);
-                        long curNewestTime = CollectionUtil.getFirst(articleItemDtos).getUpdateTime();
-                        if (begin == 0) {
-                            fakeIdArticlesMap.remove(fakeId);
-                        }
-                        if (curNewestTime > lastLatestTime) {
-                            saveAccountDtosToDB(articleItemDtos, fakeId);
-                            int articleSize = fakeIdArticlesMap.get(fakeId).size();
-                            if (articleSize >= ARTICLE_LIMIT) {
-                                log.info("Load article list more than {}", ARTICLE_LIMIT);
-                                onFetchArticlesEnd(fakeId);
-                            } else {
-                                addNextTargetRequest(page, begin);
-                            }
-                        } else {
-                            log.info("Load the last latest article");
-                            onFetchArticlesEnd(fakeId);
-                        }
+                        addNextTargetRequest(page, begin);
                     }
+                } else {
+                    log.info("process: load the last latest article");
+                    onFetchArticlesEnd(fakeId);
                 }
             }
         } catch (Exception e) {
@@ -107,14 +102,14 @@ public class WArticleProcessor implements PageProcessor {
                 .setRetrySleepTime(RandomUtil.randomInt(3, 6) * 1000);
     }
 
-    private void saveAccountDtosToDB(List<WArticleItemDto> articleItemDtos, String fakeId) {
+    private void saveArticleItemDtoToDB(List<WArticleItemDto> articleItemDtos, String fakeId) {
         WAccountPO accountPO = wAccountProvider.findByFakeId(fakeId);
         for (WArticleItemDto articleItemDto : articleItemDtos) {
             WArticleItemPO articleItemPO = TransformBeanUtil.dtoToPo(articleItemDto);
             articleItemPO.setOfficialAccountId(accountPO.getId());
             articleItemPO.setOfficialAccountFakeId(accountPO.getFakeId());
             articleItemPO.setOfficialAccountTitle(accountPO.getNickname());
-            if (wArticleProvider.isInArticleDB(articleItemPO)) {
+            if (wArticleProvider.isInDB(articleItemPO)) {
                 wArticleDao.updateByAid(articleItemPO);
             } else {
                 wArticleDao.insert(articleItemPO);

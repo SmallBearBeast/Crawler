@@ -6,13 +6,16 @@ import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.RandomUtil;
 import com.bear.crawler.webmagic.dao.WAccountDao;
 import com.bear.crawler.webmagic.basic.http.OkHttp;
+import com.bear.crawler.webmagic.dao.WArticleDao;
 import com.bear.crawler.webmagic.dao.WUserInfoDao;
 import com.bear.crawler.webmagic.mybatis.generator.po.WAccountPO;
+import com.bear.crawler.webmagic.mybatis.generator.po.WArticleItemPO;
 import com.bear.crawler.webmagic.mybatis.generator.po.WUserInfoPO;
 import com.bear.crawler.webmagic.pojo.WechatConfig;
-import com.bear.crawler.webmagic.pojo.dto.BaseRespDto;
 import com.bear.crawler.webmagic.pojo.dto.ConversationsRespDto;
 import com.bear.crawler.webmagic.pojo.dto.SendMsgRespDto;
+import com.bear.crawler.webmagic.pojo.dto.WArticleItemDto;
+import com.bear.crawler.webmagic.pojo.dto.WArticleItemsRespDto;
 import com.bear.crawler.webmagic.pojo.dto.WUserInfoDto;
 import com.bear.crawler.webmagic.pojo.dto.UserInfosRespDto;
 import com.bear.crawler.webmagic.pojo.dto.WAccountDto;
@@ -21,6 +24,7 @@ import com.bear.crawler.webmagic.processor.WAccountProcessor;
 import com.bear.crawler.webmagic.processor.WArticleDetailProcessor;
 import com.bear.crawler.webmagic.processor.WArticleProcessor;
 import com.bear.crawler.webmagic.provider.WAccountProvider;
+import com.bear.crawler.webmagic.provider.WArticleProvider;
 import com.bear.crawler.webmagic.provider.WUserInfoProvider;
 import com.bear.crawler.webmagic.util.OtherUtil;
 import com.bear.crawler.webmagic.util.TransformBeanUtil;
@@ -35,19 +39,31 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 public class WechatService {
 
+    private static final int ARTICLE_LIMIT = 20;
+
     @Autowired
     private WechatConfig wechatConfig;
 
     @Autowired
+    private WArticleDao wArticleDao;
+
+    @Autowired
     private WAccountDao wAccountDao;
+
+    @Autowired
+    private WArticleProvider wArticleProvider;
 
     @Autowired
     private WAccountProvider wAccountProvider;
@@ -157,7 +173,7 @@ public class WechatService {
     public void findAndInsertWAccount(String accountName, boolean needToFetch) {
         log.debug("findAndInsertWAccount: accountName = {}, needToFetch = {}", accountName, needToFetch);
         String encodeAccountName = URLEncoder.encode(accountName, StandardCharsets.UTF_8);
-        String url = "https://mp.weixin.qq.com/cgi-bin/searchbiz?action=search_biz&begin=0&count=5&query=" + encodeAccountName + "&token=" + wechatConfig.getToken() + "&lang=zh_CN&f=json&ajax=1";
+        String url = "https://mp.weixin.qq.com/cgi-bin/searchbiz?action=search_biz&begin=0&count=5&query=" + encodeAccountName + "&token={{token}}&lang=zh_CN&f=json&ajax=1";
         WAccountPO existAccountPO = wAccountProvider.findByNickname(accountName);
         if (existAccountPO != null) {
             log.debug("findAndInsertWAccount: exist accountPO, needToFetch = {}", existAccountPO.getNeedFetch());
@@ -167,13 +183,11 @@ public class WechatService {
                 wAccountProvider.updateNeedToFetchCache(existAccountPO);
             }
         } else {
-            Map<String, String> headers = MapUtil.builder("Cookie", wechatConfig.getCookie())
-                    .put("User-Agent", wechatConfig.getUserAgent()).build();
-            WAccountsRespDto accountsRespDto = okHttp.get(url, null, headers, WAccountsRespDto.class);
-            if (OtherUtil.checkCommonRespDto(accountsRespDto.getCommonRespDto(), "WechatService.searchAccountAndInsert()")) {
+            WAccountsRespDto accountsRespDto = okHttp.get(url, null, null, WAccountsRespDto.class);
+            if (OtherUtil.checkCommonRespDto(accountsRespDto, "WechatService.searchAccountAndInsert()")) {
                 List<WAccountDto> accountDtos = accountsRespDto.getAccountDtos();
                 for (WAccountDto accountDto : accountDtos) {
-                    if (accountName.equals(accountDto.getNickname())) {
+                    if (accountName.equalsIgnoreCase(accountDto.getNickname())) {
                         WAccountPO accountPO = TransformBeanUtil.dtoToPo(accountDto);
                         accountPO.setNeedFetch(needToFetch);
                         log.debug("findAndInsertWAccount: insert or update accountPO, id = {}", accountPO.getId());
@@ -223,38 +237,6 @@ public class WechatService {
         }
     }
 
-    public void syncRecentConversions() {
-        String url = "https://mp.weixin.qq.com/cgi-bin/message?frommsgid=&count=20&day=7&filtertype=0&getunreadmsg=0&withbizmsg=1&keyword=&filterivrmsg=1&filterspammsg=1&count_per_user=1&offset=&token={{token}}&lang=zh_CN&f=json&ajax=1";
-        ConversationsRespDto respDto = okHttp.get(url, null, null, ConversationsRespDto.class);
-        log.debug("syncRecentConversions: enter");
-    }
-
-    public void sendMessageToAllUser() {
-        log.debug("sendMessageToAllUser: enter");
-        String url = "https://mp.weixin.qq.com/cgi-bin/singlesend?t=ajax-response&f=json";
-        String referer = "https://mp.weixin.qq.com/cgi-bin/message?t=message/list&count=20&day=7&token=" + wechatConfig.getToken() + "&lang=zh_CN";
-        Map<String, String> headerMap = MapUtil.of("referer", referer);
-        List<WUserInfoPO> userInfoPOS = wUserInfoProvider.getRecentUserInfos();
-        for (WUserInfoPO userInfoPO : userInfoPOS) {
-            Map<String, String> paramMap = MapUtil.builder("tofakeid", userInfoPO.getOpenid())
-                    .put("quickreplyid", "")
-                    .put("imgcode", "")
-                    .put("type", "10")
-                    .put("appmsgid", "2247483856")
-                    .put("token", wechatConfig.getToken())
-                    .put("lang", "zh_CN")
-                    .put("f", "json")
-                    .put("ajax", "1")
-                    .build();
-            SendMsgRespDto respDto = okHttp.post(url, paramMap, headerMap, SendMsgRespDto.class);
-            if (OtherUtil.checkCommonRespDto(respDto.getCommonRespDto(), "WechatService.sendMessageToAllUser()")) {
-                log.info("sendMessageToAllUser: send message to {} success", userInfoPO.getName());
-            } else {
-                log.info("sendMessageToAllUser: send message to {} fail", userInfoPO.getName());
-            }
-        }
-    }
-
     public void syncUserInfos() {
         syncUserInfosInternal(0);
     }
@@ -281,4 +263,113 @@ public class WechatService {
         OtherUtil.sleep(RandomUtil.randomInt(3, 6));
         syncUserInfosInternal(offset + userInfoDtos.size());
     }
+
+    public void syncRecentConversions() {
+        String url = "https://mp.weixin.qq.com/cgi-bin/message?frommsgid=&count=20&day=7&filtertype=0&getunreadmsg=0&withbizmsg=1&keyword=&filterivrmsg=1&filterspammsg=1&count_per_user=1&offset=&token={{token}}&lang=zh_CN&f=json&ajax=1";
+        ConversationsRespDto respDto = okHttp.get(url, null, null, ConversationsRespDto.class);
+        log.debug("syncRecentConversions: enter");
+    }
+
+    public void sendMsgToRecentUser(String aid) {
+        log.debug("sendMsgToRecentUser: aid = {}", aid);
+        String url = "https://mp.weixin.qq.com/cgi-bin/singlesend?t=ajax-response&f=json";
+        String referer = "https://mp.weixin.qq.com/cgi-bin/message?t=message/list&count=20&day=7&token=" + wechatConfig.getToken() + "&lang=zh_CN";
+        Map<String, String> headerMap = MapUtil.of("referer", referer);
+        List<WUserInfoPO> userInfoPOS = wUserInfoProvider.getRecentUserInfos();
+        for (WUserInfoPO userInfoPO : userInfoPOS) {
+            Map<String, String> paramMap = MapUtil.builder("tofakeid", userInfoPO.getOpenid())
+                    .put("quickreplyid", "")
+                    .put("imgcode", "")
+                    .put("type", "10")
+                    .put("appmsgid", aid)
+                    .put("token", wechatConfig.getToken())
+                    .put("lang", "zh_CN")
+                    .put("f", "json")
+                    .put("ajax", "1")
+                    .build();
+            SendMsgRespDto respDto = okHttp.post(url, paramMap, headerMap, SendMsgRespDto.class);
+            if (OtherUtil.checkCommonRespDto(respDto, "WechatService.sendMessageToAllUser()")) {
+                log.info("sendMessageToAllUser: send message to {} success", userInfoPO.getName());
+            } else {
+                log.info("sendMessageToAllUser: send message to {} fail", userInfoPO.getName());
+            }
+        }
+    }
+
+    public void syncArticle(List<String> fakeIds, List<String> accountNames) {
+        List<String> finalFakeIds = fakeIds;
+        if (CollectionUtil.isEmpty(fakeIds)) {
+            finalFakeIds = accountNames.stream().map(name -> {
+                WAccountPO accountPO = wAccountProvider.findByNickname(name);
+                return accountPO == null ? null : accountPO.getFakeId();
+            }).filter(Objects::nonNull).collect(Collectors.toList());
+        }
+        String url = "https://mp.weixin.qq.com/cgi-bin/appmsg?action=list_ex&begin=0&count=5&fakeid={{fakeId}}&type=9&query=&token={{token}}&lang=zh_CN&f=json&ajax=1";
+        for (String fakeId : finalFakeIds) {
+            String newUrl = OtherUtil.getNewUrlByParams(url, MapUtil.of(OtherUtil.FAKE_ID, fakeId));
+            syncArticle(newUrl, fakeId, new ArrayList<>());
+        }
+    }
+
+    private void syncArticle(String url, String fakeId, List<WArticleItemPO> saveArticleItemPOS) {
+        WArticleItemsRespDto respDto = okHttp.get(url, null, null, WArticleItemsRespDto.class);
+        if (OtherUtil.checkCommonRespDto(respDto, "WechatService.syncArticle()")) {
+            List<WArticleItemDto> articleItemDtos = respDto.getArticleItemDtos();
+            int begin = Integer.parseInt(OtherUtil.getQuery(url, OtherUtil.BEGIN));
+            if (CollectionUtil.isEmpty(articleItemDtos)) {
+                log.info("syncArticle: articleItemDtos is empty, begin = {}", begin);
+                onFetchArticlesEnd(fakeId, saveArticleItemPOS);
+                return;
+            }
+            log.info("syncArticle: load article list successfully, begin = {}", begin);
+            articleItemDtos.sort((first, second) -> (int) (second.getUpdateTime() - first.getUpdateTime()));
+            long lastLatestTime = wArticleProvider.getLastLatestTime(fakeId);
+            long curNewestTime = CollectionUtil.getFirst(articleItemDtos).getUpdateTime();
+            if (curNewestTime > lastLatestTime) {
+                saveArticleItemDtoToDB(articleItemDtos, fakeId, saveArticleItemPOS);
+                int articleSize = saveArticleItemPOS.size();
+                if (articleSize >= ARTICLE_LIMIT) {
+                    log.info("syncArticle: load article list more than {}, begin = {}", ARTICLE_LIMIT, begin);
+                    onFetchArticlesEnd(fakeId, saveArticleItemPOS);
+                } else {
+                    String newUrl = OtherUtil.getNewUrlByParams(url, MapUtil.of(OtherUtil.BEGIN, begin + articleItemDtos.size()));
+                    OtherUtil.sleep(RandomUtil.randomInt(3, 6));
+                    syncArticle(newUrl, fakeId, saveArticleItemPOS);
+                }
+            } else {
+                log.info("syncArticle: load the last latest article, begin = {}", begin);
+                onFetchArticlesEnd(fakeId, saveArticleItemPOS);
+            }
+        }
+    }
+
+    private void saveArticleItemDtoToDB(List<WArticleItemDto> articleItemDtos, String fakeId, List<WArticleItemPO> articleItemPOS) {
+        WAccountPO accountPO = wAccountProvider.findByFakeId(fakeId);
+        for (WArticleItemDto itemDto : articleItemDtos) {
+            WArticleItemPO itemPo = TransformBeanUtil.dtoToPo(itemDto);
+            itemPo.setOfficialAccountId(accountPO.getId());
+            itemPo.setOfficialAccountFakeId(accountPO.getFakeId());
+            itemPo.setOfficialAccountTitle(accountPO.getNickname());
+            if (wArticleProvider.isInDB(itemPo)) {
+                wArticleDao.updateByAid(itemPo);
+            } else {
+                wArticleDao.insert(itemPo);
+                articleItemPOS.add(itemPo);
+            }
+            wArticleProvider.updateCache(itemPo);
+        }
+    }
+
+    private void onFetchArticlesEnd(String fakeId, List<WArticleItemPO> articleItemPOS) {
+        WArticleItemPO articleItemPO = CollectionUtil.getFirst(articleItemPOS);
+        if (articleItemPO != null) {
+            wArticleProvider.setLastLatestTime(fakeId, articleItemPO.getUpdateTime().getTime() / 1000);
+        }
+    }
+
+    // TODO: 6/5/23 把自己账号加入数据库
+    // TODO: 6/5/23 article表新增isMe，state字段，或者关联出一张表出来。
+    // TODO: 6/5/23 群发发布的article。 
+    // TODO: 6/5/23 loadTodayWaitToPublishArticles 
+    // TODO: 6/5/23 草稿？
 }

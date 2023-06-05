@@ -29,7 +29,7 @@ public class WArticleProvider {
         }
     }
 
-    public boolean isInArticleDB(WArticleItemPO articleItemPO) {
+    public boolean isInDB(WArticleItemPO articleItemPO) {
         String fakeId = articleItemPO.getOfficialAccountFakeId();
         Map<String, WArticleItemPO> map = wArticleCache.getArticleMap(fakeId);
         return map.containsKey(articleItemPO.getAid());
