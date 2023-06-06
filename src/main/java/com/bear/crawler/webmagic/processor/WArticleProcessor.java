@@ -12,7 +12,7 @@ import com.bear.crawler.webmagic.pojo.dto.WArticleItemsRespDto;
 import com.bear.crawler.webmagic.provider.WArticleProvider;
 import com.bear.crawler.webmagic.provider.WAccountProvider;
 import com.bear.crawler.webmagic.util.OtherUtil;
-import com.bear.crawler.webmagic.util.TransformBeanUtil;
+import com.bear.crawler.webmagic.util.BeanConverterUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -105,7 +105,7 @@ public class WArticleProcessor implements PageProcessor {
     private void saveArticleItemDtoToDB(List<WArticleItemDto> articleItemDtos, String fakeId) {
         WAccountPO accountPO = wAccountProvider.findByFakeId(fakeId);
         for (WArticleItemDto articleItemDto : articleItemDtos) {
-            WArticleItemPO articleItemPO = TransformBeanUtil.dtoToPo(articleItemDto);
+            WArticleItemPO articleItemPO = BeanConverterUtil.dtoToPo(articleItemDto);
             articleItemPO.setOfficialAccountId(accountPO.getId());
             articleItemPO.setOfficialAccountFakeId(accountPO.getFakeId());
             articleItemPO.setOfficialAccountTitle(accountPO.getNickname());

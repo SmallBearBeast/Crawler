@@ -7,7 +7,7 @@ import com.bear.crawler.webmagic.pojo.dto.WAccountDto;
 import com.bear.crawler.webmagic.pojo.dto.WAccountsRespDto;
 import com.bear.crawler.webmagic.provider.WAccountProvider;
 import com.bear.crawler.webmagic.util.OtherUtil;
-import com.bear.crawler.webmagic.util.TransformBeanUtil;
+import com.bear.crawler.webmagic.util.BeanConverterUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,7 +74,7 @@ public class WAccountProcessor implements PageProcessor {
 
     private void saveAccountDtosToDB(List<WAccountDto> accountDtos) {
         for (WAccountDto accountDto : accountDtos) {
-            WAccountPO accountPO = TransformBeanUtil.dtoToPo(accountDto);
+            WAccountPO accountPO = BeanConverterUtil.dtoToPo(accountDto);
             if (!wAccountProvider.isInAccountDB(accountPO)) {
                 wAccountDao.insert(accountPO);
             } else {

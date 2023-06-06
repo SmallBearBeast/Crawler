@@ -27,7 +27,7 @@ import com.bear.crawler.webmagic.provider.WAccountProvider;
 import com.bear.crawler.webmagic.provider.WArticleProvider;
 import com.bear.crawler.webmagic.provider.WUserInfoProvider;
 import com.bear.crawler.webmagic.util.OtherUtil;
-import com.bear.crawler.webmagic.util.TransformBeanUtil;
+import com.bear.crawler.webmagic.util.BeanConverterUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
@@ -187,7 +187,7 @@ public class WechatService {
                 List<WAccountDto> accountDtos = accountsRespDto.getAccountDtos();
                 for (WAccountDto accountDto : accountDtos) {
                     if (accountName.equalsIgnoreCase(accountDto.getNickname())) {
-                        WAccountPO accountPO = TransformBeanUtil.dtoToPo(accountDto);
+                        WAccountPO accountPO = BeanConverterUtil.dtoToPo(accountDto);
                         accountPO.setNeedFetch(needToFetch);
                         log.debug("findAndSyncWAccount: insert or update accountPO, id = {}", accountPO.getId());
                         if (wAccountProvider.isInAccountDB(accountPO)) {
@@ -251,7 +251,7 @@ public class WechatService {
             return;
         }
         for (WUserInfoDto dto : userInfoDtos) {
-            WUserInfoPO userInfoPO = TransformBeanUtil.dtoToPo(dto);
+            WUserInfoPO userInfoPO = BeanConverterUtil.dtoToPo(dto);
             if (wUserInfoProvider.isInDB(userInfoPO)) {
                 wUserInfoDao.updateByOpenId(userInfoPO);
             } else {
@@ -345,7 +345,7 @@ public class WechatService {
     private void saveArticleItemDtoToDB(List<WArticleItemDto> articleItemDtos, String fakeId, List<WArticleItemPO> articleItemPOS) {
         WAccountPO accountPO = wAccountProvider.findByFakeId(fakeId);
         for (WArticleItemDto itemDto : articleItemDtos) {
-            WArticleItemPO itemPo = TransformBeanUtil.dtoToPo(itemDto);
+            WArticleItemPO itemPo = BeanConverterUtil.dtoToPo(itemDto);
             itemPo.setOfficialAccountId(accountPO.getId());
             itemPo.setOfficialAccountFakeId(accountPO.getFakeId());
             itemPo.setOfficialAccountTitle(accountPO.getNickname());

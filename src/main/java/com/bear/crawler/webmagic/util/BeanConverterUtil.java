@@ -9,7 +9,7 @@ import com.bear.crawler.webmagic.pojo.dto.WAccountDto;
 
 import java.util.Date;
 
-public class TransformBeanUtil {
+public class BeanConverterUtil {
     public static WArticleItemPO dtoToPo(WArticleItemDto dto) {
         WArticleItemPO po = new WArticleItemPO();
         po.setAid(dto.getAid());
