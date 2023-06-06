@@ -22,10 +22,10 @@ public class WArticleProvider {
         String fakeId = articleItemPO.getOfficialAccountFakeId();
         Map<String, WArticleItemPO> articleMap = wArticleCache.getArticleMap(fakeId);
         wArticleCache.updateArticleMap(articleItemPO, articleMap);
-        Map<String, WArticleItemPO> curDateArticleMap = wArticleCache.getCurDateArticleMap(fakeId);
+        Map<String, WArticleItemPO> curDateArticleMap = wArticleCache.getTodayArticleMap(fakeId);
         // 只有当天的Article才更新缓存。
         if (DateUtil.isSameDay(articleItemPO.getUpdateTime(), new Date())) {
-            wArticleCache.updateCurDateArticles(articleItemPO, curDateArticleMap);
+            wArticleCache.updateTodayArticleMap(articleItemPO, curDateArticleMap);
         }
     }
 
@@ -43,8 +43,8 @@ public class WArticleProvider {
         wArticleCache.setLastLatestTime(fakeId, time);
     }
 
-    public List<WArticleItemPO> getCurDateArticles(String fakeId) {
-        return new ArrayList<>(wArticleCache.getCurDateArticleMap(fakeId).values());
+    public List<WArticleItemPO> getTodayArticles(String fakeId) {
+        return new ArrayList<>(wArticleCache.getTodayArticleMap(fakeId).values());
     }
 
     public List<WArticleItemPO> getArticles(String fakeId) {

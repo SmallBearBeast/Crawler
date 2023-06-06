@@ -53,8 +53,8 @@ public class WArticleCache {
         return map;
     }
 
-    @Cacheable(key = "'curDateArticleMap_'+#fakeId")
-    public Map<String, WArticleItemPO> getCurDateArticleMap(String fakeId) {
+    @Cacheable(key = "'todayArticleMap_'+#fakeId")
+    public Map<String, WArticleItemPO> getTodayArticleMap(String fakeId) {
         Map<String, WArticleItemPO> map = new ConcurrentHashMap<>();
         List<WArticleItemPO> articleItemPOS = wArticleDao.selectByToday(fakeId);
         for (WArticleItemPO articleItemPO : articleItemPOS) {
@@ -63,8 +63,8 @@ public class WArticleCache {
         return map;
     }
 
-    @CachePut(key = "'curDateArticleMap_'+#articleItemPO.getOfficialAccountFakeId()")
-    public Map<String, WArticleItemPO> updateCurDateArticles(WArticleItemPO articleItemPO, Map<String, WArticleItemPO> map) {
+    @CachePut(key = "'todayArticleMap_'+#articleItemPO.getOfficialAccountFakeId()")
+    public Map<String, WArticleItemPO> updateTodayArticleMap(WArticleItemPO articleItemPO, Map<String, WArticleItemPO> map) {
         map.put(articleItemPO.getAid(), articleItemPO);
         return map;
     }

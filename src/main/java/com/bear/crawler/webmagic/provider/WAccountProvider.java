@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -61,5 +62,10 @@ public class WAccountProvider {
 
     public @NonNull List<WAccountPO> getNeedFetchAccounts() {
         return new ArrayList<>(wAccountCache.getNeedFetchAccountMap().values());
+    }
+
+    public @NonNull List<String> getNeedFetchAccountFakeIds() {
+        return wAccountCache.getNeedFetchAccountMap().values().stream()
+                .map(WAccountPO::getFakeId).collect(Collectors.toList());
     }
 }

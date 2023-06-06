@@ -1,12 +1,11 @@
 package com.bear.crawler.webmagic.processor;
 
 import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.RandomUtil;
 import com.bear.crawler.webmagic.AppConstant;
 import com.bear.crawler.webmagic.dao.WArticleDao;
+import com.bear.crawler.webmagic.manager.ArticleFileManager;
 import com.bear.crawler.webmagic.mybatis.generator.po.WArticleItemPO;
 import com.bear.crawler.webmagic.mybatis.generator.po.WAccountPO;
 import com.bear.crawler.webmagic.pojo.dto.WArticleItemDto;
@@ -18,16 +17,12 @@ import com.bear.crawler.webmagic.util.BeanConverterUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Site;
 import us.codecraft.webmagic.processor.PageProcessor;
 
-import java.io.File;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -35,9 +30,6 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 @Component
 public class WArticleProcessor implements PageProcessor {
-
-    @Value("${wechat.fetchArticleDir}")
-    private String fetchArticleDir;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -50,6 +42,9 @@ public class WArticleProcessor implements PageProcessor {
 
     @Autowired
     private WArticleProvider wArticleProvider;
+
+    @Autowired
+    private ArticleFileManager articleFileManager;
 
     private final Map<String, List<WArticleItemPO>> fakeIdArticlesMap = new ConcurrentHashMap<>();
 
@@ -129,65 +124,12 @@ public class WArticleProcessor implements PageProcessor {
     }
 
     private void onFetchArticlesEnd(String fakeId) {
-        saveFetchContentToFile(fakeId);
-        saveSummaryContentToFile(fakeId);
-        updateLatestTime(fakeId);
-        fakeIdArticlesMap.remove(fakeId);
-    }
-
-    // TODO: 5/21/23 格式markdown 
-    private void saveFetchContentToFile(String fakeId) {
-        StringBuilder builder = new StringBuilder();
         List<WArticleItemPO> fetchArticleItemPOS = fakeIdArticlesMap.get(fakeId);
         WAccountPO accountPO = wAccountProvider.findByFakeId(fakeId);
-        builder.append("保存时间：").append(DateUtil.format(new Date(), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"))).append("\n");
-        String accountNickname = accountPO == null ? "未知公众号" : accountPO.getNickname();
-        builder.append("公众号：").append(accountNickname).append(" 公众号fakeId：").append(fakeId).append("\n");
-        if (CollectionUtil.isEmpty(fetchArticleItemPOS)) {
-            builder.append("没有抓到最新的文章").append("\n");
-        } else {
-            long lastLatestTime = wArticleProvider.getLastLatestTime(fakeId) * 1000;
-            String formatLastLatestDateStr = DateUtil.format(new Date(lastLatestTime), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
-            builder.append("距离上一次时间").append(formatLastLatestDateStr).append("抓到了").append(fetchArticleItemPOS.size()).append("篇文章").append("\n\n");
-            collectArticleInfo(builder, fetchArticleItemPOS);
-        }
-        log.debug("saveFetchContentToFile: content = {}", builder.toString());
-
-        String formatCurDateStr = DateUtil.format(new Date(), new SimpleDateFormat("yyyy-MM-dd"));
-        String dir = fetchArticleDir + File.separator + formatCurDateStr + File.separator + accountNickname;
-        File fetchRecordFile = FileUtil.file(dir, "抓取记录.md");
-        FileUtil.appendString(builder.toString(), fetchRecordFile, "utf-8");
-    }
-
-    private void saveSummaryContentToFile(String fakeId) {
-        StringBuilder builder = new StringBuilder();
-        WAccountPO accountPO = wAccountProvider.findByFakeId(fakeId);
-        String accountNickname = accountPO == null ? "未知公众号" : accountPO.getNickname();
-        builder.append("公众号：").append(accountNickname).append(" 公众号fakeId：").append(fakeId).append("\n");
-        List<WArticleItemPO> curDateArticleItemPOS = wArticleProvider.getCurDateArticles(fakeId);
-        curDateArticleItemPOS.sort((first, second) -> second.getUpdateTime().compareTo(first.getUpdateTime()));
-        if (CollectionUtil.isEmpty(curDateArticleItemPOS)) {
-            builder.append("当天尚未更新文章").append("\n");
-        } else {
-            String formatCurDateStr = DateUtil.format(new Date(), new SimpleDateFormat("yyyy-MM-dd"));
-            builder.append("当天").append(formatCurDateStr).append("发布了").append(curDateArticleItemPOS.size()).append("篇文章").append("\n\n");
-            collectArticleInfo(builder, curDateArticleItemPOS);
-        }
-        log.debug("saveSummaryContentToFile: content = {}", builder.toString());
-
-        String formatCurDateStr = DateUtil.format(new Date(), new SimpleDateFormat("yyyy-MM-dd"));
-        String dir = fetchArticleDir + File.separator + formatCurDateStr + File.separator + accountNickname;
-        File summaryRecordFile = FileUtil.file(dir, "汇总记录.md");
-        FileUtil.writeString(builder.toString(), summaryRecordFile, "utf-8");
-    }
-
-    private void collectArticleInfo(StringBuilder builder, List<WArticleItemPO> articleItemPOS) {
-        for (WArticleItemPO articleItemPO : articleItemPOS) {
-            builder.append("标题：").append(articleItemPO.getTitle()).append("\n")
-                    .append("文章链接：").append(articleItemPO.getLink()).append("\n")
-                    .append("封面图片链接：").append(articleItemPO.getCover()).append("\n")
-                    .append("发布日期：").append(DateUtil.format(articleItemPO.getUpdateTime(), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"))).append("\n\n");
-        }
+        articleFileManager.saveFetchArticles(accountPO, fetchArticleItemPOS);
+        articleFileManager.saveTodayArticles(accountPO);
+        updateLatestTime(fakeId);
+        fakeIdArticlesMap.remove(fakeId);
     }
 
     private void updateLatestTime(String fakeId) {

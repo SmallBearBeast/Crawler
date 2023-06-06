@@ -81,6 +81,12 @@ public class WebMagicController {
         wechatService.syncRecentConversions();
     }
 
+    @PostMapping("syncNeedFetchArticle")
+    public String syncNeedFetchArticle() {
+        wechatService.syncNeedFetchArticle();
+        return "syncNeedFetchArticle successfully";
+    }
+
     @PostMapping("/syncArticle")
     public String syncArticle(
             @RequestParam(name = "fakeIds", required = false, defaultValue = "") List<String> fakeIds,

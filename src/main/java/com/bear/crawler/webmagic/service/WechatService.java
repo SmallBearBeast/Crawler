@@ -9,6 +9,7 @@ import com.bear.crawler.webmagic.dao.WAccountDao;
 import com.bear.crawler.webmagic.basic.http.OkHttp;
 import com.bear.crawler.webmagic.dao.WArticleDao;
 import com.bear.crawler.webmagic.dao.WUserInfoDao;
+import com.bear.crawler.webmagic.manager.ArticleFileManager;
 import com.bear.crawler.webmagic.mybatis.generator.po.WAccountPO;
 import com.bear.crawler.webmagic.mybatis.generator.po.WArticleItemPO;
 import com.bear.crawler.webmagic.mybatis.generator.po.WUserInfoPO;
@@ -84,6 +85,9 @@ public class WechatService {
     @Autowired
     private WUserInfoDao wUserInfoDao;
 
+    @Autowired
+    private ArticleFileManager articleFileManager;
+
     public void fetchWArticleDetail(String query) {
         Spider.create(wArticleDetailProcessor)
                 .addUrl("https://mp.weixin.qq.com/s/" + query)
@@ -98,7 +102,7 @@ public class WechatService {
         for (WAccountPO accountPO : accountPOMap.values()) {
             addRequestToSpider(spider, accountPO);
         }
-        spider.thread(5).start();
+        spider.thread(2).start();
     }
 
     public void listenWArticlesUpdate(List<String> accountNames) {
@@ -294,6 +298,20 @@ public class WechatService {
         }
     }
 
+    public void syncNeedFetchArticle() {
+        List<String> fakeIds = wAccountProvider.getNeedFetchAccountFakeIds();
+        String url = "https://mp.weixin.qq.com/cgi-bin/appmsg?action=list_ex&begin=0&count=5&fakeid={{fakeId}}&type=9&query=&token={{token}}&lang=zh_CN&f=json&ajax=1";
+        for (int i = 0; i < fakeIds.size(); i++) {
+            String fakeId = fakeIds.get(i);
+            log.debug("syncNeedFetchArticle: start fetch fakeId = {}, index = {}", fakeId, i);
+            String newUrl = OtherUtil.getNewUrlByParams(url, MapUtil.of(AppConstant.FAKE_ID, fakeId));
+            List<WArticleItemPO> articleItemPOS = new ArrayList<>();
+            syncArticle(newUrl, fakeId, articleItemPOS);
+            log.debug("syncNeedFetchArticle: end fetch fakeId = {}, index = {}", fakeId, i);
+        }
+        articleFileManager.saveTotalTodayArticles(fakeIds);
+    }
+
     public void syncArticle(List<String> fakeIds, List<String> accountNames) {
         List<String> finalFakeIds = fakeIds;
         if (CollectionUtil.isEmpty(fakeIds)) {
@@ -305,11 +323,13 @@ public class WechatService {
         String url = "https://mp.weixin.qq.com/cgi-bin/appmsg?action=list_ex&begin=0&count=5&fakeid={{fakeId}}&type=9&query=&token={{token}}&lang=zh_CN&f=json&ajax=1";
         for (String fakeId : finalFakeIds) {
             String newUrl = OtherUtil.getNewUrlByParams(url, MapUtil.of(AppConstant.FAKE_ID, fakeId));
-            syncArticle(newUrl, fakeId, new ArrayList<>());
+            List<WArticleItemPO> articleItemPOS = new ArrayList<>();
+            syncArticle(newUrl, fakeId, articleItemPOS);
         }
     }
 
     private void syncArticle(String url, String fakeId, List<WArticleItemPO> saveArticleItemPOS) {
+        OtherUtil.sleep(RandomUtil.randomInt(3, 6));
         WArticleItemsRespDto respDto = okHttp.get(url, null, null, WArticleItemsRespDto.class);
         if (OtherUtil.checkCommonRespDto(respDto, "WechatService.syncArticle()")) {
             List<WArticleItemDto> articleItemDtos = respDto.getArticleItemDtos();
@@ -331,7 +351,6 @@ public class WechatService {
                     onFetchArticlesEnd(fakeId, saveArticleItemPOS);
                 } else {
                     String newUrl = OtherUtil.getNewUrlByParams(url, MapUtil.of(AppConstant.BEGIN, begin + 5));
-                    OtherUtil.sleep(RandomUtil.randomInt(3, 6));
                     syncArticle(newUrl, fakeId, saveArticleItemPOS);
                 }
             } else {
@@ -359,13 +378,15 @@ public class WechatService {
     }
 
     private void onFetchArticlesEnd(String fakeId, List<WArticleItemPO> articleItemPOS) {
+        WAccountPO accountPO = wAccountProvider.findByFakeId(fakeId);
+        articleFileManager.saveFetchArticles(accountPO, articleItemPOS);
+        articleFileManager.saveTodayArticles(accountPO);
         WArticleItemPO articleItemPO = CollectionUtil.getFirst(articleItemPOS);
         if (articleItemPO != null) {
             wArticleProvider.setLastLatestTime(fakeId, articleItemPO.getUpdateTime().getTime() / 1000);
         }
     }
 
-    // TODO: 6/5/23 把自己账号加入数据库
     // TODO: 6/5/23 article表新增isMe，state字段，或者关联出一张表出来。
     // TODO: 6/5/23 群发发布的article。 
     // TODO: 6/5/23 loadTodayWaitToPublishArticles 

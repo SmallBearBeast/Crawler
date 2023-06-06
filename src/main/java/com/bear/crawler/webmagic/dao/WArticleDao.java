@@ -2,6 +2,7 @@ package com.bear.crawler.webmagic.dao;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateUtil;
+import com.bear.crawler.webmagic.AppConstant;
 import com.bear.crawler.webmagic.mybatis.custom.WArticleItemPOCustomMapper;
 import com.bear.crawler.webmagic.mybatis.generator.mapper.WArticleItemPOMapper;
 import com.bear.crawler.webmagic.mybatis.generator.po.WArticleItemPO;
@@ -18,8 +19,6 @@ import java.util.List;
 @Slf4j
 @Repository
 public class WArticleDao {
-
-    private static final String MY_FAKEID = "Mzg4MDk3MTI0OQ==";
 
     @Autowired
     private WArticleItemPOMapper wArticleItemPOMapper;
@@ -100,13 +99,13 @@ public class WArticleDao {
     }
 
     public List<WArticleItemPO> selectMeByToday() {
-        return selectByToday(MY_FAKEID);
+        return selectByToday(AppConstant.MY_FAKE_ID);
     }
 
     public WArticleItemPO selectByMeTitle(String title) {
         try {
             WArticleItemPOExample example = new WArticleItemPOExample();
-            example.createCriteria().andOfficialAccountFakeIdEqualTo(MY_FAKEID).andTitleLike("%" + title + "%");
+            example.createCriteria().andOfficialAccountFakeIdEqualTo(AppConstant.MY_FAKE_ID).andTitleLike("%" + title + "%");
             List<WArticleItemPO> articleItemPOS = wArticleItemPOMapper.selectByExample(example);
             return CollectionUtil.getFirst(articleItemPOS);
         } catch (Exception e) {
