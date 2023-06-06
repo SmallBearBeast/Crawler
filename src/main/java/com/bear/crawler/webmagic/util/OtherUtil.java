@@ -5,13 +5,11 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.net.url.UrlBuilder;
 import cn.hutool.core.net.url.UrlQuery;
-import com.bear.crawler.webmagic.AppConstant;
 import com.bear.crawler.webmagic.mybatis.generator.po.WArticleItemPO;
 import com.bear.crawler.webmagic.mybatis.generator.po.WAccountPO;
 import com.bear.crawler.webmagic.pojo.dto.BaseRespDto;
 import com.bear.crawler.webmagic.pojo.dto.CommonRespDto;
 import lombok.extern.slf4j.Slf4j;
-import us.codecraft.webmagic.Page;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -70,20 +68,6 @@ public class OtherUtil {
             newUrlQuery.add(entry.getKey(), entry.getValue());
         }
         return UrlBuilder.of(url).setQuery(newUrlQuery).setCharset(null).build();
-    }
-
-    public static void addNextTargetRequest(Page page, int begin) {
-        String url = page.getUrl().get();
-        UrlQuery urlQuery = UrlBuilder.of(url).getQuery();
-        UrlQuery newUrlQuery = new UrlQuery();
-        for (Map.Entry<CharSequence, CharSequence> entry : urlQuery.getQueryMap().entrySet()) {
-            if (!AppConstant.BEGIN.contentEquals(entry.getKey())) {
-                newUrlQuery.add(entry.getKey(), entry.getValue());
-            }
-        }
-        newUrlQuery.add(AppConstant.BEGIN, begin + 5);
-        String nextUrl = UrlBuilder.of(url).setQuery(newUrlQuery).build();
-        page.addTargetRequest(nextUrl);
     }
 
     public static void saveSummaryContentToFile(WAccountPO accountPO, List<WArticleItemPO> articleItemPOS, String fetchArticleDir) {

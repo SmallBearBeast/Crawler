@@ -1,5 +1,6 @@
 package com.bear.crawler.webmagic.processor;
 
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.RandomUtil;
 import com.bear.crawler.webmagic.AppConstant;
 import com.bear.crawler.webmagic.dao.WAccountDao;
@@ -50,7 +51,7 @@ public class WAccountProcessor implements PageProcessor {
                         if (begin + accountDtos.size() > AppConstant.ACCOUNT_LIMIT) {
                             log.info("Load public account list more than {}", AppConstant.ACCOUNT_LIMIT);
                         } else {
-                            addNextTargetRequest(page, begin);
+                            addNextTargetRequest(page, begin + 5);
                         }
                     }
                 }
@@ -88,7 +89,8 @@ public class WAccountProcessor implements PageProcessor {
     }
 
     private void addNextTargetRequest(Page page, int begin) {
-        OtherUtil.addNextTargetRequest(page, begin);
+        String newUrl = OtherUtil.getNewUrlByParams(page.getUrl().get(), MapUtil.of(AppConstant.BEGIN, begin));
+        page.addTargetRequest(newUrl);
     }
 
     // TODO: 5/15/23 private boolean checkChange()

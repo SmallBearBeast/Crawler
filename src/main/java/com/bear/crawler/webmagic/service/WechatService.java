@@ -330,7 +330,7 @@ public class WechatService {
                     log.info("syncArticle: load article list more than {}, begin = {}", AppConstant.ARTICLE_LIMIT, begin);
                     onFetchArticlesEnd(fakeId, saveArticleItemPOS);
                 } else {
-                    String newUrl = OtherUtil.getNewUrlByParams(url, MapUtil.of(AppConstant.BEGIN, begin + articleItemDtos.size()));
+                    String newUrl = OtherUtil.getNewUrlByParams(url, MapUtil.of(AppConstant.BEGIN, begin + 5));
                     OtherUtil.sleep(RandomUtil.randomInt(3, 6));
                     syncArticle(newUrl, fakeId, saveArticleItemPOS);
                 }

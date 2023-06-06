@@ -3,6 +3,7 @@ package com.bear.crawler.webmagic.processor;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.RandomUtil;
 import com.bear.crawler.webmagic.AppConstant;
 import com.bear.crawler.webmagic.dao.WArticleDao;
@@ -79,7 +80,7 @@ public class WArticleProcessor implements PageProcessor {
                         log.info("process: load article list more than {}", AppConstant.ARTICLE_LIMIT);
                         onFetchArticlesEnd(fakeId);
                     } else {
-                        addNextTargetRequest(page, begin);
+                        addNextTargetRequest(page, begin + 5);
                     }
                 } else {
                     log.info("process: load the last latest article");
@@ -206,6 +207,7 @@ public class WArticleProcessor implements PageProcessor {
     }
 
     private void addNextTargetRequest(Page page, int begin) {
-        OtherUtil.addNextTargetRequest(page, begin);
+        String newUrl = OtherUtil.getNewUrlByParams(page.getUrl().get(), MapUtil.of(AppConstant.BEGIN, begin));
+        page.addTargetRequest(newUrl);
     }
 }
