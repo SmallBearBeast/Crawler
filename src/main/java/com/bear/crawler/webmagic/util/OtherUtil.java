@@ -5,6 +5,7 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.net.url.UrlBuilder;
 import cn.hutool.core.net.url.UrlQuery;
+import com.bear.crawler.webmagic.AppConstant;
 import com.bear.crawler.webmagic.mybatis.generator.po.WArticleItemPO;
 import com.bear.crawler.webmagic.mybatis.generator.po.WAccountPO;
 import com.bear.crawler.webmagic.pojo.dto.BaseRespDto;
@@ -21,9 +22,6 @@ import java.util.Random;
 
 @Slf4j
 public class OtherUtil {
-
-    public static final String BEGIN = "begin";
-    public static final String FAKE_ID = "fakeid";
 
     private static final Random random = new Random();
 
@@ -47,7 +45,7 @@ public class OtherUtil {
             } else if (ret == 200013) {
                 log.warn("The account has been blocked and needs to wait for a few hours to be unblocked, ret = {}, err_msg = {}, tag = {}", ret, errMsg, tag);
             } else if (ret == 200002) {
-                log.warn("Parameter error, check the fakeid, ret = {}, err_msg = {}, tag = {}", ret, errMsg, tag);
+                log.warn("Parameter error, check the fakeId, ret = {}, err_msg = {}, tag = {}", ret, errMsg, tag);
             } else {
                 log.warn("Other error, ret = {}, err_msg = {}, tag = {}", ret, errMsg, tag);
             }
@@ -79,11 +77,11 @@ public class OtherUtil {
         UrlQuery urlQuery = UrlBuilder.of(url).getQuery();
         UrlQuery newUrlQuery = new UrlQuery();
         for (Map.Entry<CharSequence, CharSequence> entry : urlQuery.getQueryMap().entrySet()) {
-            if (!BEGIN.contentEquals(entry.getKey())) {
+            if (!AppConstant.BEGIN.contentEquals(entry.getKey())) {
                 newUrlQuery.add(entry.getKey(), entry.getValue());
             }
         }
-        newUrlQuery.add(BEGIN, begin + 5);
+        newUrlQuery.add(AppConstant.BEGIN, begin + 5);
         String nextUrl = UrlBuilder.of(url).setQuery(newUrlQuery).build();
         page.addTargetRequest(nextUrl);
     }

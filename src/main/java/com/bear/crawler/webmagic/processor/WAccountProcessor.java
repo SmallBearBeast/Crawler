@@ -1,6 +1,7 @@
 package com.bear.crawler.webmagic.processor;
 
 import cn.hutool.core.util.RandomUtil;
+import com.bear.crawler.webmagic.AppConstant;
 import com.bear.crawler.webmagic.dao.WAccountDao;
 import com.bear.crawler.webmagic.mybatis.generator.po.WAccountPO;
 import com.bear.crawler.webmagic.pojo.dto.WAccountDto;
@@ -21,8 +22,6 @@ import java.util.List;
 @Slf4j
 @Component
 public class WAccountProcessor implements PageProcessor {
-
-    private static final int ACCOUNT_LIMIT = 100;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -48,8 +47,8 @@ public class WAccountProcessor implements PageProcessor {
                     } else {
                         log.info("Load public account list successfully, begin = {}", begin);
                         saveAccountDtosToDB(accountDtos);
-                        if (begin + accountDtos.size() > ACCOUNT_LIMIT) {
-                            log.info("Load public account list more than {}", ACCOUNT_LIMIT);
+                        if (begin + accountDtos.size() > AppConstant.ACCOUNT_LIMIT) {
+                            log.info("Load public account list more than {}", AppConstant.ACCOUNT_LIMIT);
                         } else {
                             addNextTargetRequest(page, begin);
                         }
@@ -85,7 +84,7 @@ public class WAccountProcessor implements PageProcessor {
     }
 
     private int getBegin(Page page) {
-        return Integer.parseInt(OtherUtil.getQuery(page.getUrl().get(), OtherUtil.BEGIN));
+        return Integer.parseInt(OtherUtil.getQuery(page.getUrl().get(), AppConstant.BEGIN));
     }
 
     private void addNextTargetRequest(Page page, int begin) {

@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.RandomUtil;
+import com.bear.crawler.webmagic.AppConstant;
 import com.bear.crawler.webmagic.dao.WArticleDao;
 import com.bear.crawler.webmagic.mybatis.generator.po.WArticleItemPO;
 import com.bear.crawler.webmagic.mybatis.generator.po.WAccountPO;
@@ -33,7 +34,6 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 @Component
 public class WArticleProcessor implements PageProcessor {
-    private static final int ARTICLE_LIMIT = 20;
 
     @Value("${wechat.fetchArticleDir}")
     private String fetchArticleDir;
@@ -75,8 +75,8 @@ public class WArticleProcessor implements PageProcessor {
                 if (curNewestTime > lastLatestTime) {
                     saveArticleItemDtoToDB(articleItemDtos, fakeId);
                     int articleSize = fakeIdArticlesMap.get(fakeId).size();
-                    if (articleSize >= ARTICLE_LIMIT) {
-                        log.info("process: load article list more than {}", ARTICLE_LIMIT);
+                    if (articleSize >= AppConstant.ARTICLE_LIMIT) {
+                        log.info("process: load article list more than {}", AppConstant.ARTICLE_LIMIT);
                         onFetchArticlesEnd(fakeId);
                     } else {
                         addNextTargetRequest(page, begin);
@@ -198,11 +198,11 @@ public class WArticleProcessor implements PageProcessor {
     }
 
     private int getBegin(Page page) {
-        return Integer.parseInt(OtherUtil.getQuery(page.getUrl().get(), OtherUtil.BEGIN));
+        return Integer.parseInt(OtherUtil.getQuery(page.getUrl().get(), AppConstant.BEGIN));
     }
 
     private String getFakeId(Page page) {
-        return OtherUtil.getQuery(page.getUrl().get(), OtherUtil.FAKE_ID);
+        return OtherUtil.getQuery(page.getUrl().get(), AppConstant.FAKE_ID);
     }
 
     private void addNextTargetRequest(Page page, int begin) {

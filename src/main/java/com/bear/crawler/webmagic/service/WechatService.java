@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.RandomUtil;
+import com.bear.crawler.webmagic.AppConstant;
 import com.bear.crawler.webmagic.dao.WAccountDao;
 import com.bear.crawler.webmagic.basic.http.OkHttp;
 import com.bear.crawler.webmagic.dao.WArticleDao;
@@ -49,8 +50,6 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 public class WechatService {
-
-    private static final int ARTICLE_LIMIT = 20;
 
     @Autowired
     private WechatConfig wechatConfig;
@@ -273,7 +272,7 @@ public class WechatService {
         log.debug("sendMsgToRecentUser: aid = {}", aid);
         String url = "https://mp.weixin.qq.com/cgi-bin/singlesend?t=ajax-response&f=json";
         String referer = "https://mp.weixin.qq.com/cgi-bin/message?t=message/list&count=20&day=7&token=" + wechatConfig.getToken() + "&lang=zh_CN";
-        Map<String, String> headerMap = MapUtil.of("referer", referer);
+        Map<String, String> headerMap = MapUtil.of(AppConstant.REFERER, referer);
         List<WUserInfoPO> userInfoPOS = wUserInfoProvider.getRecentUserInfos();
         for (WUserInfoPO userInfoPO : userInfoPOS) {
             Map<String, String> paramMap = MapUtil.builder("tofakeid", userInfoPO.getOpenid())
@@ -305,7 +304,7 @@ public class WechatService {
         }
         String url = "https://mp.weixin.qq.com/cgi-bin/appmsg?action=list_ex&begin=0&count=5&fakeid={{fakeId}}&type=9&query=&token={{token}}&lang=zh_CN&f=json&ajax=1";
         for (String fakeId : finalFakeIds) {
-            String newUrl = OtherUtil.getNewUrlByParams(url, MapUtil.of(OtherUtil.FAKE_ID, fakeId));
+            String newUrl = OtherUtil.getNewUrlByParams(url, MapUtil.of(AppConstant.FAKE_ID, fakeId));
             syncArticle(newUrl, fakeId, new ArrayList<>());
         }
     }
@@ -314,7 +313,7 @@ public class WechatService {
         WArticleItemsRespDto respDto = okHttp.get(url, null, null, WArticleItemsRespDto.class);
         if (OtherUtil.checkCommonRespDto(respDto, "WechatService.syncArticle()")) {
             List<WArticleItemDto> articleItemDtos = respDto.getArticleItemDtos();
-            int begin = Integer.parseInt(OtherUtil.getQuery(url, OtherUtil.BEGIN));
+            int begin = Integer.parseInt(OtherUtil.getQuery(url, AppConstant.BEGIN));
             if (CollectionUtil.isEmpty(articleItemDtos)) {
                 log.info("syncArticle: articleItemDtos is empty, begin = {}", begin);
                 onFetchArticlesEnd(fakeId, saveArticleItemPOS);
@@ -327,11 +326,11 @@ public class WechatService {
             if (curNewestTime > lastLatestTime) {
                 saveArticleItemDtoToDB(articleItemDtos, fakeId, saveArticleItemPOS);
                 int articleSize = saveArticleItemPOS.size();
-                if (articleSize >= ARTICLE_LIMIT) {
-                    log.info("syncArticle: load article list more than {}, begin = {}", ARTICLE_LIMIT, begin);
+                if (articleSize >= AppConstant.ARTICLE_LIMIT) {
+                    log.info("syncArticle: load article list more than {}, begin = {}", AppConstant.ARTICLE_LIMIT, begin);
                     onFetchArticlesEnd(fakeId, saveArticleItemPOS);
                 } else {
-                    String newUrl = OtherUtil.getNewUrlByParams(url, MapUtil.of(OtherUtil.BEGIN, begin + articleItemDtos.size()));
+                    String newUrl = OtherUtil.getNewUrlByParams(url, MapUtil.of(AppConstant.BEGIN, begin + articleItemDtos.size()));
                     OtherUtil.sleep(RandomUtil.randomInt(3, 6));
                     syncArticle(newUrl, fakeId, saveArticleItemPOS);
                 }
