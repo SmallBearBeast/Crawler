@@ -38,10 +38,18 @@ public class WebMagicController {
         return "listenWArticlesUpdateForAccounts successfully";
     }
 
-    @PostMapping("/searchAndInsertWAccount")
-    public String searchAndInsertWAccount(@RequestParam("searchContent") String searchContent) {
-        wechatService.searchAndInsertWAccount(searchContent);
-        return "searchAndInsertWAccount successfully";
+    @PostMapping("/searchAndSyncWAccount")
+    public String searchAndSyncWAccount(@RequestParam("searchContent") String searchContent) {
+        wechatService.searchAndSyncWAccount(searchContent);
+        return "searchAndSyncWAccount successfully";
+    }
+
+    @PostMapping("/findAndSyncWAccount")
+    public String findAndSyncWAccount(
+            @RequestParam("accountName") String accountName,
+            @RequestParam(name = "needToFetch", required = false, defaultValue = "false") boolean needToFetch) {
+        wechatService.findAndSyncWAccount(accountName, needToFetch);
+        return "findAndSyncWAccount successfully";
     }
 
     @PostMapping("/updateWAccountNeedToFetchByName")
@@ -54,14 +62,6 @@ public class WebMagicController {
     public String updateWAccountNeedToFetchByFakeId(@RequestParam("fakeIds") List<String> fakeIds, @RequestParam("needToFetch") boolean needToFetch) {
         wechatService.updateWAccountNeedToFetchByFakeId(fakeIds, needToFetch);
         return "updateWAccountNeedToFetchByFakeId successfully";
-    }
-
-    @PostMapping("/findAndInsertWAccount")
-    public String findAndInsertWAccount(
-            @RequestParam("accountName") String accountName,
-            @RequestParam(name = "needToFetch", required = false, defaultValue = "false") boolean needToFetch) {
-        wechatService.findAndInsertWAccount(accountName, needToFetch);
-        return "findAndInsertWAccount successfully";
     }
 
     @PostMapping("/updateWechatConfig")
@@ -81,17 +81,17 @@ public class WebMagicController {
         wechatService.syncRecentConversions();
     }
 
-    @PostMapping("/sendMsgToRecentUser")
-    public String sendMsgToRecentUser(@RequestParam("aid") String aid) {
-        wechatService.sendMsgToRecentUser(aid);
-        return "sendMsgToRecentUser successfully";
-    }
-
     @PostMapping("/syncArticle")
     public String syncArticle(
             @RequestParam(name = "fakeIds", required = false, defaultValue = "") List<String> fakeIds,
             @RequestParam(name = "accountNames", required = false, defaultValue = "") List<String> accountNames) {
         wechatService.syncArticle(fakeIds, accountNames);
         return "syncArticle successfully";
+    }
+
+    @PostMapping("/sendMsgToRecentUser")
+    public String sendMsgToRecentUser(@RequestParam("aid") String aid) {
+        wechatService.sendMsgToRecentUser(aid);
+        return "sendMsgToRecentUser successfully";
     }
 }

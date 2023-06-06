@@ -44,7 +44,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -125,10 +124,10 @@ public class WechatService {
         spider.addRequest(request);
     }
 
-    public void searchAndInsertWAccount(String searchContent) {
-        log.debug("searchAndInsertWAccount : searchContent = {}", searchContent);
+    public void searchAndSyncWAccount(String searchContent) {
+        log.debug("searchAndSyncWAccount : searchContent = {}", searchContent);
         String encodeQuery = URLEncoder.encode(searchContent, StandardCharsets.UTF_8);
-        String url = "https://mp.weixin.qq.com/cgi-bin/searchbiz?action=search_biz&begin=0&count=5&query=" + encodeQuery + "&token=" + wechatConfig.getToken() + "&lang=zh_CN&f=json&ajax=1";
+        String url = "https://mp.weixin.qq.com/cgi-bin/searchbiz?action=search_biz&begin=0&count=5&query=" + encodeQuery + "&token={{token}}&lang=zh_CN&f=json&ajax=1";
         Request request = new Request(url);
         request.addHeader("cookie", wechatConfig.getCookie());
         request.addHeader("user-agent", wechatConfig.getUserAgent());
@@ -170,13 +169,13 @@ public class WechatService {
 
     // 使用RestTemplate get请求没有添加header的方法
     // 使用RestTemplate拿不到list数据，为空，因此使用okhttp。
-    public void findAndInsertWAccount(String accountName, boolean needToFetch) {
-        log.debug("findAndInsertWAccount: accountName = {}, needToFetch = {}", accountName, needToFetch);
+    public void findAndSyncWAccount(String accountName, boolean needToFetch) {
+        log.debug("findAndSyncWAccount: accountName = {}, needToFetch = {}", accountName, needToFetch);
         String encodeAccountName = URLEncoder.encode(accountName, StandardCharsets.UTF_8);
         String url = "https://mp.weixin.qq.com/cgi-bin/searchbiz?action=search_biz&begin=0&count=5&query=" + encodeAccountName + "&token={{token}}&lang=zh_CN&f=json&ajax=1";
         WAccountPO existAccountPO = wAccountProvider.findByNickname(accountName);
         if (existAccountPO != null) {
-            log.debug("findAndInsertWAccount: exist accountPO, needToFetch = {}", existAccountPO.getNeedFetch());
+            log.debug("findAndSyncWAccount: exist accountPO, needToFetch = {}", existAccountPO.getNeedFetch());
             if (existAccountPO.getNeedFetch() != needToFetch) {
                 existAccountPO.setNeedFetch(needToFetch);
                 wAccountDao.updateByFakeId(existAccountPO);
@@ -190,7 +189,7 @@ public class WechatService {
                     if (accountName.equalsIgnoreCase(accountDto.getNickname())) {
                         WAccountPO accountPO = TransformBeanUtil.dtoToPo(accountDto);
                         accountPO.setNeedFetch(needToFetch);
-                        log.debug("findAndInsertWAccount: insert or update accountPO, id = {}", accountPO.getId());
+                        log.debug("findAndSyncWAccount: insert or update accountPO, id = {}", accountPO.getId());
                         if (wAccountProvider.isInAccountDB(accountPO)) {
                             wAccountDao.updateByFakeId(accountPO);
                         } else {
@@ -201,7 +200,7 @@ public class WechatService {
                         return;
                     }
                 }
-                log.debug("findAndInsertWAccount: no found, accountName = {}", accountName);
+                log.debug("findAndSyncWAccount: no found, accountName = {}", accountName);
             }
         }
     }
