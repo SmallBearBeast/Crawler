@@ -29,7 +29,7 @@ public class ConversationsRespDto extends BaseRespDto {
     private int getunreadmsg;
 
     @JsonAlias("item")
-    private List<Map<String, ConversationMsgDto>> item;
+    private List<Map<String, ConversationDto>> item;
 
     @JsonAlias("last_fans_msg_id")
     private int lastFansMsgId;
@@ -43,12 +43,12 @@ public class ConversationsRespDto extends BaseRespDto {
     @JsonAlias("total_msg_cnt")
     private int totalMsgCnt;
 
-    public List<ConversationMsgDto> getConversationMsgDtos() {
+    public List<ConversationDto> getConversationDtos() {
         if (CollectionUtil.isEmpty(item)) {
             return new ArrayList<>();
         }
-        List<ConversationMsgDto> msgDtos = new ArrayList<>();
-        for (Map<String, ConversationMsgDto> map : item) {
+        List<ConversationDto> msgDtos = new ArrayList<>();
+        for (Map<String, ConversationDto> map : item) {
             if (map.get("msg") != null) {
                 msgDtos.add(map.get("msg"));
             }

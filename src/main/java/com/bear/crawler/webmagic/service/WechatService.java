@@ -14,6 +14,7 @@ import com.bear.crawler.webmagic.mybatis.generator.po.WAccountPO;
 import com.bear.crawler.webmagic.mybatis.generator.po.WArticleItemPO;
 import com.bear.crawler.webmagic.mybatis.generator.po.WUserInfoPO;
 import com.bear.crawler.webmagic.pojo.WechatConfig;
+import com.bear.crawler.webmagic.pojo.dto.ConversationDto;
 import com.bear.crawler.webmagic.pojo.dto.ConversationsRespDto;
 import com.bear.crawler.webmagic.pojo.dto.SendMsgRespDto;
 import com.bear.crawler.webmagic.pojo.dto.WArticleItemDto;
@@ -95,6 +96,7 @@ public class WechatService {
                 .run();
     }
 
+    // TODO: 6/6/23 频率控制
     public void listenWArticlesUpdate() {
         log.debug("listenWArticlesUpdate: enter");
         Map<String, WAccountPO> accountPOMap = wAccountProvider.getNeedFetchAccountMap();
@@ -267,37 +269,19 @@ public class WechatService {
     }
 
     public void syncRecentConversions() {
+        log.debug("syncRecentConversions: enter");
         String url = "https://mp.weixin.qq.com/cgi-bin/message?frommsgid=&count=20&day=7&filtertype=0&getunreadmsg=0&withbizmsg=1&keyword=&filterivrmsg=1&filterspammsg=1&count_per_user=1&offset=&token={{token}}&lang=zh_CN&f=json&ajax=1";
         ConversationsRespDto respDto = okHttp.get(url, null, null, ConversationsRespDto.class);
-        log.debug("syncRecentConversions: enter");
-    }
-
-    public void sendMsgToRecentUser(String aid) {
-        log.debug("sendMsgToRecentUser: aid = {}", aid);
-        String url = "https://mp.weixin.qq.com/cgi-bin/singlesend?t=ajax-response&f=json";
-        String referer = "https://mp.weixin.qq.com/cgi-bin/message?t=message/list&count=20&day=7&token=" + wechatConfig.getToken() + "&lang=zh_CN";
-        Map<String, String> headerMap = MapUtil.of(AppConstant.REFERER, referer);
-        List<WUserInfoPO> userInfoPOS = wUserInfoProvider.getRecentUserInfos();
-        for (WUserInfoPO userInfoPO : userInfoPOS) {
-            Map<String, String> paramMap = MapUtil.builder("tofakeid", userInfoPO.getOpenid())
-                    .put("quickreplyid", "")
-                    .put("imgcode", "")
-                    .put("type", "10")
-                    .put("appmsgid", aid)
-                    .put("token", wechatConfig.getToken())
-                    .put("lang", "zh_CN")
-                    .put("f", "json")
-                    .put("ajax", "1")
-                    .build();
-            SendMsgRespDto respDto = okHttp.post(url, paramMap, headerMap, SendMsgRespDto.class);
-            if (OtherUtil.checkCommonRespDto(respDto, "WechatService.sendMessageToAllUser()")) {
-                log.info("sendMessageToAllUser: send message to {} success", userInfoPO.getName());
-            } else {
-                log.info("sendMessageToAllUser: send message to {} fail", userInfoPO.getName());
+        if (OtherUtil.checkCommonRespDto(respDto, "WechatService.syncRecentConversions()")) {
+            List<ConversationDto> conversationDtos = respDto.getConversationDtos();
+            if (CollectionUtil.isEmpty(conversationDtos)) {
+                // TODO: 6/7/23 创建Conversation表
+                // TODO: 6/7/23 创建Msgitem表
             }
         }
     }
 
+    // TODO: 6/7/23 利用多线程抓取，asyncTaskTools控制异步任务
     public void syncNeedFetchArticle() {
         List<String> fakeIds = wAccountProvider.getNeedFetchAccountFakeIds();
         String url = "https://mp.weixin.qq.com/cgi-bin/appmsg?action=list_ex&begin=0&count=5&fakeid={{fakeId}}&type=9&query=&token={{token}}&lang=zh_CN&f=json&ajax=1";
@@ -384,6 +368,32 @@ public class WechatService {
         WArticleItemPO articleItemPO = CollectionUtil.getFirst(articleItemPOS);
         if (articleItemPO != null) {
             wArticleProvider.setLastLatestTime(fakeId, articleItemPO.getUpdateTime().getTime() / 1000);
+        }
+    }
+
+    public void sendMsgToRecentUser(String aid) {
+        log.debug("sendMsgToRecentUser: aid = {}", aid);
+        String url = "https://mp.weixin.qq.com/cgi-bin/singlesend?t=ajax-response&f=json";
+        String referer = "https://mp.weixin.qq.com/cgi-bin/message?t=message/list&count=20&day=7&token=" + wechatConfig.getToken() + "&lang=zh_CN";
+        Map<String, String> headerMap = MapUtil.of(AppConstant.REFERER, referer);
+        List<WUserInfoPO> userInfoPOS = wUserInfoProvider.getRecentUserInfos();
+        for (WUserInfoPO userInfoPO : userInfoPOS) {
+            Map<String, String> paramMap = MapUtil.builder("tofakeid", userInfoPO.getOpenid())
+                    .put("quickreplyid", "")
+                    .put("imgcode", "")
+                    .put("type", "10")
+                    .put("appmsgid", aid)
+                    .put("token", wechatConfig.getToken())
+                    .put("lang", "zh_CN")
+                    .put("f", "json")
+                    .put("ajax", "1")
+                    .build();
+            SendMsgRespDto respDto = okHttp.post(url, paramMap, headerMap, SendMsgRespDto.class);
+            if (OtherUtil.checkCommonRespDto(respDto, "WechatService.sendMessageToAllUser()")) {
+                log.info("sendMessageToAllUser: send message to {} success", userInfoPO.getName());
+            } else {
+                log.info("sendMessageToAllUser: send message to {} fail", userInfoPO.getName());
+            }
         }
     }
 
