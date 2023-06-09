@@ -3,6 +3,8 @@ package com.bear.crawler.webmagic.pojo.dto;
 import com.fasterxml.jackson.annotation.JsonAlias;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class MsgItemDto {
 
@@ -13,7 +15,7 @@ public class MsgItemDto {
     private int type; // 10002
 
     @JsonAlias("fakeid")
-    private String fakeid; // "3880971249"
+    private String fakeId; // "3880971249"
 
     @JsonAlias("nick_name")
     private String nickName; // "SmallBearBeast"
@@ -34,7 +36,7 @@ public class MsgItemDto {
     private String title;
 
     @JsonAlias("desc")
-    private String desc;
+    private String msgDesc;
 
     @JsonAlias("content_url")
     private String contentUrl;
@@ -55,7 +57,7 @@ public class MsgItemDto {
     private String refuseReason;
 
     @JsonAlias("multi_item")
-    private String multiItem;
+    private List<Object> multiItem;
 
     @JsonAlias("to_uin")
     private String toUin; // "o8etS59OrP8pUUdjCB6Dy8sKomII"
@@ -76,7 +78,7 @@ public class MsgItemDto {
     private int isVipMsg; // 0
 
     @JsonAlias("small_headimg_url")
-    private String smallHeadimgUrl; // "/64"
+    private String smallHeadImgUrl; // "/64"
 
     @JsonAlias("id_64bit")
     private String id64bit; // "500000200"
@@ -88,7 +90,7 @@ public class MsgItemDto {
     private String bizNickname; // "SmallBearBeast"
 
     @JsonAlias("biz_headimgurl")
-    private String bizHeadimgurl; // "http://wx.qlogo.cn/mmhead/Q3auHgzwzM7miaO8liaoic1F8r1oiayzqqiclIR2m3brjUjjXeIu5rxKiaOQ/0"
+    private String bizHeadImgUrl; // "http://wx.qlogo.cn/mmhead/Q3auHgzwzM7miaO8liaoic1F8r1oiayzqqiclIR2m3brjUjjXeIu5rxKiaOQ/0"
 
     @JsonAlias("reward_money_count")
     private int rewardMoneyCount;

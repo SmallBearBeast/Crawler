@@ -12,7 +12,7 @@
     <result column="source" jdbcType="VARCHAR" property="source" />
     <result column="msg_status" jdbcType="INTEGER" property="msgStatus" />
     <result column="title" jdbcType="VARCHAR" property="title" />
-    <result column="desc" jdbcType="VARCHAR" property="desc" />
+    <result column="msg_desc" jdbcType="VARCHAR" property="msgDesc" />
     <result column="content_url" jdbcType="VARCHAR" property="contentUrl" />
     <result column="show_type" jdbcType="INTEGER" property="showType" />
     <result column="file_id" jdbcType="INTEGER" property="fileId" />
@@ -88,8 +88,8 @@
   </sql>
   <sql id="Base_Column_List">
     id, msg_id, type, fake_id, nickname, date_time, content, source, msg_status, title, 
-    desc, content_url, show_type, file_id, app_sub_type, has_reply, refuse_reason, to_uin, 
-    copyright_status, copyright_type, is_vip_msg, is_often_read, reward_money_count, 
+    msg_desc, content_url, show_type, file_id, app_sub_type, has_reply, refuse_reason, 
+    to_uin, copyright_status, copyright_type, is_vip_msg, is_often_read, reward_money_count, 
     comment_count, paysubscribe_wecoin_amount
   </sql>
   <select id="selectByExample" parameterType="com.bear.crawler.webmagic.mybatis.generator.po.WMsgItemPOExample" resultMap="BaseResultMap">
@@ -138,7 +138,7 @@
     insert into w_msg_item (msg_id, type, fake_id, 
       nickname, date_time, content, 
       source, msg_status, title, 
-      desc, content_url, show_type, 
+      msg_desc, content_url, show_type, 
       file_id, app_sub_type, has_reply, 
       refuse_reason, to_uin, copyright_status, 
       copyright_type, is_vip_msg, is_often_read, 
@@ -147,7 +147,7 @@
     values (#{msgId,jdbcType=INTEGER}, #{type,jdbcType=INTEGER}, #{fakeId,jdbcType=VARCHAR}, 
       #{nickname,jdbcType=VARCHAR}, #{dateTime,jdbcType=TIMESTAMP}, #{content,jdbcType=VARCHAR}, 
       #{source,jdbcType=VARCHAR}, #{msgStatus,jdbcType=INTEGER}, #{title,jdbcType=VARCHAR}, 
-      #{desc,jdbcType=VARCHAR}, #{contentUrl,jdbcType=VARCHAR}, #{showType,jdbcType=INTEGER}, 
+      #{msgDesc,jdbcType=VARCHAR}, #{contentUrl,jdbcType=VARCHAR}, #{showType,jdbcType=INTEGER}, 
       #{fileId,jdbcType=INTEGER}, #{appSubType,jdbcType=INTEGER}, #{hasReply,jdbcType=INTEGER}, 
       #{refuseReason,jdbcType=VARCHAR}, #{toUin,jdbcType=VARCHAR}, #{copyrightStatus,jdbcType=INTEGER}, 
       #{copyrightType,jdbcType=INTEGER}, #{isVipMsg,jdbcType=INTEGER}, #{isOftenRead,jdbcType=INTEGER}, 
@@ -187,8 +187,8 @@
       <if test="title != null">
         title,
       </if>
-      <if test="desc != null">
-        desc,
+      <if test="msgDesc != null">
+        msg_desc,
       </if>
       <if test="contentUrl != null">
         content_url,
@@ -261,8 +261,8 @@
       <if test="title != null">
         #{title,jdbcType=VARCHAR},
       </if>
-      <if test="desc != null">
-        #{desc,jdbcType=VARCHAR},
+      <if test="msgDesc != null">
+        #{msgDesc,jdbcType=VARCHAR},
       </if>
       <if test="contentUrl != null">
         #{contentUrl,jdbcType=VARCHAR},
@@ -347,8 +347,8 @@
       <if test="record.title != null">
         title = #{record.title,jdbcType=VARCHAR},
       </if>
-      <if test="record.desc != null">
-        desc = #{record.desc,jdbcType=VARCHAR},
+      <if test="record.msgDesc != null">
+        msg_desc = #{record.msgDesc,jdbcType=VARCHAR},
       </if>
       <if test="record.contentUrl != null">
         content_url = #{record.contentUrl,jdbcType=VARCHAR},
@@ -409,7 +409,7 @@
       source = #{record.source,jdbcType=VARCHAR},
       msg_status = #{record.msgStatus,jdbcType=INTEGER},
       title = #{record.title,jdbcType=VARCHAR},
-      desc = #{record.desc,jdbcType=VARCHAR},
+      msg_desc = #{record.msgDesc,jdbcType=VARCHAR},
       content_url = #{record.contentUrl,jdbcType=VARCHAR},
       show_type = #{record.showType,jdbcType=INTEGER},
       file_id = #{record.fileId,jdbcType=INTEGER},
@@ -458,8 +458,8 @@
       <if test="title != null">
         title = #{title,jdbcType=VARCHAR},
       </if>
-      <if test="desc != null">
-        desc = #{desc,jdbcType=VARCHAR},
+      <if test="msgDesc != null">
+        msg_desc = #{msgDesc,jdbcType=VARCHAR},
       </if>
       <if test="contentUrl != null">
         content_url = #{contentUrl,jdbcType=VARCHAR},
@@ -517,7 +517,7 @@
       source = #{source,jdbcType=VARCHAR},
       msg_status = #{msgStatus,jdbcType=INTEGER},
       title = #{title,jdbcType=VARCHAR},
-      desc = #{desc,jdbcType=VARCHAR},
+      msg_desc = #{msgDesc,jdbcType=VARCHAR},
       content_url = #{contentUrl,jdbcType=VARCHAR},
       show_type = #{showType,jdbcType=INTEGER},
       file_id = #{fileId,jdbcType=INTEGER},

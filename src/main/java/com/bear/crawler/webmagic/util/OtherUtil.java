@@ -29,15 +29,17 @@ public class OtherUtil {
             int ret = commonRespDto.getRet();
             String errMsg = commonRespDto.getErrMsg();
             if (ret == 0) {
-                log.warn("Request is ok tag = {}", tag);
+                log.warn("checkCommonRespDto: Request is ok tag = {}", tag);
                 return true;
             } else if (ret == 200013) {
-                log.warn("The account has been blocked and needs to wait for a few hours to be unblocked, ret = {}, err_msg = {}, tag = {}", ret, errMsg, tag);
+                log.warn("checkCommonRespDto: The account has been blocked and needs to wait for a few hours to be unblocked, ret = {}, err_msg = {}, tag = {}", ret, errMsg, tag);
             } else if (ret == 200002) {
-                log.warn("Parameter error, check the fakeId, ret = {}, err_msg = {}, tag = {}", ret, errMsg, tag);
+                log.warn("checkCommonRespDto: Parameter error, check the fakeId, ret = {}, err_msg = {}, tag = {}", ret, errMsg, tag);
             } else {
-                log.warn("Other error, ret = {}, err_msg = {}, tag = {}", ret, errMsg, tag);
+                log.warn("checkCommonRespDto: Other error, ret = {}, err_msg = {}, tag = {}", ret, errMsg, tag);
             }
+        } else {
+            log.warn("checkCommonRespDto: commonRespDto is null");
         }
         return false;
     }

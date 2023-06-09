@@ -1,10 +1,19 @@
 package com.bear.crawler.webmagic.pojo.dto;
 
+import cn.hutool.core.collection.CollectionUtil;
 import com.fasterxml.jackson.annotation.JsonAlias;
 import lombok.Data;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 @Data
-public class ConversationDto {
+public class WConversationDto {
+
+    public static final int CAN_REPLAY = 1;
+    public static final int NO_REPLAY = 0;
+
     @JsonAlias("biz_last_replay_id")
     private int bizLastReplayId;
 
@@ -22,11 +31,19 @@ public class ConversationDto {
     private int isMissReply;
 
     @JsonAlias("msg_items")
-    private String msgItems;
+    private Map<String, List<MsgItemDto>> msgItemMap;
 
     @JsonAlias("stage")
     private int stage;
 
     @JsonAlias("unread_cnt")
     private int unreadCnt;
+
+    public List<MsgItemDto> getMsgItemDtos() {
+        if (CollectionUtil.isEmpty(msgItemMap)) {
+            return new ArrayList<>();
+        }
+        List<MsgItemDto> msgItemDtos = msgItemMap.get("msg_item");
+        return msgItemDtos == null ? new ArrayList<>() : msgItemDtos;
+    }
 }

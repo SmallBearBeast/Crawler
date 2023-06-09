@@ -25,7 +25,7 @@ public class WMsgItemPO implements Serializable {
 
     private String title;
 
-    private String desc;
+    private String msgDesc;
 
     private String contentUrl;
 
@@ -137,12 +137,12 @@ public class WMsgItemPO implements Serializable {
         this.title = title;
     }
 
-    public String getDesc() {
-        return desc;
+    public String getMsgDesc() {
+        return msgDesc;
     }
 
-    public void setDesc(String desc) {
-        this.desc = desc;
+    public void setMsgDesc(String msgDesc) {
+        this.msgDesc = msgDesc;
     }
 
     public String getContentUrl() {
@@ -273,7 +273,7 @@ public class WMsgItemPO implements Serializable {
         sb.append(", source=").append(source);
         sb.append(", msgStatus=").append(msgStatus);
         sb.append(", title=").append(title);
-        sb.append(", desc=").append(desc);
+        sb.append(", msgDesc=").append(msgDesc);
         sb.append(", contentUrl=").append(contentUrl);
         sb.append(", showType=").append(showType);
         sb.append(", fileId=").append(fileId);

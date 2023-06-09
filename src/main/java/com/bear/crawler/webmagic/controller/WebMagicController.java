@@ -76,9 +76,10 @@ public class WebMagicController {
         return "syncUserInfos successfully";
     }
 
-    @GetMapping("/syncRecentConversions")
-    public void syncRecentConversions() {
-        wechatService.syncRecentConversions();
+    @GetMapping("/syncRecentMsgs")
+    public String syncRecentMsgs() {
+        wechatService.syncRecentMsgs();
+        return "syncRecentMsgs successfully";
     }
 
     @PostMapping("syncNeedFetchArticle")

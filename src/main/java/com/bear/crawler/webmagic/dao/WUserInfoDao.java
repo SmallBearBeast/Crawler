@@ -23,7 +23,7 @@ public class WUserInfoDao {
             WUserInfoPOExample example = new WUserInfoPOExample();
             return wUserInfoPOMapper.selectByExample(example);
         } catch (Exception e) {
-            log.warn("Select the all user info list failed, e = {}", e.getMessage());
+            log.warn("Select all user infos failed, e = {}", e.getMessage());
         }
         return new ArrayList<>();
     }
@@ -36,7 +36,7 @@ public class WUserInfoDao {
             example.createCriteria().andCreateTimeGreaterThanOrEqualTo(dateBefore48Hour);
             return wUserInfoPOMapper.selectByExample(example);
         } catch (Exception e) {
-            log.warn("Select the recent user info list failed, e = {}", e.getMessage());
+            log.warn("Select recent user infos failed, e = {}", e.getMessage());
         }
         return new ArrayList<>();
     }

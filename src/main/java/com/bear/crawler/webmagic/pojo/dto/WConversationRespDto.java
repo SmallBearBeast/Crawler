@@ -6,11 +6,8 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class SendMsgRespDto extends BaseRespDto {
+public class WConversationRespDto extends BaseRespDto {
 
-    @JsonAlias("is_miss_reply")
-    private int isMissReply;
-
-    @JsonAlias("stage")
-    private int stage;
+    @JsonAlias("page_info")
+    private WConversationDto conversationDto;
 }

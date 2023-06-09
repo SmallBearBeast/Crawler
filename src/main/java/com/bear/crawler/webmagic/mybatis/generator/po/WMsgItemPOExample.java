@@ -777,73 +777,73 @@ public class WMsgItemPOExample {
             return (Criteria) this;
         }
 
-        public Criteria andDescIsNull() {
-            addCriterion("desc is null");
+        public Criteria andMsgDescIsNull() {
+            addCriterion("msg_desc is null");
             return (Criteria) this;
         }
 
-        public Criteria andDescIsNotNull() {
-            addCriterion("desc is not null");
+        public Criteria andMsgDescIsNotNull() {
+            addCriterion("msg_desc is not null");
             return (Criteria) this;
         }
 
-        public Criteria andDescEqualTo(String value) {
-            addCriterion("desc =", value, "desc");
+        public Criteria andMsgDescEqualTo(String value) {
+            addCriterion("msg_desc =", value, "msgDesc");
             return (Criteria) this;
         }
 
-        public Criteria andDescNotEqualTo(String value) {
-            addCriterion("desc <>", value, "desc");
+        public Criteria andMsgDescNotEqualTo(String value) {
+            addCriterion("msg_desc <>", value, "msgDesc");
             return (Criteria) this;
         }
 
-        public Criteria andDescGreaterThan(String value) {
-            addCriterion("desc >", value, "desc");
+        public Criteria andMsgDescGreaterThan(String value) {
+            addCriterion("msg_desc >", value, "msgDesc");
             return (Criteria) this;
         }
 
-        public Criteria andDescGreaterThanOrEqualTo(String value) {
-            addCriterion("desc >=", value, "desc");
+        public Criteria andMsgDescGreaterThanOrEqualTo(String value) {
+            addCriterion("msg_desc >=", value, "msgDesc");
             return (Criteria) this;
         }
 
-        public Criteria andDescLessThan(String value) {
-            addCriterion("desc <", value, "desc");
+        public Criteria andMsgDescLessThan(String value) {
+            addCriterion("msg_desc <", value, "msgDesc");
             return (Criteria) this;
         }
 
-        public Criteria andDescLessThanOrEqualTo(String value) {
-            addCriterion("desc <=", value, "desc");
+        public Criteria andMsgDescLessThanOrEqualTo(String value) {
+            addCriterion("msg_desc <=", value, "msgDesc");
             return (Criteria) this;
         }
 
-        public Criteria andDescLike(String value) {
-            addCriterion("desc like", value, "desc");
+        public Criteria andMsgDescLike(String value) {
+            addCriterion("msg_desc like", value, "msgDesc");
             return (Criteria) this;
         }
 
-        public Criteria andDescNotLike(String value) {
-            addCriterion("desc not like", value, "desc");
+        public Criteria andMsgDescNotLike(String value) {
+            addCriterion("msg_desc not like", value, "msgDesc");
             return (Criteria) this;
         }
 
-        public Criteria andDescIn(List<String> values) {
-            addCriterion("desc in", values, "desc");
+        public Criteria andMsgDescIn(List<String> values) {
+            addCriterion("msg_desc in", values, "msgDesc");
             return (Criteria) this;
         }
 
-        public Criteria andDescNotIn(List<String> values) {
-            addCriterion("desc not in", values, "desc");
+        public Criteria andMsgDescNotIn(List<String> values) {
+            addCriterion("msg_desc not in", values, "msgDesc");
             return (Criteria) this;
         }
 
-        public Criteria andDescBetween(String value1, String value2) {
-            addCriterion("desc between", value1, value2, "desc");
+        public Criteria andMsgDescBetween(String value1, String value2) {
+            addCriterion("msg_desc between", value1, value2, "msgDesc");
             return (Criteria) this;
         }
 
-        public Criteria andDescNotBetween(String value1, String value2) {
-            addCriterion("desc not between", value1, value2, "desc");
+        public Criteria andMsgDescNotBetween(String value1, String value2) {
+            addCriterion("msg_desc not between", value1, value2, "msgDesc");
             return (Criteria) this;
         }
 
