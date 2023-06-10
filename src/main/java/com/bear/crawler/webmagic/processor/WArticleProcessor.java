@@ -9,7 +9,7 @@ import com.bear.crawler.webmagic.manager.ArticleFileManager;
 import com.bear.crawler.webmagic.mybatis.generator.po.WArticleItemPO;
 import com.bear.crawler.webmagic.mybatis.generator.po.WAccountPO;
 import com.bear.crawler.webmagic.pojo.dto.WArticleItemDto;
-import com.bear.crawler.webmagic.pojo.dto.WArticleItemsRespDto;
+import com.bear.crawler.webmagic.pojo.dto.resp.WArticleItemsRespDto;
 import com.bear.crawler.webmagic.provider.WArticleProvider;
 import com.bear.crawler.webmagic.provider.WAccountProvider;
 import com.bear.crawler.webmagic.util.OtherUtil;

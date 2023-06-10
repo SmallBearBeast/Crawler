@@ -53,10 +53,10 @@ public class WUserInfoCache {
     }
 
     @CachePut(key = "'recentUserInfoMap'")
-    public Map<String, WUserInfoPO> updateRecentUserInfoMap(Map<String, WUserInfoPO> map, WUserInfoPO userInfoPO) {
+    public Map<String, WUserInfoPO> updateRecentUserInfoMap(Map<String, WUserInfoPO> map, WUserInfoPO userInfoPO, boolean isRemove) {
         long createTime = userInfoPO.getCreateTime().getTime();
         long curTime = new Date().getTime();
-        if (curTime - createTime > 48 * 3600 * 1000L) {
+        if (isRemove || curTime - createTime > 48 * 3600 * 1000L) {
             map.remove(userInfoPO.getOpenid());
         } else {
             map.put(userInfoPO.getOpenid(), userInfoPO);

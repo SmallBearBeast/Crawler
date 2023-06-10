@@ -22,11 +22,11 @@ public class WUserInfoProvider {
     @Autowired
     private WUserInfoCache wUserInfoCache;
 
-    public void updateCache(WUserInfoPO userInfoPO) {
+    public void updateCache(WUserInfoPO userInfoPO, Boolean isRemove) {
         Map<String, WUserInfoPO> allUserInfoMap = wUserInfoCache.getAllUserInfoMap();
         Map<String, WUserInfoPO> resentUserInfoMap = getResentUserInfoMap();
-        wUserInfoCache.updateAllUserInfoMap(allUserInfoMap, userInfoPO, false);
-        wUserInfoCache.updateRecentUserInfoMap(resentUserInfoMap, userInfoPO);
+        wUserInfoCache.updateAllUserInfoMap(allUserInfoMap, userInfoPO, isRemove);
+        wUserInfoCache.updateRecentUserInfoMap(resentUserInfoMap, userInfoPO, isRemove);
     }
 
     public boolean isInDB(WUserInfoPO userInfoPO) {
@@ -62,7 +62,7 @@ public class WUserInfoProvider {
         Map<String, WUserInfoPO> resentUserInfoMap = wUserInfoCache.getResentUserInfoMap();
         for (Map.Entry<String, WUserInfoPO> entry : resentUserInfoMap.entrySet()) {
             WUserInfoPO userInfoPO = entry.getValue();
-            wUserInfoCache.updateRecentUserInfoMap(resentUserInfoMap, userInfoPO);
+            wUserInfoCache.updateRecentUserInfoMap(resentUserInfoMap, userInfoPO, false);
         }
         return resentUserInfoMap;
     }

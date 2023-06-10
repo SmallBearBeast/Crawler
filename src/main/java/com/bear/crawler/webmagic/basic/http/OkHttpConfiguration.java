@@ -38,7 +38,8 @@ public class OkHttpConfiguration {
                 .readTimeout(okHttpProperties.getReadTimeout(), TimeUnit.SECONDS)
                 .writeTimeout(okHttpProperties.getWriteTimeout(), TimeUnit.SECONDS)
 //                .hostnameVerifier((hostname, session) -> true)
-                .addInterceptor(new WechatAuthInterceptor(wechatConfig))
+                .addInterceptor(new WAuthInterceptor(wechatConfig))
+                .addInterceptor(new WSleepInterceptor())
                 .build();
     }
 

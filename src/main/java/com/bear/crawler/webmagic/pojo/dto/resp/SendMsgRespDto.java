@@ -1,4 +1,4 @@
-package com.bear.crawler.webmagic.pojo.dto;
+package com.bear.crawler.webmagic.pojo.dto.resp;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import lombok.Data;

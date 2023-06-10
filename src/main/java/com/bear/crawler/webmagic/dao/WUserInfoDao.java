@@ -58,4 +58,14 @@ public class WUserInfoDao {
             log.warn("Update user info by openId failed, e = {}", e.getMessage());
         }
     }
+
+    public void deleteByOpenId(WUserInfoPO userInfoPO) {
+        try {
+            WUserInfoPOExample example = new WUserInfoPOExample();
+            example.createCriteria().andOpenidEqualTo(userInfoPO.getOpenid());
+            wUserInfoPOMapper.deleteByExample(example);
+        } catch (Exception e) {
+            log.warn("Delete user info by openId failed, e = {}", e.getMessage());
+        }
+    }
 }

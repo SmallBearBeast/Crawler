@@ -1,6 +1,8 @@
-package com.bear.crawler.webmagic.pojo.dto;
+package com.bear.crawler.webmagic.pojo.dto.resp;
 
 import cn.hutool.core.collection.CollectionUtil;
+import com.bear.crawler.webmagic.pojo.dto.GroupInfoDto;
+import com.bear.crawler.webmagic.pojo.dto.WUserInfoDto;
 import com.fasterxml.jackson.annotation.JsonAlias;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

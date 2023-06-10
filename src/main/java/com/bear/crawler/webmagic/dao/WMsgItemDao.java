@@ -63,4 +63,14 @@ public class WMsgItemDao {
             log.warn("Insert msg item failed, e = {}", e.getMessage());
         }
     }
+
+    public void updateByFakeId(WMsgItemPO msgItemPO) {
+        try {
+            WMsgItemPOExample example = new WMsgItemPOExample();
+            example.createCriteria().andFakeIdEqualTo(msgItemPO.getFakeId());
+            wMsgItemPOMapper.updateByExample(msgItemPO, example);
+        } catch (Exception e) {
+            log.warn("Insert msg item failed, e = {}", e.getMessage());
+        }
+    }
 }

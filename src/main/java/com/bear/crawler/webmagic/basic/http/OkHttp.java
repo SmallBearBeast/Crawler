@@ -107,6 +107,9 @@ public class OkHttp {
             //string()方法获取到资源后就释放了，如果不调用这个方法，需要手动释放 response.close()
             //所以先取出来保存
             String body = responseBody != null ? responseBody.string() : "";
+            if (String.class.equals(clz)) {
+                return (T) body;
+            }
             return objectMapper.readValue(body, clz);
         } catch (Exception e) {
             log.info("execute：e = {}", e.getMessage());

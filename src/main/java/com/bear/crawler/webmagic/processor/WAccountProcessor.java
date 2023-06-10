@@ -6,7 +6,7 @@ import com.bear.crawler.webmagic.AppConstant;
 import com.bear.crawler.webmagic.dao.WAccountDao;
 import com.bear.crawler.webmagic.mybatis.generator.po.WAccountPO;
 import com.bear.crawler.webmagic.pojo.dto.WAccountDto;
-import com.bear.crawler.webmagic.pojo.dto.WAccountsRespDto;
+import com.bear.crawler.webmagic.pojo.dto.resp.WAccountsRespDto;
 import com.bear.crawler.webmagic.provider.WAccountProvider;
 import com.bear.crawler.webmagic.util.OtherUtil;
 import com.bear.crawler.webmagic.util.BeanConverterUtil;

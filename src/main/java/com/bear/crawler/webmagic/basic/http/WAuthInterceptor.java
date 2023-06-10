@@ -12,11 +12,11 @@ import org.springframework.util.StringUtils;
 import java.io.IOException;
 import java.util.Map;
 
-public class WechatAuthInterceptor implements Interceptor {
+public class WAuthInterceptor implements Interceptor {
 
     private final WechatConfig wechatConfig;
 
-    public WechatAuthInterceptor(WechatConfig wechatConfig) {
+    public WAuthInterceptor(WechatConfig wechatConfig) {
         this.wechatConfig = wechatConfig;
     }
 

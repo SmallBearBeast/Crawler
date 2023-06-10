@@ -40,6 +40,10 @@ public class WMsgItemProvider {
         return getRecentMsgItemMap().containsKey(fakeId);
     }
 
+    public boolean isInDB(WMsgItemPO msgItemPO) {
+        return findMsgItemByFakeId(msgItemPO.getFakeId()) != null;
+    }
+
     private Map<String, WMsgItemPO> getRecentMsgItemMap() {
         Map<String, WMsgItemPO> recentMsgItemMap = wMsgItemCache.getRecentMsgItemMap();
         for (Map.Entry<String, WMsgItemPO> entry : recentMsgItemMap.entrySet()) {

@@ -76,7 +76,7 @@ public class WebMagicController {
         return "syncUserInfos successfully";
     }
 
-    @GetMapping("/syncRecentMsgs")
+    @PostMapping("/syncRecentMsgs")
     public String syncRecentMsgs() {
         wechatService.syncRecentMsgs();
         return "syncRecentMsgs successfully";
@@ -94,6 +94,12 @@ public class WebMagicController {
             @RequestParam(name = "accountNames", required = false, defaultValue = "") List<String> accountNames) {
         wechatService.syncArticle(fakeIds, accountNames);
         return "syncArticle successfully";
+    }
+
+    @PostMapping("/syncMyArticle")
+    public String syncMyArticle() {
+        wechatService.syncMyArticle();
+        return "syncMyArticle successfully";
     }
 
     @PostMapping("/sendMsgToRecentUser")

@@ -2,8 +2,8 @@ package com.bear.crawler.webmagic.util;
 
 import cn.hutool.core.net.url.UrlBuilder;
 import cn.hutool.core.net.url.UrlQuery;
-import com.bear.crawler.webmagic.pojo.dto.BaseRespDto;
-import com.bear.crawler.webmagic.pojo.dto.CommonRespDto;
+import com.bear.crawler.webmagic.pojo.dto.resp.BaseRespDto;
+import com.bear.crawler.webmagic.pojo.dto.resp.CommonRespDto;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
