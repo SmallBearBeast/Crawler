@@ -2,6 +2,7 @@ package com.bear.crawler.webmagic.util;
 
 import cn.hutool.core.net.url.UrlBuilder;
 import cn.hutool.core.net.url.UrlQuery;
+import com.bear.crawler.webmagic.AppConstant;
 import com.bear.crawler.webmagic.pojo.dto.resp.BaseRespDto;
 import com.bear.crawler.webmagic.pojo.dto.resp.CommonRespDto;
 import lombok.extern.slf4j.Slf4j;
@@ -61,5 +62,9 @@ public class OtherUtil {
             newUrlQuery.add(entry.getKey(), entry.getValue());
         }
         return UrlBuilder.of(url).setQuery(newUrlQuery).setCharset(null).build();
+    }
+
+    public static boolean isMyFakeId(String fakeId) {
+        return AppConstant.MY_FAKE_ID.equals(fakeId);
     }
 }

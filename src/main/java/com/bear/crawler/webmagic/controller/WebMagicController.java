@@ -88,18 +88,18 @@ public class WebMagicController {
         return "syncNeedFetchArticle successfully";
     }
 
+    @PostMapping("/syncMyArticle")
+    public String syncMyArticle() {
+        wechatService.syncMyArticle();
+        return "syncMyArticle successfully";
+    }
+
     @PostMapping("/syncArticle")
     public String syncArticle(
             @RequestParam(name = "fakeIds", required = false, defaultValue = "") List<String> fakeIds,
             @RequestParam(name = "accountNames", required = false, defaultValue = "") List<String> accountNames) {
         wechatService.syncArticle(fakeIds, accountNames);
         return "syncArticle successfully";
-    }
-
-    @PostMapping("/syncMyArticle")
-    public String syncMyArticle() {
-        wechatService.syncMyArticle();
-        return "syncMyArticle successfully";
     }
 
     @PostMapping("/sendMsgToRecentUser")

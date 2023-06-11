@@ -3,8 +3,6 @@ package com.bear.crawler.webmagic.service;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.map.MapUtil;
-import cn.hutool.core.util.RandomUtil;
-import cn.hutool.core.util.StrUtil;
 import com.bear.crawler.webmagic.AppConstant;
 import com.bear.crawler.webmagic.dao.WAccountDao;
 import com.bear.crawler.webmagic.basic.http.OkHttp;
@@ -19,6 +17,7 @@ import com.bear.crawler.webmagic.mybatis.generator.po.WUserInfoPO;
 import com.bear.crawler.webmagic.pojo.WechatConfig;
 import com.bear.crawler.webmagic.pojo.dto.MsgItemDto;
 import com.bear.crawler.webmagic.pojo.dto.WConversationDto;
+import com.bear.crawler.webmagic.pojo.dto.resp.BaseRespDto;
 import com.bear.crawler.webmagic.pojo.dto.resp.SendMsgRespDto;
 import com.bear.crawler.webmagic.pojo.dto.WArticleItemDto;
 import com.bear.crawler.webmagic.pojo.dto.resp.WArticleItemsRespDto;
@@ -309,7 +308,6 @@ public class WechatService {
             if (!wMsgItemProvider.isRecentMsg(fakeId)) {
                 WMsgItemPO msgItemPO = wMsgItemProvider.findMsgItemByFakeId(fakeId);
                 String lastMsgId = String.valueOf(msgItemPO == null ? "" : msgItemPO.getMsgId());
-                randomSleep();
                 String url = "https://mp.weixin.qq.com/cgi-bin/singlesendpage?action=sync&tofakeid=" + fakeId + "&lastmsgfromfakeid=&lastmsgid=" + lastMsgId + "&createtime&token={{token}}&lang=zh_CN&f=json&ajax=1";
                 WConversationRespDto respDto = okHttp.get(url, null, null, WConversationRespDto.class);
                 if (OtherUtil.checkCommonRespDto(respDto, "WechatService.syncRecentMsgs()")) {
@@ -354,11 +352,15 @@ public class WechatService {
             String fakeId = fakeIds.get(i);
             log.debug("syncNeedFetchArticle: start fetch fakeId = {}, index = {}", fakeId, i);
             String newUrl = OtherUtil.getNewUrlByParams(url, MapUtil.of(AppConstant.FAKE_ID, fakeId));
-            List<WArticleItemPO> articleItemPOS = new ArrayList<>();
-            syncArticleInternal(newUrl, fakeId, articleItemPOS);
+            syncArticleInternal(newUrl, fakeId, new ArrayList<>());
             log.debug("syncNeedFetchArticle: end fetch fakeId = {}, index = {}", fakeId, i);
         }
         articleFileManager.saveTotalTodayArticles(fakeIds);
+    }
+
+    public void syncMyArticle() {
+        String url = "https://mp.weixin.qq.com/cgi-bin/appmsgpublish?sub=list&search_field=null&begin=0&count=5&query=&type=101_1&free_publish_type=1&sub_action=list_ex&token={{token}}&lang=zh_CN&f=json&ajax=1";
+        syncArticleInternal(url, AppConstant.MY_FAKE_ID, new ArrayList<>());
     }
 
     public void syncArticle(List<String> fakeIds, List<String> accountNames) {
@@ -371,24 +373,36 @@ public class WechatService {
         }
         String url = "https://mp.weixin.qq.com/cgi-bin/appmsg?action=list_ex&begin=0&count=5&fakeid={{fakeId}}&type=9&query=&token={{token}}&lang=zh_CN&f=json&ajax=1";
         for (String fakeId : finalFakeIds) {
-            String newUrl = OtherUtil.getNewUrlByParams(url, MapUtil.of(AppConstant.FAKE_ID, fakeId));
-            List<WArticleItemPO> articleItemPOS = new ArrayList<>();
-            syncArticleInternal(newUrl, fakeId, articleItemPOS);
+            if (OtherUtil.isMyFakeId(fakeId)) {
+                syncMyArticle();
+            } else {
+                String newUrl = OtherUtil.getNewUrlByParams(url, MapUtil.of(AppConstant.FAKE_ID, fakeId));
+                syncArticleInternal(newUrl, fakeId, new ArrayList<>());
+            }
         }
     }
 
     private void syncArticleInternal(String url, String fakeId, List<WArticleItemPO> saveArticleItemPOS) {
-        randomSleep();
-        WArticleItemsRespDto respDto = okHttp.get(url, null, null, WArticleItemsRespDto.class);
-        if (OtherUtil.checkCommonRespDto(respDto, "WechatService.syncArticle()")) {
-            List<WArticleItemDto> articleItemDtos = respDto.getArticleItemDtos();
+        BaseRespDto respDto;
+        if (OtherUtil.isMyFakeId(fakeId)) {
+            respDto = requestMyArticle(url);
+        } else {
+            respDto = okHttp.get(url, null, null, WArticleItemsRespDto.class);
+        }
+        if (OtherUtil.checkCommonRespDto(respDto, "WechatService.syncArticleInternal()")) {
+            List<WArticleItemDto> articleItemDtos = new ArrayList<>();
+            if (respDto instanceof WMyPublishRespDto) {
+                articleItemDtos = ((WMyPublishRespDto) respDto).getMyArticleItemDtos();
+            } else if (respDto != null) {
+                articleItemDtos = ((WArticleItemsRespDto) respDto).getArticleItemDtos();
+            }
             int begin = Integer.parseInt(OtherUtil.getQuery(url, AppConstant.BEGIN));
             if (CollectionUtil.isEmpty(articleItemDtos)) {
-                log.info("syncArticle: articleItemDtos is empty, begin = {}", begin);
+                log.info("syncArticleInternal: articleItemDtos is empty, begin = {}", begin);
                 onFetchArticlesEnd(fakeId, saveArticleItemPOS);
                 return;
             }
-            log.info("syncArticle: load article list successfully, begin = {}", begin);
+            log.info("syncArticleInternal: load article list successfully, begin = {}", begin);
             articleItemDtos.sort((first, second) -> (int) (second.getUpdateTime() - first.getUpdateTime()));
             long lastLatestTime = wArticleProvider.getLastLatestTime(fakeId);
             long curNewestTime = CollectionUtil.getFirst(articleItemDtos).getUpdateTime();
@@ -396,17 +410,31 @@ public class WechatService {
                 saveArticleItemDtoToDB(articleItemDtos, fakeId, saveArticleItemPOS);
                 int articleSize = saveArticleItemPOS.size();
                 if (articleSize >= AppConstant.ARTICLE_LIMIT) {
-                    log.info("syncArticle: load article list more than {}, begin = {}", AppConstant.ARTICLE_LIMIT, begin);
+                    log.info("syncArticleInternal: load article list more than {}, begin = {}", AppConstant.ARTICLE_LIMIT, begin);
                     onFetchArticlesEnd(fakeId, saveArticleItemPOS);
                 } else {
                     String newUrl = OtherUtil.getNewUrlByParams(url, MapUtil.of(AppConstant.BEGIN, begin + 5));
                     syncArticleInternal(newUrl, fakeId, saveArticleItemPOS);
                 }
             } else {
-                log.info("syncArticle: load the last latest article, begin = {}", begin);
+                log.info("syncArticleInternal: load the last latest article, begin = {}", begin);
                 onFetchArticlesEnd(fakeId, saveArticleItemPOS);
             }
         }
+    }
+
+    private WMyPublishRespDto requestMyArticle(String url) {
+        String respDtoStr = okHttp.get(url, null, null, String.class);
+        WMyPublishRespDto respDto = null;
+        try {
+            respDtoStr = respDtoStr.replace("\\", "").replace("\"{", "{")
+                    .replace("\"}", "}").replace("}\"", "}");
+            respDto = objectMapper.readValue(respDtoStr, WMyPublishRespDto.class);
+            respDto.getMyArticleItemDtos();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return respDto;
     }
 
     private void saveArticleItemDtoToDB(List<WArticleItemDto> articleItemDtos, String fakeId, List<WArticleItemPO> articleItemPOS) {
@@ -437,20 +465,6 @@ public class WechatService {
         WArticleItemPO articleItemPO = CollectionUtil.getFirst(articleItemPOS);
         if (articleItemPO != null) {
             wArticleProvider.setLastLatestTime(fakeId, articleItemPO.getUpdateTime().getTime() / 1000);
-        }
-    }
-
-    public void syncMyArticle() {
-        String url = "https://mp.weixin.qq.com/cgi-bin/appmsgpublish?sub=list&search_field=null&begin=0&count=5&query=&type=101_1&free_publish_type=1&sub_action=list_ex&token={{token}}&lang=zh_CN&f=json&ajax=1";
-        String respDtoStr = okHttp.get(url, null, null, String.class);
-        try {
-            respDtoStr = respDtoStr.replace("\\", "").replace("\"{", "{")
-                    .replace("\"}", "}").replace("}\"", "}");
-            WMyPublishRespDto respDto = objectMapper.readValue(respDtoStr, WMyPublishRespDto.class);
-            List<WArticleItemDto> articleItemDtos = respDto.getMyArticleItemDtos();
-            log.debug("syncMyArticle: respDto = {}", respDto);
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 
@@ -496,8 +510,4 @@ public class WechatService {
     // TODO: 6/5/23 群发发布的article。 
     // TODO: 6/5/23 loadTodayWaitToPublishArticles 
     // TODO: 6/5/23 草稿？
-
-    private void randomSleep() {
-        OtherUtil.sleep(RandomUtil.randomInt(1, 4));
-    }
 }
