@@ -170,7 +170,7 @@ public class WechatService {
             if (accountPO != null && needToFetch != accountPO.getNeedFetch()) {
                 accountPO.setNeedFetch(needToFetch);
                 wAccountDao.updateByFakeId(accountPO);
-                wAccountProvider.updateNeedToFetchCache(accountPO);
+                wAccountProvider.updateCache(accountPO, false);
             }
         }
     }
@@ -185,7 +185,7 @@ public class WechatService {
             if (accountPO != null && needToFetch != accountPO.getNeedFetch()) {
                 accountPO.setNeedFetch(needToFetch);
                 wAccountDao.updateByFakeId(accountPO);
-                wAccountProvider.updateNeedToFetchCache(accountPO);
+                wAccountProvider.updateCache(accountPO, false);
             }
         }
     }
@@ -202,7 +202,7 @@ public class WechatService {
             if (existAccountPO.getNeedFetch() != needToFetch) {
                 existAccountPO.setNeedFetch(needToFetch);
                 wAccountDao.updateByFakeId(existAccountPO);
-                wAccountProvider.updateNeedToFetchCache(existAccountPO);
+                wAccountProvider.updateCache(existAccountPO, false);
             }
         } else {
             WAccountsRespDto accountsRespDto = okHttp.get(url, null, null, WAccountsRespDto.class);
@@ -218,8 +218,7 @@ public class WechatService {
                         } else {
                             wAccountDao.insert(accountPO);
                         }
-                        wAccountProvider.updateCache(accountPO);
-                        wAccountProvider.updateNeedToFetchCache(accountPO);
+                        wAccountProvider.updateCache(accountPO, false);
                         return;
                     }
                 }
@@ -454,7 +453,7 @@ public class WechatService {
                 wArticleDao.insert(itemPo);
                 articleItemPOS.add(itemPo);
             }
-            wArticleProvider.updateCache(itemPo);
+            wArticleProvider.updateCache(itemPo, false);
         }
     }
 
@@ -510,4 +509,5 @@ public class WechatService {
     // TODO: 6/5/23 群发发布的article。 
     // TODO: 6/5/23 loadTodayWaitToPublishArticles 
     // TODO: 6/5/23 草稿？
+    // send to me可以当做一个管理者通知渠道
 }

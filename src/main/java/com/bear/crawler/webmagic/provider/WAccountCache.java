@@ -32,8 +32,12 @@ public class WAccountCache {
     }
 
     @CachePut(key = "'allAccountsMap'")
-    public Map<String, WAccountPO> updateAllAccountMap(WAccountPO accountPO, Map<String, WAccountPO> map) {
-        map.put(accountPO.getFakeId(), accountPO);
+    public Map<String, WAccountPO> updateAllAccountMap(WAccountPO accountPO, Map<String, WAccountPO> map, Boolean isRemove) {
+        if (isRemove) {
+            map.remove(accountPO.getFakeId());
+        } else {
+            map.put(accountPO.getFakeId(), accountPO);
+        }
         return map;
     }
 
@@ -48,11 +52,11 @@ public class WAccountCache {
     }
 
     @CachePut(key = "'needFetchAccountMap'")
-    public Map<String, WAccountPO> updateAccountMapByNeedFetch(WAccountPO accountPO, Map<String, WAccountPO> map) {
-        if (accountPO.getNeedFetch()) {
-            map.put(accountPO.getFakeId(), accountPO);
-        } else {
+    public Map<String, WAccountPO> updateAccountMapByNeedFetch(WAccountPO accountPO, Map<String, WAccountPO> map, Boolean isRemove) {
+        if (isRemove || !accountPO.getNeedFetch()) {
             map.remove(accountPO.getFakeId());
+        } else {
+            map.put(accountPO.getFakeId(), accountPO);
         }
         return map;
     }

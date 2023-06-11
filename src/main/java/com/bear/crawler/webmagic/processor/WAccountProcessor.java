@@ -80,7 +80,7 @@ public class WAccountProcessor implements PageProcessor {
             } else {
                 wAccountDao.updateByFakeId(accountPO);
             }
-            wAccountProvider.updateCache(accountPO);
+            wAccountProvider.updateCache(accountPO, false);
         }
     }
 

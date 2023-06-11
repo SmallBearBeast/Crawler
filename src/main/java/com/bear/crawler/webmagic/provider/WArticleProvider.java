@@ -18,14 +18,14 @@ public class WArticleProvider {
     @Autowired
     private WArticleCache wArticleCache;
 
-    public void updateCache(WArticleItemPO articleItemPO) {
+    public void updateCache(WArticleItemPO articleItemPO, Boolean isRemove) {
         String fakeId = articleItemPO.getOfficialAccountFakeId();
         Map<String, WArticleItemPO> articleMap = wArticleCache.getArticleMap(fakeId);
-        wArticleCache.updateArticleMap(articleItemPO, articleMap);
+        wArticleCache.updateArticleMap(articleItemPO, articleMap, isRemove);
         Map<String, WArticleItemPO> curDateArticleMap = wArticleCache.getTodayArticleMap(fakeId);
         // 只有当天的Article才更新缓存。
         if (DateUtil.isSameDay(articleItemPO.getUpdateTime(), new Date())) {
-            wArticleCache.updateTodayArticleMap(articleItemPO, curDateArticleMap);
+            wArticleCache.updateTodayArticleMap(articleItemPO, curDateArticleMap, isRemove);
         }
     }
 

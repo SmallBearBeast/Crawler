@@ -48,8 +48,12 @@ public class WArticleCache {
     }
 
     @CachePut(key = "'articleMap_'+#articleItemPO.getOfficialAccountFakeId()")
-    public Map<String, WArticleItemPO> updateArticleMap(WArticleItemPO articleItemPO, Map<String, WArticleItemPO> map) {
-        map.put(articleItemPO.getAid(), articleItemPO);
+    public Map<String, WArticleItemPO> updateArticleMap(WArticleItemPO articleItemPO, Map<String, WArticleItemPO> map, Boolean isRemove) {
+        if (isRemove) {
+            map.remove(articleItemPO.getAid());
+        } else {
+            map.put(articleItemPO.getAid(), articleItemPO);
+        }
         return map;
     }
 
@@ -64,8 +68,12 @@ public class WArticleCache {
     }
 
     @CachePut(key = "'todayArticleMap_'+#articleItemPO.getOfficialAccountFakeId()")
-    public Map<String, WArticleItemPO> updateTodayArticleMap(WArticleItemPO articleItemPO, Map<String, WArticleItemPO> map) {
-        map.put(articleItemPO.getAid(), articleItemPO);
+    public Map<String, WArticleItemPO> updateTodayArticleMap(WArticleItemPO articleItemPO, Map<String, WArticleItemPO> map, Boolean isRemove) {
+        if (isRemove) {
+            map.remove(articleItemPO.getAid());
+        } else {
+            map.put(articleItemPO.getAid(), articleItemPO);
+        }
         return map;
     }
 }

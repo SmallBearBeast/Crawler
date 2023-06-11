@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -63,6 +64,26 @@ public class ArticleFileManager {
         String dir = getSaveArticlesDir(accountPO);
         File todayRecordFile = FileUtil.file(dir, "汇总记录.md");
         FileUtil.writeString(content, todayRecordFile, "utf-8");
+    }
+
+    public void deleteArticlesBefore7Week() {
+        Date dateBefore7Week = new Date(new Date().getTime() - 7 * 24 * 3600 * 1000);
+        Date formatDateBefore7Week = DateUtil.beginOfDay(dateBefore7Week);
+        File[] files = FileUtil.file(fetchArticleDir).listFiles((dir, name) -> {
+            try {
+                Date date = DateUtil.parse(name);
+                return DateUtil.compare(date, formatDateBefore7Week) < 0;
+            } catch (Exception e) {
+                return false;
+            }
+        });
+        if (files != null) {
+            for (File file : files) {
+                if (!FileUtil.del(file)) {
+                    log.warn("deleteFileBefore7Week: delete file {} failed", file.getName());
+                }
+            }
+        }
     }
 
     private String getFetchArticlesContent(WAccountPO accountPO, List<WArticleItemPO> articleItemPOS) {

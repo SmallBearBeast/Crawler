@@ -111,7 +111,7 @@ public class WArticleProcessor implements PageProcessor {
                 wArticleDao.insert(articleItemPO);
                 addToFakeIdArticlesMap(articleItemPO);
             }
-            wArticleProvider.updateCache(articleItemPO);
+            wArticleProvider.updateCache(articleItemPO, false);
         }
     }
 

@@ -19,14 +19,11 @@ public class WAccountProvider {
     @Autowired
     private WAccountCache wAccountCache;
 
-    public void updateCache(WAccountPO accountPO) {
+    public void updateCache(WAccountPO accountPO, Boolean isRemove) {
         Map<String, WAccountPO> allAccountMap = wAccountCache.getAllAccountMap();
-        wAccountCache.updateAllAccountMap(accountPO, allAccountMap);
-    }
-
-    public void updateNeedToFetchCache(WAccountPO accountPO) {
+        wAccountCache.updateAllAccountMap(accountPO, allAccountMap, isRemove);
         Map<String, WAccountPO> needFetchAccountMap = wAccountCache.getNeedFetchAccountMap();
-        wAccountCache.updateAccountMapByNeedFetch(accountPO, needFetchAccountMap);
+        wAccountCache.updateAccountMapByNeedFetch(accountPO, needFetchAccountMap, isRemove);
     }
 
     public boolean isInAccountDB(WAccountPO accountPO) {

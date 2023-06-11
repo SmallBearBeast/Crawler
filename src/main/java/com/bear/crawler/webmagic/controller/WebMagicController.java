@@ -88,6 +88,7 @@ public class WebMagicController {
         return "syncNeedFetchArticle successfully";
     }
 
+
     @PostMapping("/syncMyArticle")
     public String syncMyArticle() {
         wechatService.syncMyArticle();

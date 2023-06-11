@@ -16,9 +16,6 @@ import java.util.Set;
 @Component
 public class WUserInfoProvider {
 
-    // TODO: 6/4/23 定时器自我更新48小时用户
-    // TODO: 6/4/23 定时器清除fetch/article文章
-    // TODO: 6/4/23 定时器清article db
     @Autowired
     private WUserInfoCache wUserInfoCache;
 

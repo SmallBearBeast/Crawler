@@ -68,12 +68,6 @@ public class WArticleDao {
         }
     }
 
-    public void delete() {
-        WArticleItemPOExample example = new WArticleItemPOExample();
-        example.setLimit(10);
-        wArticleItemPOMapper.deleteByExample(example);
-    }
-
     public @Nullable WArticleItemPO selectLatest(String fakeId) {
         try {
             List<WArticleItemPO> articleItemPOS = wArticleItemPOCustomMapper.selectLatest(fakeId);
@@ -112,5 +106,30 @@ public class WArticleDao {
             log.warn("Select the my article by title failed, title = {}, e = {}", title, e.getMessage());
         }
         return null;
+    }
+
+    public List<WArticleItemPO> selectBefore7Week() {
+        try {
+            Date dateBefore7Week = new Date(new Date().getTime() - 7 * 24 * 3600 * 1000);
+            Date formatDateBefore7Week = DateUtil.beginOfDay(dateBefore7Week);
+            WArticleItemPOExample example = new WArticleItemPOExample();
+            example.createCriteria().andUpdateTimeLessThan(formatDateBefore7Week);
+            return wArticleItemPOMapper.selectByExample(example);
+        } catch (Exception e) {
+            log.warn("selectBefore7Week: select the articles before 7 weeks failed, e = {}", e.getMessage());
+        }
+        return new ArrayList<>();
+    }
+
+    public void deleteBefore7Week() {
+        try {
+            Date dateBefore7Week = new Date(new Date().getTime() - 7 * 24 * 3600 * 1000);
+            Date formatDateBefore7Week = DateUtil.beginOfDay(dateBefore7Week);
+            WArticleItemPOExample example = new WArticleItemPOExample();
+            example.createCriteria().andUpdateTimeLessThan(formatDateBefore7Week);
+            wArticleItemPOMapper.deleteByExample(example);
+        } catch (Exception e) {
+            log.warn("deleteBefore7Week: delete the articles before 7 weeks failed, e = {}", e.getMessage());
+        }
     }
 }
