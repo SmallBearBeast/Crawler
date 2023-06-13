@@ -70,6 +70,12 @@ public class WebMagicController {
         return "updateWechatConfig successfully";
     }
 
+    @PostMapping("/updateHandleState")
+    public String updateHandleState(@RequestParam("aids") List<String> aids, @RequestParam("state") int state) {
+        wechatService.updateHandleState(aids, state);
+        return "updateHandleState successfully";
+    }
+
     @PostMapping("/syncUserInfos")
     public String syncUserInfos() {
         wechatService.syncUserInfos();
@@ -82,12 +88,12 @@ public class WebMagicController {
         return "syncRecentMsgs successfully";
     }
 
+
     @PostMapping("syncNeedFetchArticle")
     public String syncNeedFetchArticle() {
         wechatService.syncNeedFetchArticle();
         return "syncNeedFetchArticle successfully";
     }
-
 
     @PostMapping("/syncMyArticle")
     public String syncMyArticle() {

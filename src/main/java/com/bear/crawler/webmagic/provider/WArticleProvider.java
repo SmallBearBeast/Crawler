@@ -1,9 +1,11 @@
 package com.bear.crawler.webmagic.provider;
 
 import cn.hutool.core.date.DateUtil;
+import com.bear.crawler.webmagic.dao.WArticleDao;
 import com.bear.crawler.webmagic.mybatis.generator.po.WArticleItemPO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -17,6 +19,12 @@ public class WArticleProvider {
 
     @Autowired
     private WArticleCache wArticleCache;
+
+    @Autowired
+    private WArticleDao wArticleDao;
+
+    @Autowired
+    private WAccountProvider wAccountProvider;
 
     public void updateCache(WArticleItemPO articleItemPO, Boolean isRemove) {
         String fakeId = articleItemPO.getOfficialAccountFakeId();
@@ -33,6 +41,21 @@ public class WArticleProvider {
         String fakeId = articleItemPO.getOfficialAccountFakeId();
         Map<String, WArticleItemPO> map = wArticleCache.getArticleMap(fakeId);
         return map.containsKey(articleItemPO.getAid());
+    }
+
+    public @Nullable WArticleItemPO findByAid(String aid) {
+        List<String> fakeIds = wAccountProvider.getNeedFetchAccountFakeIds();
+        for (String fakeId : fakeIds) {
+            Map<String, WArticleItemPO> articleItemPOMap = wArticleCache.getArticleMap(fakeId);
+            if (articleItemPOMap.containsKey(aid)) {
+                return articleItemPOMap.get(aid);
+            }
+        }
+        WArticleItemPO articleItemPO = wArticleDao.selectByAid(aid);
+        if (articleItemPO != null) {
+            updateCache(articleItemPO, false);
+        }
+        return articleItemPO;
     }
 
     public long getLastLatestTime(String fakeId) {

@@ -41,6 +41,9 @@ public class WArticleItemPO implements Serializable {
     @ApiModelProperty(value = "微信公众号名称")
     private String officialAccountTitle;
 
+    @ApiModelProperty(value = "文章处理状态，0: unread，1: read，2: in_progress，4: publish")
+    private Integer handleState;
+
     private static final long serialVersionUID = 1L;
 
     public Integer getId() {
@@ -139,6 +142,14 @@ public class WArticleItemPO implements Serializable {
         this.officialAccountTitle = officialAccountTitle;
     }
 
+    public Integer getHandleState() {
+        return handleState;
+    }
+
+    public void setHandleState(Integer handleState) {
+        this.handleState = handleState;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -157,6 +168,7 @@ public class WArticleItemPO implements Serializable {
         sb.append(", officialAccountId=").append(officialAccountId);
         sb.append(", officialAccountFakeId=").append(officialAccountFakeId);
         sb.append(", officialAccountTitle=").append(officialAccountTitle);
+        sb.append(", handleState=").append(handleState);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();

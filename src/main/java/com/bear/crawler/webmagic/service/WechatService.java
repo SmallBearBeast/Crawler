@@ -258,6 +258,20 @@ public class WechatService {
         }
     }
 
+    public void updateHandleState(List<String> aids, int state) {
+        for (String aid : aids) {
+            WArticleItemPO articleItemPO = wArticleProvider.findByAid(aid);
+            if (articleItemPO == null) {
+                log.info("updateHandleState: the article do not exist, aid = {}, state = {}", aid, OtherUtil.articleStateToStr(state));
+            } else {
+                log.debug("updateHandleState: the article exist, title = {}, state = {}", articleItemPO.getTitle(), OtherUtil.articleStateToStr(state));
+                articleItemPO.setHandleState(state);
+                wArticleDao.updateByAid(articleItemPO);
+                wArticleProvider.updateCache(articleItemPO, false);
+            }
+        }
+    }
+
     public void syncUserInfos() {
         Set<String> openIdSet = new HashSet<>();
         syncUserInfosInternal(0, openIdSet);
@@ -505,8 +519,7 @@ public class WechatService {
         }
     }
 
-    // TODO: 6/5/23 article表新增isMe，state字段，或者关联出一张表出来。
-    // TODO: 6/5/23 群发发布的article。 
+    // TODO: 6/5/23 群发发布的article。
     // TODO: 6/5/23 loadTodayWaitToPublishArticles 
     // TODO: 6/5/23 草稿？
     // send to me可以当做一个管理者通知渠道

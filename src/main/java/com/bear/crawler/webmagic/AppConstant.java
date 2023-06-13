@@ -8,4 +8,9 @@ public class AppConstant {
 
     public static final int ACCOUNT_LIMIT = 100;
     public static final int ARTICLE_LIMIT = 20;
+
+    public static final int UNREAD = 0;
+    public static final int READ = 1;
+    public static final int IN_PROGRESS = 2;
+    public static final int PUBLISH = 3;
 }

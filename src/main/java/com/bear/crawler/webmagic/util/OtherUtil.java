@@ -67,4 +67,14 @@ public class OtherUtil {
     public static boolean isMyFakeId(String fakeId) {
         return AppConstant.MY_FAKE_ID.equals(fakeId);
     }
+
+    public static String articleStateToStr(int state) {
+        switch (state) {
+            case AppConstant.UNREAD: return "UNREAD";
+            case AppConstant.READ: return "READ";
+            case AppConstant.IN_PROGRESS: return "IN_PROGRESS";
+            case AppConstant.PUBLISH: return "PUBLISH";
+        }
+        return "KNOWN";
+    }
 }

@@ -22,6 +22,7 @@ public class BeanConverterUtil {
         po.setLink(dto.getLink());
         po.setTitle(dto.getTitle());
         po.setUpdateTime(new Date(dto.getUpdateTime() * 1000L));
+        po.setHandleState(0);
         return po;
     }
 

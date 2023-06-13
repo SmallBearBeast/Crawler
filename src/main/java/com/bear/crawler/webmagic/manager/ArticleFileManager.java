@@ -8,13 +8,13 @@ import com.bear.crawler.webmagic.mybatis.generator.po.WAccountPO;
 import com.bear.crawler.webmagic.mybatis.generator.po.WArticleItemPO;
 import com.bear.crawler.webmagic.provider.WAccountProvider;
 import com.bear.crawler.webmagic.provider.WArticleProvider;
+import com.bear.crawler.webmagic.util.OtherUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -135,9 +135,11 @@ public class ArticleFileManager {
     private void collectArticleInfo(StringBuilder builder, List<WArticleItemPO> articleItemPOS) {
         for (WArticleItemPO articleItemPO : articleItemPOS) {
             builder.append("标题：").append(articleItemPO.getTitle()).append("\n")
+                    .append("文章id：").append(articleItemPO.getAid()).append("\n")
                     .append("文章链接：").append(articleItemPO.getLink()).append("\n")
                     .append("封面图片链接：").append(articleItemPO.getCover()).append("\n")
-                    .append("发布日期：").append(DateUtil.format(articleItemPO.getUpdateTime(), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"))).append("\n\n");
+                    .append("发布日期：").append(DateUtil.format(articleItemPO.getUpdateTime(), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"))).append("\n")
+                    .append("处理状态：").append(OtherUtil.articleStateToStr(articleItemPO.getHandleState())).append("\n\n");
         }
     }
 }

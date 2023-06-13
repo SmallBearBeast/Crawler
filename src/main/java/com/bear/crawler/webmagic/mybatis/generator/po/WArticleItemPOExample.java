@@ -906,6 +906,66 @@ public class WArticleItemPOExample {
             addCriterion("official_account_title not between", value1, value2, "officialAccountTitle");
             return (Criteria) this;
         }
+
+        public Criteria andHandleStateIsNull() {
+            addCriterion("handle_state is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andHandleStateIsNotNull() {
+            addCriterion("handle_state is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andHandleStateEqualTo(Integer value) {
+            addCriterion("handle_state =", value, "handleState");
+            return (Criteria) this;
+        }
+
+        public Criteria andHandleStateNotEqualTo(Integer value) {
+            addCriterion("handle_state <>", value, "handleState");
+            return (Criteria) this;
+        }
+
+        public Criteria andHandleStateGreaterThan(Integer value) {
+            addCriterion("handle_state >", value, "handleState");
+            return (Criteria) this;
+        }
+
+        public Criteria andHandleStateGreaterThanOrEqualTo(Integer value) {
+            addCriterion("handle_state >=", value, "handleState");
+            return (Criteria) this;
+        }
+
+        public Criteria andHandleStateLessThan(Integer value) {
+            addCriterion("handle_state <", value, "handleState");
+            return (Criteria) this;
+        }
+
+        public Criteria andHandleStateLessThanOrEqualTo(Integer value) {
+            addCriterion("handle_state <=", value, "handleState");
+            return (Criteria) this;
+        }
+
+        public Criteria andHandleStateIn(List<Integer> values) {
+            addCriterion("handle_state in", values, "handleState");
+            return (Criteria) this;
+        }
+
+        public Criteria andHandleStateNotIn(List<Integer> values) {
+            addCriterion("handle_state not in", values, "handleState");
+            return (Criteria) this;
+        }
+
+        public Criteria andHandleStateBetween(Integer value1, Integer value2) {
+            addCriterion("handle_state between", value1, value2, "handleState");
+            return (Criteria) this;
+        }
+
+        public Criteria andHandleStateNotBetween(Integer value1, Integer value2) {
+            addCriterion("handle_state not between", value1, value2, "handleState");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

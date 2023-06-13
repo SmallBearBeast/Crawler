@@ -50,24 +50,6 @@ public class WArticleDao {
         return new ArrayList<>();
     }
 
-    public void insert(WArticleItemPO articleItemPO) {
-        try {
-            wArticleItemPOMapper.insert(articleItemPO);
-        } catch (Exception e) {
-            log.warn("Insert the article failed, title = {}, e = {}", articleItemPO.getTitle(), e.getMessage());
-        }
-    }
-
-    public void updateByAid(WArticleItemPO articleItemPO) {
-        try {
-            WArticleItemPOExample example = new WArticleItemPOExample();
-            example.createCriteria().andAidEqualTo(articleItemPO.getAid());
-            wArticleItemPOMapper.updateByExampleSelective(articleItemPO, example);
-        } catch (Exception e) {
-            log.warn("Update the article by aid failed, title = {}, e = {}", articleItemPO.getTitle(), e.getMessage());
-        }
-    }
-
     public @Nullable WArticleItemPO selectLatest(String fakeId) {
         try {
             List<WArticleItemPO> articleItemPOS = wArticleItemPOCustomMapper.selectLatest(fakeId);
@@ -96,7 +78,7 @@ public class WArticleDao {
         return selectByToday(AppConstant.MY_FAKE_ID);
     }
 
-    public WArticleItemPO selectByMeTitle(String title) {
+    public WArticleItemPO selectMeByTitle(String title) {
         try {
             WArticleItemPOExample example = new WArticleItemPOExample();
             example.createCriteria().andOfficialAccountFakeIdEqualTo(AppConstant.MY_FAKE_ID).andTitleLike("%" + title + "%");
@@ -119,6 +101,36 @@ public class WArticleDao {
             log.warn("selectBefore7Week: select the articles before 7 weeks failed, e = {}", e.getMessage());
         }
         return new ArrayList<>();
+    }
+
+    public @Nullable WArticleItemPO selectByAid(String aid) {
+        try {
+            WArticleItemPOExample example = new WArticleItemPOExample();
+            example.createCriteria().andAidEqualTo(aid);
+            return CollectionUtil.getFirst(wArticleItemPOMapper.selectByExample(example));
+        } catch (Exception e) {
+            log.warn("selectBefore7Week: select the articles before 7 weeks failed, e = {}", e.getMessage());
+        }
+        return null;
+    }
+
+
+    public void insert(WArticleItemPO articleItemPO) {
+        try {
+            wArticleItemPOMapper.insert(articleItemPO);
+        } catch (Exception e) {
+            log.warn("Insert the article failed, title = {}, e = {}", articleItemPO.getTitle(), e.getMessage());
+        }
+    }
+
+    public void updateByAid(WArticleItemPO articleItemPO) {
+        try {
+            WArticleItemPOExample example = new WArticleItemPOExample();
+            example.createCriteria().andAidEqualTo(articleItemPO.getAid());
+            wArticleItemPOMapper.updateByExampleSelective(articleItemPO, example);
+        } catch (Exception e) {
+            log.warn("Update the article by aid failed, title = {}, e = {}", articleItemPO.getTitle(), e.getMessage());
+        }
     }
 
     public void deleteBefore7Week() {
