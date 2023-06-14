@@ -18,6 +18,7 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -64,6 +65,20 @@ public class ArticleFileManager {
         String dir = getSaveArticlesDir(accountPO);
         File todayRecordFile = FileUtil.file(dir, "汇总记录.md");
         FileUtil.writeString(content, todayRecordFile, "utf-8");
+    }
+
+    public void saveArticlesByState(List<WArticleItemPO> articleItemPOS) {
+        String formatTodayStr = DateUtil.format(new Date(), new SimpleDateFormat("yyyy-MM-dd"));
+        String dir = fetchArticleDir + File.separator + formatTodayStr;
+        File tempFile = FileUtil.file(dir, "汇总分类记录_Temp.md");
+        FileUtil.appendString(DIVIDER, tempFile, "utf-8");
+        int[] states = {AppConstant.UNREAD, AppConstant.READ, AppConstant.IN_PROGRESS, AppConstant.PUBLISH};
+        for (int state: states) {
+            String content = getStateArticlesContent(articleItemPOS, state);
+            FileUtil.appendString(content, tempFile, "utf-8");
+            FileUtil.appendString(DIVIDER, tempFile, "utf-8");
+        }
+        FileUtil.rename(tempFile, "汇总分类记录.md", true);
     }
 
     public void deleteArticlesBefore7Week() {
@@ -131,6 +146,18 @@ public class ArticleFileManager {
         log.debug("getTodayArticlesContent: content = {}", builder.toString());
         return builder.toString();
     }
+
+    private String getStateArticlesContent(List<WArticleItemPO> totalArticleItemPOS, int state) {
+        StringBuilder builder = new StringBuilder();
+        List<WArticleItemPO> stateArticleItemPOS = totalArticleItemPOS.stream().filter(articleItemPO -> state == articleItemPO.getHandleState())
+                .sorted((first, second) -> second.getUpdateTime().compareTo(first.getUpdateTime())).collect(Collectors.toList());
+        builder.append("状态为").append(OtherUtil.articleStateToStr(state)).append("的文章。")
+                .append("一共有").append(stateArticleItemPOS.size()).append("篇").append("\n");
+        collectArticleInfo(builder, stateArticleItemPOS);
+        log.debug("getStateArticlesContent: content = {}", builder.toString());
+        return builder.toString();
+    }
+
 
     private void collectArticleInfo(StringBuilder builder, List<WArticleItemPO> articleItemPOS) {
         for (WArticleItemPO articleItemPO : articleItemPOS) {

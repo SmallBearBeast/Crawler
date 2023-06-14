@@ -114,4 +114,11 @@ public class WebMagicController {
         wechatService.sendMsgToRecentUser(aid);
         return "sendMsgToRecentUser successfully";
     }
+
+
+    @PostMapping("/saveArticlesByState")
+    public String saveArticlesByState() {
+        wechatService.saveArticlesByState();
+        return "sendMsgToRecentUser successfully";
+    }
 }

@@ -66,6 +66,16 @@ public class WArticleProvider {
         wArticleCache.setLastLatestTime(fakeId, time);
     }
 
+    public List<WArticleItemPO> getTodayArticles() {
+        List<WArticleItemPO> todayArticleItemPOS = new ArrayList<>();
+        List<String> fakeIds = wAccountProvider.getNeedFetchAccountFakeIds();
+        for (String fakeId : fakeIds) {
+            Map<String, WArticleItemPO> articleItemPOMap = wArticleCache.getTodayArticleMap(fakeId);
+            todayArticleItemPOS.addAll(articleItemPOMap.values());
+        }
+        return todayArticleItemPOS;
+    }
+
     public List<WArticleItemPO> getTodayArticles(String fakeId) {
         return new ArrayList<>(wArticleCache.getTodayArticleMap(fakeId).values());
     }

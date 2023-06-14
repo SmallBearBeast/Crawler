@@ -328,6 +328,8 @@ public class WechatService {
                     if (conversationDto.getCanReplay() == WConversationDto.CAN_REPLAY) {
                         List<MsgItemDto> msgItemDtos = conversationDto.getMsgItemDtos();
                         findLatestMsgAndSaveToDB(msgItemDtos, fakeId);
+                    } else {
+
                     }
                 }
             }
@@ -347,6 +349,7 @@ public class WechatService {
             log.debug("findLatestMsgAndSaveToDB: title = {}", latestMsgItemDto.getTitle());
             WMsgItemPO msgItemPO = BeanConverterUtil.dtoToPo(latestMsgItemDto);
             WMsgItemPO saveMsgItemPO = wMsgItemProvider.findMsgItemByFakeId(msgItemPO.getFakeId());
+            msgItemPO.setCanReplay(true);
             if (saveMsgItemPO != null) {
                 msgItemPO.setId(saveMsgItemPO.getId());
                 wMsgItemDao.updateByFakeId(msgItemPO);
@@ -369,6 +372,7 @@ public class WechatService {
             log.debug("syncNeedFetchArticle: end fetch fakeId = {}, index = {}", fakeId, i);
         }
         articleFileManager.saveTotalTodayArticles(fakeIds);
+        saveArticlesByState();
     }
 
     public void syncMyArticle() {
@@ -461,7 +465,9 @@ public class WechatService {
             itemPo.setOfficialAccountId(accountPO.getId());
             itemPo.setOfficialAccountFakeId(accountPO.getFakeId());
             itemPo.setOfficialAccountTitle(accountPO.getNickname());
-            if (wArticleProvider.isInDB(itemPo)) {
+            WArticleItemPO saveItemPo = wArticleProvider.findByAid(itemDto.getAid());
+            if (saveItemPo != null) {
+                saveItemPo.setHandleState(itemPo.getHandleState());
                 wArticleDao.updateByAid(itemPo);
             } else {
                 wArticleDao.insert(itemPo);
@@ -517,6 +523,11 @@ public class WechatService {
         } else {
             log.info("sendMsgToRecentUserInternal: send message to {} fail", name);
         }
+    }
+
+    public void saveArticlesByState() {
+        List<WArticleItemPO> articleItemPOS = wArticleProvider.getTodayArticles();
+        articleFileManager.saveArticlesByState(articleItemPOS);
     }
 
     // TODO: 6/5/23 群发发布的article。
