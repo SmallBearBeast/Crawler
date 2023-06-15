@@ -3,6 +3,7 @@ package com.bear.crawler.webmagic.service;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.map.MapUtil;
+import com.bear.crawler.CrawlerApplication;
 import com.bear.crawler.webmagic.AppConstant;
 import com.bear.crawler.webmagic.dao.WAccountDao;
 import com.bear.crawler.webmagic.basic.http.OkHttp;
@@ -235,6 +236,8 @@ public class WechatService {
         try {
             String path = new ClassPathResource("wechat.properties").getURL().getFile();
             String pathTemp = new ClassPathResource("").getURL().getFile() + "wechat_temp.properties";
+            // TODO: 6/15/23 jar文件里改不了 
+//            CrawlerApplication.class.getClassLoader().getResourceAsStream("wechat.properties");
             inputStream = FileUtil.getInputStream(path);
             outputStream = FileUtil.getOutputStream(pathTemp);
             properties.load(inputStream);
@@ -325,18 +328,14 @@ public class WechatService {
                 WConversationRespDto respDto = okHttp.get(url, null, null, WConversationRespDto.class);
                 if (OtherUtil.checkCommonRespDto(respDto, "WechatService.syncRecentMsgs()")) {
                     WConversationDto conversationDto = respDto.getConversationDto();
-                    if (conversationDto.getCanReplay() == WConversationDto.CAN_REPLAY) {
-                        List<MsgItemDto> msgItemDtos = conversationDto.getMsgItemDtos();
-                        findLatestMsgAndSaveToDB(msgItemDtos, fakeId);
-                    } else {
-
-                    }
+                    List<MsgItemDto> msgItemDtos = conversationDto.getMsgItemDtos();
+                    findLatestMsgAndSaveToDB(msgItemDtos, fakeId, conversationDto.getCanReplay() == WConversationDto.CAN_REPLAY);
                 }
             }
         }
     }
 
-    private void findLatestMsgAndSaveToDB(List<MsgItemDto> msgItemDtos, String fakeId) {
+    private void findLatestMsgAndSaveToDB(List<MsgItemDto> msgItemDtos, String fakeId, boolean canReplay) {
         long latestTime = 0L;
         MsgItemDto latestMsgItemDto = null;
         for (MsgItemDto msgItemDto : msgItemDtos) {
@@ -345,19 +344,23 @@ public class WechatService {
                 latestMsgItemDto = msgItemDto;
             }
         }
-        if (latestMsgItemDto != null) {
-            log.debug("findLatestMsgAndSaveToDB: title = {}", latestMsgItemDto.getTitle());
-            WMsgItemPO msgItemPO = BeanConverterUtil.dtoToPo(latestMsgItemDto);
-            WMsgItemPO saveMsgItemPO = wMsgItemProvider.findMsgItemByFakeId(msgItemPO.getFakeId());
-            msgItemPO.setCanReplay(true);
-            if (saveMsgItemPO != null) {
-                msgItemPO.setId(saveMsgItemPO.getId());
-                wMsgItemDao.updateByFakeId(msgItemPO);
-            } else {
-                wMsgItemDao.insert(msgItemPO);
-            }
-            wMsgItemProvider.updateCache(msgItemPO);
+        if (latestMsgItemDto == null) {
+            // 没有找到msg用默认占位msg代替。
+            latestMsgItemDto = new MsgItemDto();
+            latestMsgItemDto.setFakeId(fakeId);
+            latestMsgItemDto.setNickName("Empty NickName");
         }
+        log.debug("findLatestMsgAndSaveToDB: title = {}", latestMsgItemDto.getTitle());
+        WMsgItemPO msgItemPO = BeanConverterUtil.dtoToPo(latestMsgItemDto);
+        WMsgItemPO saveMsgItemPO = wMsgItemProvider.findMsgItemByFakeId(msgItemPO.getFakeId());
+        msgItemPO.setCanReplay(canReplay);
+        if (saveMsgItemPO != null) {
+            msgItemPO.setId(saveMsgItemPO.getId());
+            wMsgItemDao.updateByFakeId(msgItemPO);
+        } else {
+            wMsgItemDao.insert(msgItemPO);
+        }
+        wMsgItemProvider.updateCache(msgItemPO);
     }
 
     // TODO: 6/7/23 利用多线程抓取，asyncTaskTools控制异步任务
@@ -467,7 +470,7 @@ public class WechatService {
             itemPo.setOfficialAccountTitle(accountPO.getNickname());
             WArticleItemPO saveItemPo = wArticleProvider.findByAid(itemDto.getAid());
             if (saveItemPo != null) {
-                saveItemPo.setHandleState(itemPo.getHandleState());
+                itemPo.setHandleState(saveItemPo.getHandleState());
                 wArticleDao.updateByAid(itemPo);
             } else {
                 wArticleDao.insert(itemPo);
@@ -487,11 +490,28 @@ public class WechatService {
         }
     }
 
+    // TODO: 6/15/23 支持发送其他消息
+    public void sendMsgToMe(String aid) {
+        log.debug("sendMsgToMe: aid = {}", aid);
+        WMsgItemPO msgItemPO = wMsgItemProvider.findMsgItemByFakeId(AppConstant.MSG_FAKE_ID);
+        if (msgItemPO != null) {
+            sendMsgToRecentUserInternal(aid, msgItemPO.getFakeId(), msgItemPO.getNickname());
+        } else {
+            log.debug("sendMsgToMe: my msgItemPO is null");
+        }
+    }
+
     public void sendMsgToRecentUser(String aid) {
         log.debug("sendMsgToRecentUser: aid = {}", aid);
         List<WMsgItemPO> recentMsgItems = wMsgItemProvider.getRecentMsgItems();
+        List<WMsgItemPO> canReplayMsgItems = wMsgItemProvider.getCanReplayMsgItems();
         Map<String, String> recentOpenIdMap = new HashMap<>();
         for (WMsgItemPO msgItem : recentMsgItems) {
+            if (wUserInfoProvider.findByOpenId(msgItem.getFakeId()) != null) {
+                recentOpenIdMap.put(msgItem.getFakeId(), msgItem.getNickname());
+            }
+        }
+        for (WMsgItemPO msgItem : canReplayMsgItems) {
             if (wUserInfoProvider.findByOpenId(msgItem.getFakeId()) != null) {
                 recentOpenIdMap.put(msgItem.getFakeId(), msgItem.getNickname());
             }
@@ -522,6 +542,11 @@ public class WechatService {
             log.info("sendMsgToRecentUserInternal: send message to {} success", name);
         } else {
             log.info("sendMsgToRecentUserInternal: send message to {} fail", name);
+            WMsgItemPO msgItemPO = wMsgItemProvider.findMsgItemByFakeId(openId);
+            if (msgItemPO != null) {
+                msgItemPO.setCanReplay(false);
+                wMsgItemProvider.updateCache(msgItemPO);
+            }
         }
     }
 

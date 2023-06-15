@@ -28,6 +28,7 @@ public class ScheduleComponent {
     private static final String CRON_SYNC_USERS_AND_MSGS = "0 0 0,6,12,18 * * ?";
 
     // 每天8:00到20:00每隔两个小时执行一次
+    // todo 0 0 8,10,12,14,16,18,20 * * ? *
     private static final String CRON_SYNC_ARTICLES = "0 0 8,10,12,14,16,18,20 * * ?";
 
     // 每天8:00到20:00每隔两个小时执行一次

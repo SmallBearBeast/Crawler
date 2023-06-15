@@ -59,4 +59,24 @@ public class WMsgItemCache {
         }
         return map;
     }
+
+    @Cacheable("'canReplayMsgItemMap'")
+    public Map<String, WMsgItemPO> getCanReplayMsgItemMap() {
+        Map<String, WMsgItemPO> map = new ConcurrentHashMap<>();
+        List<WMsgItemPO> msgItemPOS = wMsgItemDao.selectByCanReplay();
+        for (WMsgItemPO msgItemPO : msgItemPOS) {
+            map.put(msgItemPO.getFakeId(), msgItemPO);
+        }
+        return map;
+    }
+
+    @CachePut("'canReplayMsgItemMap'")
+    public Map<String, WMsgItemPO> updateCanReplayMsgItemMap(Map<String, WMsgItemPO> map, WMsgItemPO msgItemPO) {
+        if (msgItemPO.getCanReplay()) {
+            map.put(msgItemPO.getFakeId(), msgItemPO);
+        } else {
+            map.remove(msgItemPO.getFakeId());
+        }
+        return map;
+    }
 }

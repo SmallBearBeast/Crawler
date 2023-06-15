@@ -20,16 +20,18 @@ public class WMsgItemProvider {
     public void updateCache(WMsgItemPO msgItemPO) {
         Map<String, WMsgItemPO> allMsgItemMap = wMsgItemCache.getAllMsgItemMap();
         Map<String, WMsgItemPO> recentMsgItemMap = getRecentMsgItemMap();
+        Map<String, WMsgItemPO> canReplayMsgItemMap = wMsgItemCache.getCanReplayMsgItemMap();
         wMsgItemCache.updateAllMsgItemMap(allMsgItemMap, msgItemPO);
         wMsgItemCache.updateRecentMsgItemMap(recentMsgItemMap, msgItemPO);
-    }
-
-    public List<WMsgItemPO> getAllMsgItems() {
-        return new ArrayList<>(wMsgItemCache.getAllMsgItemMap().values());
+        wMsgItemCache.updateCanReplayMsgItemMap(canReplayMsgItemMap, msgItemPO);
     }
 
     public List<WMsgItemPO> getRecentMsgItems() {
         return new ArrayList<>(getRecentMsgItemMap().values());
+    }
+
+    public List<WMsgItemPO> getCanReplayMsgItems() {
+        return new ArrayList<>(wMsgItemCache.getCanReplayMsgItemMap().values());
     }
 
     public @Nullable WMsgItemPO findMsgItemByFakeId(String fakeId) {
@@ -38,10 +40,6 @@ public class WMsgItemProvider {
 
     public boolean isRecentMsg(String fakeId) {
         return getRecentMsgItemMap().containsKey(fakeId);
-    }
-
-    public boolean isInDB(WMsgItemPO msgItemPO) {
-        return findMsgItemByFakeId(msgItemPO.getFakeId()) != null;
     }
 
     private Map<String, WMsgItemPO> getRecentMsgItemMap() {

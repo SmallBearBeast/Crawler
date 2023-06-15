@@ -55,6 +55,9 @@ public class WMsgItemPO implements Serializable {
 
     private Integer paysubscribeWecoinAmount;
 
+    @ApiModelProperty(value = "消息是否可以回复")
+    private Boolean canReplay;
+
     private static final long serialVersionUID = 1L;
 
     public Integer getId() {
@@ -257,6 +260,14 @@ public class WMsgItemPO implements Serializable {
         this.paysubscribeWecoinAmount = paysubscribeWecoinAmount;
     }
 
+    public Boolean getCanReplay() {
+        return canReplay;
+    }
+
+    public void setCanReplay(Boolean canReplay) {
+        this.canReplay = canReplay;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -288,6 +299,7 @@ public class WMsgItemPO implements Serializable {
         sb.append(", rewardMoneyCount=").append(rewardMoneyCount);
         sb.append(", commentCount=").append(commentCount);
         sb.append(", paysubscribeWecoinAmount=").append(paysubscribeWecoinAmount);
+        sb.append(", canReplay=").append(canReplay);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();

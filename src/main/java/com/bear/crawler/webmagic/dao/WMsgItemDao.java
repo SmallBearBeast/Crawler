@@ -56,6 +56,18 @@ public class WMsgItemDao {
         return new ArrayList<>();
     }
 
+
+    public List<WMsgItemPO> selectByCanReplay() {
+        try {
+            WMsgItemPOExample example = new WMsgItemPOExample();
+            example.createCriteria().andCanReplayEqualTo(true);
+            return wMsgItemPOMapper.selectByExample(example);
+        } catch (Exception e) {
+            log.warn("Select can replay msg items failed, e = {}", e.getMessage());
+        }
+        return new ArrayList<>();
+    }
+
     public void insert(WMsgItemPO msgItemPO) {
         try {
             wMsgItemPOMapper.insert(msgItemPO);

@@ -1716,6 +1716,66 @@ public class WMsgItemPOExample {
             addCriterion("paysubscribe_wecoin_amount not between", value1, value2, "paysubscribeWecoinAmount");
             return (Criteria) this;
         }
+
+        public Criteria andCanReplayIsNull() {
+            addCriterion("can_replay is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCanReplayIsNotNull() {
+            addCriterion("can_replay is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCanReplayEqualTo(Boolean value) {
+            addCriterion("can_replay =", value, "canReplay");
+            return (Criteria) this;
+        }
+
+        public Criteria andCanReplayNotEqualTo(Boolean value) {
+            addCriterion("can_replay <>", value, "canReplay");
+            return (Criteria) this;
+        }
+
+        public Criteria andCanReplayGreaterThan(Boolean value) {
+            addCriterion("can_replay >", value, "canReplay");
+            return (Criteria) this;
+        }
+
+        public Criteria andCanReplayGreaterThanOrEqualTo(Boolean value) {
+            addCriterion("can_replay >=", value, "canReplay");
+            return (Criteria) this;
+        }
+
+        public Criteria andCanReplayLessThan(Boolean value) {
+            addCriterion("can_replay <", value, "canReplay");
+            return (Criteria) this;
+        }
+
+        public Criteria andCanReplayLessThanOrEqualTo(Boolean value) {
+            addCriterion("can_replay <=", value, "canReplay");
+            return (Criteria) this;
+        }
+
+        public Criteria andCanReplayIn(List<Boolean> values) {
+            addCriterion("can_replay in", values, "canReplay");
+            return (Criteria) this;
+        }
+
+        public Criteria andCanReplayNotIn(List<Boolean> values) {
+            addCriterion("can_replay not in", values, "canReplay");
+            return (Criteria) this;
+        }
+
+        public Criteria andCanReplayBetween(Boolean value1, Boolean value2) {
+            addCriterion("can_replay between", value1, value2, "canReplay");
+            return (Criteria) this;
+        }
+
+        public Criteria andCanReplayNotBetween(Boolean value1, Boolean value2) {
+            addCriterion("can_replay not between", value1, value2, "canReplay");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

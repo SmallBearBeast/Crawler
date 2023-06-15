@@ -109,6 +109,12 @@ public class WebMagicController {
         return "syncArticle successfully";
     }
 
+    @PostMapping("/sendMsgToMe")
+    public String sendMsgToMe(@RequestParam("aid") String aid) {
+        wechatService.sendMsgToMe(aid);
+        return "sendMsgToMe successfully";
+    }
+
     @PostMapping("/sendMsgToRecentUser")
     public String sendMsgToRecentUser(@RequestParam("aid") String aid) {
         wechatService.sendMsgToRecentUser(aid);
