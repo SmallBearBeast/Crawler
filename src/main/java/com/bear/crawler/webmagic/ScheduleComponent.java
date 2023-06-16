@@ -22,17 +22,17 @@ import java.util.List;
 @EnableAsync
 public class ScheduleComponent {
 
+    // 0s到10s每隔两秒执行一次
     private static final String CRON_TEST = "0,2,4,6,8,10 * * * * ?";
 
-    // 每天00:00, 06:00, 12:00, 18:00执行一次
-    private static final String CRON_SYNC_USERS_AND_MSGS = "0 0 0,6,12,18 * * ?";
+    // 每天00:30, 06:30, 12:30, 18:30执行一次
+    private static final String CRON_SYNC_USERS_AND_MSGS = "0 30 0,6,12,18 * * ?";
 
-    // 每天8:00到20:00每隔两个小时执行一次
-    // todo 0 0 8,10,12,14,16,18,20 * * ? *
-    private static final String CRON_SYNC_ARTICLES = "0 0 8,10,12,14,16,18,20 * * ?";
+    // 每天8:00到22:00每隔两个小时执行一次
+    private static final String CRON_SYNC_ARTICLES = "0 0 8,10,11,12,14,16,18,20,22 * * ?";
 
-    // 每天8:00到20:00每隔两个小时执行一次
-    private static final String CRON_REMOVE_ARTICLES = "0 0 22 * * ?";
+    // 每天22:45自动清除过期文章
+    private static final String CRON_REMOVE_ARTICLES = "0 45 22 * * ?";
 
     @Autowired
     private WechatService wechatService;
@@ -56,12 +56,12 @@ public class ScheduleComponent {
      * 第六位，星期，取值1-7，1表示星期天，2表示星期一
      * 第七位，年份，可以留空，取值1970-2099
      */
-//    @Async
-//    @Scheduled(cron = ScheduleComponent.CRON_TEST)
-//    void printNowDate() {
-//        log.debug("syncUserInfoAndMsgs: current time is {}", DateUtil.format(new Date(), "yyyy-MM-dd HH:mm:ss"));
-//        log.debug("syncData: 0s到10s每隔两秒执行一次");
-//    }
+    @Async
+    @Scheduled(cron = ScheduleComponent.CRON_TEST)
+    void printNowDate() {
+        log.debug("syncUserInfoAndMsgs: current time is {}", DateUtil.format(new Date(), "yyyy-MM-dd HH:mm:ss"));
+        log.debug("syncData: 0s到10s每隔两秒执行一次");
+    }
     @Async
     @Scheduled(cron = ScheduleComponent.CRON_SYNC_USERS_AND_MSGS)
     void syncUserInfoAndMsgs() {

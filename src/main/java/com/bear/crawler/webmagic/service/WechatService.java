@@ -3,7 +3,6 @@ package com.bear.crawler.webmagic.service;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.map.MapUtil;
-import com.bear.crawler.CrawlerApplication;
 import com.bear.crawler.webmagic.AppConstant;
 import com.bear.crawler.webmagic.dao.WAccountDao;
 import com.bear.crawler.webmagic.basic.http.OkHttp;
@@ -115,7 +114,6 @@ public class WechatService {
                 .run();
     }
 
-    // TODO: 6/6/23 频率控制
     public void listenWArticlesUpdate() {
         log.debug("listenWArticlesUpdate: enter");
         Map<String, WAccountPO> accountPOMap = wAccountProvider.getNeedFetchAccountMap();
@@ -555,8 +553,6 @@ public class WechatService {
         articleFileManager.saveArticlesByState(articleItemPOS);
     }
 
-    // TODO: 6/5/23 群发发布的article。
-    // TODO: 6/5/23 loadTodayWaitToPublishArticles 
     // TODO: 6/5/23 草稿？
     // send to me可以当做一个管理者通知渠道
 }
