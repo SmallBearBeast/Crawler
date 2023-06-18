@@ -5,7 +5,9 @@ import com.bear.crawler.webmagic.dao.WArticleDao;
 import com.bear.crawler.webmagic.manager.ArticleFileManager;
 import com.bear.crawler.webmagic.mybatis.generator.po.WArticleItemPO;
 import com.bear.crawler.webmagic.provider.WArticleProvider;
-import com.bear.crawler.webmagic.service.WechatService;
+import com.bear.crawler.webmagic.service.WArticleService;
+import com.bear.crawler.webmagic.service.WMsgService;
+import com.bear.crawler.webmagic.service.WUserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
@@ -35,7 +37,13 @@ public class ScheduleComponent {
     private static final String CRON_REMOVE_ARTICLES = "0 45 22 * * ?";
 
     @Autowired
-    private WechatService wechatService;
+    private WArticleService wArticleService;
+
+    @Autowired
+    private WMsgService wMsgService;
+
+    @Autowired
+    private WUserService wUserService;
 
     @Autowired
     private ArticleFileManager articleFileManager;
@@ -66,15 +74,15 @@ public class ScheduleComponent {
     @Scheduled(cron = ScheduleComponent.CRON_SYNC_USERS_AND_MSGS)
     void syncUserInfoAndMsgs() {
         log.debug("syncUserInfoAndMsgs: current time is {}", DateUtil.format(new Date(), "yyyy-MM-dd HH:mm:ss"));
-        wechatService.syncUserInfos();
-        wechatService.syncRecentMsgs();
+        wUserService.syncUserInfos();
+        wMsgService.syncRecentMsgs();
     }
 
     @Async
     @Scheduled(cron = ScheduleComponent.CRON_SYNC_ARTICLES)
     void syncNeedFetchArticles() {
         log.debug("syncArticles: current time is {}", DateUtil.format(new Date(), "yyyy-MM-dd HH:mm:ss"));
-        wechatService.syncNeedFetchArticle();
+        wArticleService.syncNeedFetchArticle();
     }
 
     @Async
