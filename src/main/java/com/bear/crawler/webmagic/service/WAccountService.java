@@ -4,7 +4,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import com.bear.crawler.webmagic.basic.http.OkHttp;
 import com.bear.crawler.webmagic.dao.WAccountDao;
 import com.bear.crawler.webmagic.mybatis.generator.po.WAccountPO;
-import com.bear.crawler.webmagic.pojo.WechatConfig;
+import com.bear.crawler.webmagic.pojo.WechatProperties;
 import com.bear.crawler.webmagic.pojo.dto.WAccountDto;
 import com.bear.crawler.webmagic.pojo.dto.resp.WAccountsRespDto;
 import com.bear.crawler.webmagic.processor.WAccountProcessor;
@@ -26,7 +26,7 @@ import java.util.List;
 public class WAccountService {
 
     @Autowired
-    private WechatConfig wechatConfig;
+    private WechatProperties wechatProperties;
 
     @Autowired
     private WAccountProcessor wAccountProcessor;
@@ -43,10 +43,10 @@ public class WAccountService {
     public void searchAndSyncWAccount(String searchContent) {
         log.debug("searchAndSyncWAccount : searchContent = {}", searchContent);
         String encodeQuery = URLEncoder.encode(searchContent, StandardCharsets.UTF_8);
-        String url = "https://mp.weixin.qq.com/cgi-bin/searchbiz?action=search_biz&begin=0&count=5&query=" + encodeQuery + "&token=" + wechatConfig.getToken() + "&lang=zh_CN&f=json&ajax=1";
+        String url = "https://mp.weixin.qq.com/cgi-bin/searchbiz?action=search_biz&begin=0&count=5&query=" + encodeQuery + "&token=" + wechatProperties.getToken() + "&lang=zh_CN&f=json&ajax=1";
         Request request = new Request(url);
-        request.addHeader("cookie", wechatConfig.getCookie());
-        request.addHeader("user-agent", wechatConfig.getUserAgent());
+        request.addHeader("cookie", wechatProperties.getCookie());
+        request.addHeader("user-agent", wechatProperties.getUserAgent());
         Spider.create(wAccountProcessor)
                 .addRequest(request)
                 .thread(1)

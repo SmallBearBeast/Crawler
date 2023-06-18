@@ -1,7 +1,7 @@
 package com.bear.crawler.webmagic.basic.http;
 
 import cn.hutool.core.map.MapUtil;
-import com.bear.crawler.webmagic.pojo.WechatConfig;
+import com.bear.crawler.webmagic.pojo.WechatProperties;
 import okhttp3.HttpUrl;
 import okhttp3.Interceptor;
 import okhttp3.Request;
@@ -14,10 +14,10 @@ import java.util.Map;
 
 public class WAuthInterceptor implements Interceptor {
 
-    private final WechatConfig wechatConfig;
+    private final WechatProperties wechatProperties;
 
-    public WAuthInterceptor(WechatConfig wechatConfig) {
-        this.wechatConfig = wechatConfig;
+    public WAuthInterceptor(WechatProperties wechatProperties) {
+        this.wechatProperties = wechatProperties;
     }
 
     @Override
@@ -30,8 +30,8 @@ public class WAuthInterceptor implements Interceptor {
         String formatUrl = formatUrl(url);
         Request newRequest = request.newBuilder()
                 .url(formatUrl)
-                .header("Cookie", wechatConfig.getCookie())
-                .header("User-Agent", wechatConfig.getUserAgent())
+                .header("Cookie", wechatProperties.getCookie())
+                .header("User-Agent", wechatProperties.getUserAgent())
                 .build();
         return chain.proceed(newRequest);
     }
@@ -40,7 +40,7 @@ public class WAuthInterceptor implements Interceptor {
         if(!StringUtils.hasText(xmlContent)){
             return xmlContent;
         }
-        Map<String, String> map = MapUtil.of("token", wechatConfig.getToken());
+        Map<String, String> map = MapUtil.of("token", wechatProperties.getToken());
         //定义{{开头 ，}}结尾的占位符
         PropertyPlaceholderHelper propertyPlaceholderHelper = new PropertyPlaceholderHelper("{{", "}}");
         //调用替换

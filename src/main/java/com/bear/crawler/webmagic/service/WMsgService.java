@@ -6,7 +6,7 @@ import com.bear.crawler.webmagic.basic.http.OkHttp;
 import com.bear.crawler.webmagic.dao.WMsgItemDao;
 import com.bear.crawler.webmagic.mybatis.generator.po.WMsgItemPO;
 import com.bear.crawler.webmagic.mybatis.generator.po.WUserInfoPO;
-import com.bear.crawler.webmagic.pojo.WechatConfig;
+import com.bear.crawler.webmagic.pojo.WechatProperties;
 import com.bear.crawler.webmagic.pojo.dto.MsgItemDto;
 import com.bear.crawler.webmagic.pojo.dto.WConversationDto;
 import com.bear.crawler.webmagic.pojo.dto.resp.SendMsgRespDto;
@@ -28,7 +28,7 @@ import java.util.Map;
 public class WMsgService {
 
     @Autowired
-    private WechatConfig wechatConfig;
+    private WechatProperties wechatProperties;
 
     @Autowired
     private WMsgItemProvider wMsgItemProvider;
@@ -124,14 +124,14 @@ public class WMsgService {
 
     private void sendMsgToRecentUserInternal(String aid, String openId, String name) {
         String url = "https://mp.weixin.qq.com/cgi-bin/singlesend?t=ajax-response&f=json";
-        String referer = "https://mp.weixin.qq.com/cgi-bin/message?t=message/list&count=20&day=7&token=" + wechatConfig.getToken() + "&lang=zh_CN";
+        String referer = "https://mp.weixin.qq.com/cgi-bin/message?t=message/list&count=20&day=7&token=" + wechatProperties.getToken() + "&lang=zh_CN";
         Map<String, String> headerMap = MapUtil.of(AppConstant.REFERER, referer);
         Map<String, String> paramMap = MapUtil.builder("tofakeid", openId)
                 .put("quickreplyid", "")
                 .put("imgcode", "")
                 .put("type", "10")
                 .put("appmsgid", aid)
-                .put("token", wechatConfig.getToken())
+                .put("token", wechatProperties.getToken())
                 .put("lang", "zh_CN")
                 .put("f", "json")
                 .put("ajax", "1")

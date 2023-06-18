@@ -8,7 +8,7 @@ import com.bear.crawler.webmagic.dao.WArticleDao;
 import com.bear.crawler.webmagic.manager.ArticleFileManager;
 import com.bear.crawler.webmagic.mybatis.generator.po.WAccountPO;
 import com.bear.crawler.webmagic.mybatis.generator.po.WArticleItemPO;
-import com.bear.crawler.webmagic.pojo.WechatConfig;
+import com.bear.crawler.webmagic.pojo.WechatProperties;
 import com.bear.crawler.webmagic.pojo.dto.WArticleItemDto;
 import com.bear.crawler.webmagic.pojo.dto.resp.BaseRespDto;
 import com.bear.crawler.webmagic.pojo.dto.resp.WArticleItemsRespDto;
@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
 public class WArticleService {
 
     @Autowired
-    private WechatConfig wechatConfig;
+    private WechatProperties wechatProperties;
 
     @Autowired
     private WArticleDetailProcessor wArticleDetailProcessor;
@@ -95,10 +95,10 @@ public class WArticleService {
     }
 
     private void addRequestToSpider(Spider spider, WAccountPO accountPO) {
-        String url = "https://mp.weixin.qq.com/cgi-bin/appmsg?action=list_ex&begin=0&count=5&fakeid=" + accountPO.getFakeId() + "&type=9&query=&token=" + wechatConfig.getToken() + "&lang=zh_CN&f=json&ajax=1";
+        String url = "https://mp.weixin.qq.com/cgi-bin/appmsg?action=list_ex&begin=0&count=5&fakeid=" + accountPO.getFakeId() + "&type=9&query=&token=" + wechatProperties.getToken() + "&lang=zh_CN&f=json&ajax=1";
         Request request = new Request(url);
-        request.addHeader("cookie", wechatConfig.getCookie());
-        request.addHeader("user-agent", wechatConfig.getUserAgent());
+        request.addHeader("cookie", wechatProperties.getCookie());
+        request.addHeader("user-agent", wechatProperties.getUserAgent());
         spider.addRequest(request);
     }
 

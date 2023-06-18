@@ -161,8 +161,8 @@ public class ArticleFileManager {
 
     private void collectArticleInfo(StringBuilder builder, List<WArticleItemPO> articleItemPOS) {
         for (WArticleItemPO articleItemPO : articleItemPOS) {
-            builder.append("标题: ").append(articleItemPO.getTitle()).append("\n")
-                    .append("文章id: ").append(articleItemPO.getAid()).append("\n")
+            builder.append("标题: ").append(articleItemPO.getTitle())
+                    .append(" 文章id: ").append(articleItemPO.getAid()).append("\n")
                     .append("文章链接: ").append(articleItemPO.getLink()).append("\n")
 //                    .append("封面图片链接: ").append(articleItemPO.getCover()).append("\n")
                     .append("发布日期: ").append(DateUtil.format(articleItemPO.getUpdateTime(), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"))).append("\n")

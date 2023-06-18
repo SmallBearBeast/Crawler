@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 @Setter
 @Getter
 @ToString
-public class WechatConfig {
+public class WechatProperties {
     private String cookie= "";
     private String userAgent= "";
     private String fakeid= "";
