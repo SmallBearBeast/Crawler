@@ -65,11 +65,12 @@ public class ScheduleComponent {
      * 第七位，年份，可以留空，取值1970-2099
      */
     @Async
-    @Scheduled(cron = ScheduleComponent.CRON_TEST)
+//    @Scheduled(cron = ScheduleComponent.CRON_TEST)
     void printNowDate() {
         log.debug("syncUserInfoAndMsgs: current time is {}", DateUtil.format(new Date(), "yyyy-MM-dd HH:mm:ss"));
         log.debug("syncData: 0s到10s每隔两秒执行一次");
     }
+
     @Async
     @Scheduled(cron = ScheduleComponent.CRON_SYNC_USERS_AND_MSGS)
     void syncUserInfoAndMsgs() {

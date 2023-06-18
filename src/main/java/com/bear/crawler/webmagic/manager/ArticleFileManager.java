@@ -103,10 +103,10 @@ public class ArticleFileManager {
 
     private String getFetchArticlesContent(WAccountPO accountPO, List<WArticleItemPO> articleItemPOS) {
         StringBuilder builder = new StringBuilder();
-        builder.append(DIVIDER).append("保存时间：").append(DateUtil.format(new Date(), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"))).append("\n");
+        builder.append(DIVIDER).append("保存时间: ").append(DateUtil.format(new Date(), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"))).append("\n");
         String accountName = accountPO == null ? "未知公众号" : accountPO.getNickname();
         String fakeId = accountPO == null ? "未知fakeId" : accountPO.getFakeId();
-        builder.append("公众号：").append(accountName).append(" 公众号fakeId：").append(fakeId).append("\n");
+        builder.append("公众号: ").append(accountName).append(" 公众号fakeId: ").append(fakeId).append("\n");
         if (CollectionUtil.isEmpty(articleItemPOS)) {
             builder.append("没有抓到最新的文章").append("\n");
         } else {
@@ -133,7 +133,7 @@ public class ArticleFileManager {
         StringBuilder builder = new StringBuilder();
         String accountNickname = accountPO == null ? "未知公众号" : accountPO.getNickname();
         String fakeId = accountPO == null ? "未知fakeId" : accountPO.getFakeId();
-        builder.append("公众号：").append(accountNickname).append(" 公众号fakeId：").append(fakeId).append("\n");
+        builder.append("公众号: ").append(accountNickname).append(" 公众号fakeId: ").append(fakeId).append("\n");
         List<WArticleItemPO> articleItemPOS = wArticleProvider.getTodayArticles(fakeId);
         articleItemPOS.sort((first, second) -> second.getUpdateTime().compareTo(first.getUpdateTime()));
         if (CollectionUtil.isEmpty(articleItemPOS)) {
@@ -153,7 +153,7 @@ public class ArticleFileManager {
                 .sorted((first, second) -> second.getUpdateTime().compareTo(first.getUpdateTime())).collect(Collectors.toList());
         builder.append("状态为").append(OtherUtil.articleStateToStr(state)).append("的文章。")
                 .append("一共有").append(stateArticleItemPOS.size()).append("篇").append("\n");
-        collectArticleInfo(builder, stateArticleItemPOS);
+        collectArticleInfoForState(builder, stateArticleItemPOS);
         log.debug("getStateArticlesContent: content = {}", builder.toString());
         return builder.toString();
     }
@@ -161,12 +161,25 @@ public class ArticleFileManager {
 
     private void collectArticleInfo(StringBuilder builder, List<WArticleItemPO> articleItemPOS) {
         for (WArticleItemPO articleItemPO : articleItemPOS) {
-            builder.append("标题：").append(articleItemPO.getTitle()).append("\n")
-                    .append("文章id：").append(articleItemPO.getAid()).append("\n")
-                    .append("文章链接：").append(articleItemPO.getLink()).append("\n")
-                    .append("封面图片链接：").append(articleItemPO.getCover()).append("\n")
-                    .append("发布日期：").append(DateUtil.format(articleItemPO.getUpdateTime(), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"))).append("\n")
-                    .append("处理状态：").append(OtherUtil.articleStateToStr(articleItemPO.getHandleState())).append("\n\n");
+            builder.append("标题: ").append(articleItemPO.getTitle()).append("\n")
+                    .append("文章id: ").append(articleItemPO.getAid()).append("\n")
+                    .append("文章链接: ").append(articleItemPO.getLink()).append("\n")
+//                    .append("封面图片链接: ").append(articleItemPO.getCover()).append("\n")
+                    .append("发布日期: ").append(DateUtil.format(articleItemPO.getUpdateTime(), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"))).append("\n")
+                    .append("处理状态: ").append(OtherUtil.articleStateToStr(articleItemPO.getHandleState())).append("\n\n");
+        }
+    }
+
+    private void collectArticleInfoForState(StringBuilder builder, List<WArticleItemPO> articleItemPOS) {
+        for (WArticleItemPO articleItemPO : articleItemPOS) {
+            builder.append("标题: ").append(articleItemPO.getTitle())
+                    .append(" 文章id: ").append(articleItemPO.getAid()).append("\n")
+                    .append("公众号: ").append(articleItemPO.getOfficialAccountTitle())
+                    .append(" 公众号fakeId: ").append(articleItemPO.getOfficialAccountFakeId()).append("\n")
+                    .append("文章链接: ").append(articleItemPO.getLink()).append("\n")
+//                    .append("封面图片链接: ").append(articleItemPO.getCover()).append("\n")
+                    .append("发布日期: ").append(DateUtil.format(articleItemPO.getUpdateTime(), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"))).append("\n")
+                    .append("处理状态: ").append(OtherUtil.articleStateToStr(articleItemPO.getHandleState())).append("\n\n");
         }
     }
 }
