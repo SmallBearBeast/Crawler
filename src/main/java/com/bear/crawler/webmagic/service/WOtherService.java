@@ -1,13 +1,15 @@
 package com.bear.crawler.webmagic.service;
 
-import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.thread.ThreadUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.io.ClassPathResource;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.context.refresh.ContextRefresher;
+import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.core.env.MapPropertySource;
 import org.springframework.stereotype.Service;
 
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.Properties;
+import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -15,37 +17,21 @@ public class WOtherService {
 
     // TODO: 6/5/23 草稿？
     // send to me可以当做一个管理者通知渠道
+    @Autowired
+    private ContextRefresher contextRefresher;
 
-    // 动态改变target下的properties会触发springboot重启是因为加了spring-boot-devtools
+    @Autowired
+    private ConfigurableEnvironment environment;
+
     public void updateWechatProperties(String token, String cookie) {
-        Properties properties = new Properties();
-        InputStream inputStream = null;
-        OutputStream outputStream = null;
-        try {
-            String path = new ClassPathResource("wechat.properties").getURL().getFile();
-            String pathTemp = new ClassPathResource("").getURL().getFile() + "wechat_temp.properties";
-            // TODO: 6/15/23 jar文件里改不了 
-//            CrawlerApplication.class.getClassLoader().getResourceAsStream("wechat.properties");
-            inputStream = FileUtil.getInputStream(path);
-            outputStream = FileUtil.getOutputStream(pathTemp);
-            properties.load(inputStream);
-            properties.setProperty("wechat.token", token);
-            properties.setProperty("wechat.cookie", cookie);
-            properties.store(outputStream, "");
-            FileUtil.rename(FileUtil.file(pathTemp), path, true);
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (inputStream != null) {
-                    inputStream.close();
-                }
-                if (outputStream != null) {
-                    outputStream.close();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+        //修改配置文件中属性
+        Map<String, Object> map = new HashMap<>();
+        map.put("wechat.token", token);
+        map.put("wechat.cookie", cookie);
+        MapPropertySource propertySource = new MapPropertySource("dynamic", map);
+        //将修改后的配置设置到environment中
+        environment.getPropertySources().addFirst(propertySource);
+        //异步调用refresh方法，避免阻塞一直等待无响应
+        ThreadUtil.execute(() -> contextRefresher.refresh());
     }
 }

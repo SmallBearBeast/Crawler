@@ -36,6 +36,8 @@ import java.util.stream.Collectors;
 @Service
 public class WArticleService {
 
+    // TODO: 6/19/23 article名字重复，取最新文章
+
     @Autowired
     private WechatProperties wechatProperties;
 
