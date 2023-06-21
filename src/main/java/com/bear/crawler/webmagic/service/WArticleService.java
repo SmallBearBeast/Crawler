@@ -219,19 +219,36 @@ public class WArticleService {
             return;
         }
         for (WArticleItemDto itemDto : articleItemDtos) {
-            WArticleItemPO itemPo = BeanConverterUtil.dtoToPo(itemDto);
-            itemPo.setOfficialAccountId(accountPO.getId());
-            itemPo.setOfficialAccountFakeId(accountPO.getFakeId());
-            itemPo.setOfficialAccountTitle(accountPO.getNickname());
+            WArticleItemPO itemPO = BeanConverterUtil.dtoToPo(itemDto);
+            itemPO.setOfficialAccountId(accountPO.getId());
+            itemPO.setOfficialAccountFakeId(accountPO.getFakeId());
+            itemPO.setOfficialAccountTitle(accountPO.getNickname());
             WArticleItemPO saveItemPo = wArticleProvider.findByAid(itemDto.getAid());
             if (saveItemPo != null) {
-                itemPo.setHandleState(saveItemPo.getHandleState());
-                wArticleDao.updateByAid(itemPo);
+                itemPO.setHandleState(saveItemPo.getHandleState());
+                wArticleDao.updateByAid(itemPO);
+                wArticleProvider.updateCache(itemPO, false);
             } else {
-                wArticleDao.insert(itemPo);
-                articleItemPOS.add(itemPo);
+                boolean isLatest = true;
+                List<WArticleItemPO> repeatTitleItemPOS = wArticleProvider.findByTitle(itemDto.getAid(), accountPO.getFakeId(), itemDto.getTitle());
+                log.debug("saveArticleItemDtoToDB: repeatTitleItemPOS size is {}", repeatTitleItemPOS.size());
+                for (WArticleItemPO repeatTitleItemPO : repeatTitleItemPOS) {
+                    if (itemPO.getUpdateTime().compareTo(repeatTitleItemPO.getUpdateTime()) > 0) {
+                        log.debug("saveArticleItemDtoToDB: remove repeat title article {}", repeatTitleItemPO.getTitle());
+                        wArticleDao.deleteByAid(repeatTitleItemPO);
+                        wArticleProvider.updateCache(repeatTitleItemPO, true);
+                    } else {
+                        isLatest = false;
+                    }
+                }
+                if (isLatest) {
+                    wArticleDao.insert(itemPO);
+                    wArticleProvider.updateCache(itemPO, false);
+                    articleItemPOS.add(itemPO);
+                } else {
+                    log.info("saveArticleItemDtoToDB: itemPO {} is not lastest", itemPO.getTitle());
+                }
             }
-            wArticleProvider.updateCache(itemPo, false);
         }
     }
 

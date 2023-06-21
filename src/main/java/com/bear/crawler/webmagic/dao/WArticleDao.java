@@ -78,6 +78,18 @@ public class WArticleDao {
         return selectByToday(AppConstant.MY_FAKE_ID);
     }
 
+    public WArticleItemPO selectByTitle(String title) {
+        try {
+            WArticleItemPOExample example = new WArticleItemPOExample();
+            example.createCriteria().andTitleLike("%" + title + "%");
+            List<WArticleItemPO> articleItemPOS = wArticleItemPOMapper.selectByExample(example);
+            return CollectionUtil.getFirst(articleItemPOS);
+        } catch (Exception e) {
+            log.warn("Select the article by title failed, title = {}, e = {}", title, e.getMessage());
+        }
+        return null;
+    }
+
     public WArticleItemPO selectMeByTitle(String title) {
         try {
             WArticleItemPOExample example = new WArticleItemPOExample();
@@ -109,7 +121,7 @@ public class WArticleDao {
             example.createCriteria().andAidEqualTo(aid);
             return CollectionUtil.getFirst(wArticleItemPOMapper.selectByExample(example));
         } catch (Exception e) {
-            log.warn("selectBefore7Week: select the articles before 7 weeks failed, e = {}", e.getMessage());
+            log.warn("selectByAid: select the article by aid failed, e = {}", e.getMessage());
         }
         return null;
     }
@@ -130,6 +142,16 @@ public class WArticleDao {
             wArticleItemPOMapper.updateByExampleSelective(articleItemPO, example);
         } catch (Exception e) {
             log.warn("Update the article by aid failed, title = {}, e = {}", articleItemPO.getTitle(), e.getMessage());
+        }
+    }
+
+    public void deleteByAid(WArticleItemPO articleItemPO) {
+        try {
+            WArticleItemPOExample example = new WArticleItemPOExample();
+            example.createCriteria().andAidEqualTo(articleItemPO.getAid());
+            wArticleItemPOMapper.deleteByExample(example);
+        } catch (Exception e) {
+            log.warn("Delete the article by aid failed, title = {}, e = {}", articleItemPO.getTitle(), e.getMessage());
         }
     }
 

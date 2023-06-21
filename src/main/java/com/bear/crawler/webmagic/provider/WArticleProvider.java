@@ -51,11 +51,18 @@ public class WArticleProvider {
                 return articleItemPOMap.get(aid);
             }
         }
-        WArticleItemPO articleItemPO = wArticleDao.selectByAid(aid);
-        if (articleItemPO != null) {
-            updateCache(articleItemPO, false);
+        return null;
+    }
+
+    public List<WArticleItemPO> findByTitle(String aid, String fakeId, String title) {
+        List<WArticleItemPO> articleItemPOS = new ArrayList<>();
+        Map<String, WArticleItemPO> articleItemPOMap = wArticleCache.getArticleMap(fakeId);
+        for (WArticleItemPO itemPO : articleItemPOMap.values()) {
+            if (!aid.equals(itemPO.getAid()) && title.equals(itemPO.getTitle())) {
+                articleItemPOS.add(itemPO);
+            }
         }
-        return articleItemPO;
+        return articleItemPOS;
     }
 
     public long getLastLatestTime(String fakeId) {
