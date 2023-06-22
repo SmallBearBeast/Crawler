@@ -36,8 +36,6 @@ import java.util.stream.Collectors;
 @Service
 public class WArticleService {
 
-    // TODO: 6/19/23 article名字重复，取最新文章
-
     @Autowired
     private WechatProperties wechatProperties;
 
@@ -118,7 +116,6 @@ public class WArticleService {
         }
     }
 
-    // TODO: 6/7/23 利用多线程抓取，asyncTaskTools控制异步任务
     public void syncNeedFetchArticle() {
         List<String> fakeIds = wAccountProvider.getNeedFetchAccountFakeIds();
         String url = "https://mp.weixin.qq.com/cgi-bin/appmsg?action=list_ex&begin=0&count=5&fakeid={{fakeId}}&type=9&query=&token={{token}}&lang=zh_CN&f=json&ajax=1";

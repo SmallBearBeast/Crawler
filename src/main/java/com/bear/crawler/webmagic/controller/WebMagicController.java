@@ -136,10 +136,14 @@ public class WebMagicController {
         return "sendMsgToRecentUser successfully";
     }
 
-
     @PostMapping("/saveArticlesByState")
     public String saveArticlesByState() {
         wArticleService.saveArticlesByState();
         return "sendMsgToRecentUser successfully";
+    }
+
+    @GetMapping("/test")
+    public String test() {
+        return "test successfully";
     }
 }
