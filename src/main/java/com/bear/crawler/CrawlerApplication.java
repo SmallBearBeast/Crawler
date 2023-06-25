@@ -1,8 +1,10 @@
 package com.bear.crawler;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.StrUtil;
 import com.bear.crawler.webmagic.service.WArticleService;
 import com.bear.crawler.webmagic.service.WMsgService;
+import com.bear.crawler.webmagic.service.WOtherService;
 import com.bear.crawler.webmagic.service.WUserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +31,9 @@ public class CrawlerApplication implements ApplicationRunner {
     @Autowired
     private WArticleService wArticleService;
 
+    @Autowired
+    private WOtherService wOtherService;
+
     private static boolean inInit = false;
 
     public static void main(String[] args) {
@@ -38,14 +43,21 @@ public class CrawlerApplication implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) throws Exception {
         log.info("run: sourceArgs = {}", Arrays.toString(args.getSourceArgs()));
+        inInit = true;
+        String token = CollectionUtil.getFirst(args.getOptionValues("token"));
+        String cookie = CollectionUtil.getFirst(args.getOptionValues("cookie"));
+        if (StrUtil.isNotEmpty(token) && StrUtil.isNotEmpty(cookie)) {
+            log.info("run: refresh the token in initial");
+            wOtherService.updateWechatProperties(token, cookie);
+        }
         String sync = CollectionUtil.getFirst(args.getOptionValues("sync"));
         if ("1".equals(sync)) {
-            inInit = true;
+            log.info("run: sync the data in initial");
             wUserService.syncUserInfos();
             wMsgService.syncRecentMsgs();
             wArticleService.syncNeedFetchArticle();
-            inInit = false;
         }
+        inInit = false;
     }
 
     public static boolean isInit() {

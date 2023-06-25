@@ -1,6 +1,5 @@
 package com.bear.crawler.webmagic.basic.http;
 
-import com.bear.crawler.webmagic.pojo.WechatProperties;
 import okhttp3.ConnectionPool;
 import okhttp3.OkHttpClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +21,10 @@ public class OkHttpConfiguration {
     private final OkHttpProperties okHttpProperties;
 
     @Autowired
-    private WechatProperties wechatProperties;
+    private WAuthInterceptor wAuthInterceptor;
+
+    @Autowired
+    private WSleepInterceptor wSleepInterceptor;
 
     public OkHttpConfiguration(OkHttpProperties okHttpProperties) {
         this.okHttpProperties = okHttpProperties;
@@ -38,8 +40,8 @@ public class OkHttpConfiguration {
                 .readTimeout(okHttpProperties.getReadTimeout(), TimeUnit.SECONDS)
                 .writeTimeout(okHttpProperties.getWriteTimeout(), TimeUnit.SECONDS)
 //                .hostnameVerifier((hostname, session) -> true)
-                .addInterceptor(new WAuthInterceptor(wechatProperties))
-                .addInterceptor(new WSleepInterceptor())
+                .addInterceptor(wAuthInterceptor)
+                .addInterceptor(wSleepInterceptor)
                 .build();
     }
 

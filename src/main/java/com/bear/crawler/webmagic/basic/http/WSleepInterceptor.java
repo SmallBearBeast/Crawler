@@ -6,9 +6,11 @@ import okhttp3.HttpUrl;
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
+@Component
 public class WSleepInterceptor implements Interceptor {
 
     @Override
