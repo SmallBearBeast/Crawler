@@ -1,7 +1,7 @@
 package com.bear.crawler.wechat.service;
 
 import cn.hutool.core.collection.CollectionUtil;
-import com.bear.crawler.wechat.basic.http.OkHttp;
+import com.bear.crawler.basic.http.OkHttp;
 import com.bear.crawler.wechat.dao.WAccountDao;
 import com.bear.crawler.wechat.mybatis.generator.po.WAccountPO;
 import com.bear.crawler.wechat.pojo.WechatProperties;

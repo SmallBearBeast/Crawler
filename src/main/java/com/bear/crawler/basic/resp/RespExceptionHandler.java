@@ -1,4 +1,4 @@
-package com.bear.crawler.wechat.basic.resp;
+package com.bear.crawler.basic.resp;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

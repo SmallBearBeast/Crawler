@@ -16,9 +16,9 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @Slf4j
-@RequestMapping("/webMagic")
+@RequestMapping("/wechat")
 @RestController
-public class WebMagicController {
+public class WechatController {
 
     @Autowired
     private WOtherService wOtherService;

@@ -1,4 +1,4 @@
-package com.bear.crawler.wechat.config;
+package com.bear.crawler.config;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import java.text.SimpleDateFormat;
 
 @Configuration
-public class WebMagicConfig {
+public class CrawlerConfig {
 
     @Bean
     public ObjectMapper objectMapper() {

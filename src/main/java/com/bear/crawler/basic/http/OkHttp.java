@@ -1,4 +1,4 @@
-package com.bear.crawler.wechat.basic.http;
+package com.bear.crawler.basic.http;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;

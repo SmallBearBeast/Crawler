@@ -1,4 +1,4 @@
-package com.bear.crawler.wechat.basic.http;
+package com.bear.crawler.basic.http;
 
 import okhttp3.ConnectionPool;
 import okhttp3.OkHttpClient;

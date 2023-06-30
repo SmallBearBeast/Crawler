@@ -8,7 +8,7 @@ import com.bear.crawler.gov.pojo.dto.ServiceDirDto;
 import com.bear.crawler.gov.pojo.dto.resp.CategoryRespDto;
 import com.bear.crawler.gov.pojo.dto.resp.ServiceDirRespDto;
 import com.bear.crawler.gov.util.GovOtherUtil;
-import com.bear.crawler.wechat.basic.http.OkHttp;
+import com.bear.crawler.basic.http.OkHttp;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

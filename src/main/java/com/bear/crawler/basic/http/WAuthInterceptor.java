@@ -1,4 +1,4 @@
-package com.bear.crawler.wechat.basic.http;
+package com.bear.crawler.basic.http;
 
 import cn.hutool.core.map.MapUtil;
 import com.bear.crawler.wechat.pojo.WechatProperties;

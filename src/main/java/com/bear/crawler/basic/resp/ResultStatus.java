@@ -1,4 +1,4 @@
-package com.bear.crawler.wechat.basic.resp;
+package com.bear.crawler.basic.resp;
 
 public enum ResultStatus {
     /**

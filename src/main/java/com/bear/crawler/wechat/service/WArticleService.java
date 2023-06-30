@@ -3,7 +3,7 @@ package com.bear.crawler.wechat.service;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.map.MapUtil;
 import com.bear.crawler.wechat.AppConstant;
-import com.bear.crawler.wechat.basic.http.OkHttp;
+import com.bear.crawler.basic.http.OkHttp;
 import com.bear.crawler.wechat.dao.WArticleDao;
 import com.bear.crawler.wechat.manager.ArticleFileManager;
 import com.bear.crawler.wechat.mybatis.generator.po.WAccountPO;

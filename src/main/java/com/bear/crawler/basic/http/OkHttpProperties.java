@@ -1,4 +1,4 @@
-package com.bear.crawler.wechat.basic.http;
+package com.bear.crawler.basic.http;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;

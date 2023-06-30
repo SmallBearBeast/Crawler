@@ -1,4 +1,4 @@
-package com.bear.crawler.wechat.config;
+package com.bear.crawler.config;
 
 import com.bear.crawler.wechat.interceptor.InitInterceptor;
 import org.springframework.context.annotation.Configuration;

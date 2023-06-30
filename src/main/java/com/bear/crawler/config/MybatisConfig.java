@@ -1,4 +1,4 @@
-package com.bear.crawler.wechat.config;
+package com.bear.crawler.config;
 
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.context.annotation.Configuration;
