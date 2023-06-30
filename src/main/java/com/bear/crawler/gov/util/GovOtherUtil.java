@@ -3,7 +3,6 @@ package com.bear.crawler.gov.util;
 import cn.hutool.core.net.url.UrlBuilder;
 import cn.hutool.core.net.url.UrlQuery;
 import com.bear.crawler.gov.pojo.dto.resp.GovRespDto;
-import com.bear.crawler.webmagic.pojo.dto.resp.BaseRespDto;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;

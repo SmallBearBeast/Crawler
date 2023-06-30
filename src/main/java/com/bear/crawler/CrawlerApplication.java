@@ -2,10 +2,10 @@ package com.bear.crawler;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
-import com.bear.crawler.webmagic.service.WArticleService;
-import com.bear.crawler.webmagic.service.WMsgService;
-import com.bear.crawler.webmagic.service.WOtherService;
-import com.bear.crawler.webmagic.service.WUserService;
+import com.bear.crawler.wechat.service.WArticleService;
+import com.bear.crawler.wechat.service.WMsgService;
+import com.bear.crawler.wechat.service.WOtherService;
+import com.bear.crawler.wechat.service.WUserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;

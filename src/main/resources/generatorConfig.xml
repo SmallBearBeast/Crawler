@@ -17,11 +17,11 @@
         <!-- 为生成的Java模型创建一个toString方法 -->
         <plugin type="org.mybatis.generator.plugins.ToStringPlugin"/>
         <!-- 为生成的Java模型创建一个equal，hashcode方法 -->
-        <plugin type="com.bear.crawler.webmagic.mybatis.plugin.MyEqualsHashCodePlugin"/>
+        <plugin type="com.bear.crawler.wechat.mybatis.plugin.MyEqualsHashCodePlugin"/>
         <!-- example支持limit和offset -->
-        <plugin type="com.bear.crawler.webmagic.mybatis.plugin.MySQLLimitPlugin"/>
+        <plugin type="com.bear.crawler.wechat.mybatis.plugin.MySQLLimitPlugin"/>
         <!--可以自定义生成model的代码注释-->
-        <commentGenerator type="com.bear.crawler.webmagic.mybatis.CommentGenerator">
+        <commentGenerator type="com.bear.crawler.wechat.mybatis.CommentGenerator">
             <!-- 是否去除自动生成的注释 true：是 ： false:否 -->
             <property name="suppressAllComments" value="true"/>
             <!-- 这个元素用来去除指定生成的注释中是否包含生成的日期 false:表示保护 -->
@@ -42,7 +42,7 @@
             <property name="forceBigDecimals" value="false"/>
         </javaTypeResolver>
         <!--指定生成model的路径-->
-        <javaModelGenerator targetPackage="com.bear.crawler.webmagic.mybatis.generator.po"
+        <javaModelGenerator targetPackage="com.bear.crawler.wechat.mybatis.generator.po"
                             targetProject="src/main/java">
             <!--trimStrings:是否对数据库查询结果进行trim操作，
             如果设置为true就会生成类似这样
@@ -53,7 +53,7 @@
         </javaModelGenerator>
         <!--指定生成mapper.xml的路径-->
         <!--接口和mapper映射文件可以分开放，也可以放一起-->
-        <sqlMapGenerator targetPackage="com.bear.crawler.webmagic.mybatis.generator.mapper"
+        <sqlMapGenerator targetPackage="com.bear.crawler.wechat.mybatis.generator.mapper"
                          targetProject="src/main/java"/>
         <!--指定生成mapper接口的的路径-->
         <!-- 客户端代码，生成易于使用的针对Model对象和XML配置文件 的代码
@@ -61,7 +61,7 @@
         type="MIXEDMAPPER",生成基于注解的Java Model 和相应的Mapper对象
         type="XMLMAPPER",生成SQLMap XML文件和独立的Mapper接口
         著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。-->
-        <javaClientGenerator type="XMLMAPPER" targetPackage="com.bear.crawler.webmagic.mybatis.generator.mapper"
+        <javaClientGenerator type="XMLMAPPER" targetPackage="com.bear.crawler.wechat.mybatis.generator.mapper"
                              targetProject="src/main/java"/>
         <!--生成全部表tableName设为%-->
         <!-- 要生成的表 tableName是数据库中的表名或视图名 domainObjectName是实体类名-->
