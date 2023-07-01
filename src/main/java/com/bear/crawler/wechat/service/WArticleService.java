@@ -199,8 +199,7 @@ public class WArticleService {
         String respDtoStr = okHttp.get(url, null, null, String.class);
         WMyPublishRespDto respDto = null;
         try {
-            respDtoStr = respDtoStr.replace("\\", "").replace("\"{", "{")
-                    .replace("\"}", "}").replace("}\"", "}");
+            respDtoStr = respDtoStr.replace("\\", "").replace("\"{", "{").replace("}\"", "}");
             respDto = objectMapper.readValue(respDtoStr, WMyPublishRespDto.class);
             respDto.getMyArticleItemDtos();
         } catch (Exception e) {

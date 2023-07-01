@@ -5,8 +5,8 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @MapperScan(basePackages = {
-        "com.bear.crawler.webmagic.mybatis.generator.mapper",
-        "com.bear.crawler.webmagic.mybatis.custom"
+        "com.bear.crawler.wechat.mybatis.generator.mapper",
+        "com.bear.crawler.wechat.mybatis.custom"
 })
 public class MybatisConfig {
 

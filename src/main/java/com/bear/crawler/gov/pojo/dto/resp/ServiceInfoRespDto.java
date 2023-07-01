@@ -8,6 +8,6 @@ import java.util.List;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class ServiceDirRespDto extends GovRespDto<List<ServiceDirDto>> {
+public class ServiceInfoRespDto extends GovRespDto<List<ServiceDirDto>> {
 
 }

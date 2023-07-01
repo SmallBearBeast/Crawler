@@ -6,54 +6,96 @@ import lombok.Data;
 @Data
 public class ServiceItemDto {
 
-    @JsonAlias("uni")
-    private String uni; // "D395CD074491675AEDB296AF9FD302EE",
+    @JsonAlias("serviceType")
+    private Object serviceType; // null,
 
-    @JsonAlias("addtyp")
-    private String addtyp; // "行政许可",
+    @JsonAlias("unid")
+    private String unid; // "D395CD074491675AEDB296AF9FD302EE",
 
-    @JsonAlias("infoproji")
-    private String infoproji; // "003916081XK01302",
+    @JsonAlias("addtype")
+    private String addtype; // "行政许可",
 
-    @JsonAlias("checkMateria")
-    private String checkMateria; // "S",
+    @JsonAlias("linkPre")
+    private Object linkPre; // null,
 
-    @JsonAlias("deptAlia")
-    private String deptAlia; // "东山县教育局",
+    @JsonAlias("webapplyurl")
+    private Object webapplyurl; // null,
 
-    @JsonAlias("promiseda")
-    private String promiseda; // "14",
+    @JsonAlias("srccode")
+    private Object srccode; // null,
 
-    @JsonAlias("promisetyp")
-    private String promisetyp; // "1",
+    @JsonAlias("subWebapplyurl")
+    private Object subWebapplyurl; // null,
 
-    @JsonAlias("servicenam")
-    private String servicenam; // "设立学前教育阶段民办学校的审批",
+    @JsonAlias("infoprojid")
+    private String infoprojid; // "003916081XK01302",
 
-    @JsonAlias("caChec")
-    private String caChec; // false,
+    @JsonAlias("checkMaterial")
+    private String checkMaterial; // "S",
 
-    @JsonAlias("ydjFla")
-    private boolean ydjFla; // "N",
+    @JsonAlias("deptAlias")
+    private String deptAlias; // "东山县教育局",
 
-    @JsonAlias("parentuni")
-    private String parentuni; // "7366B95A5B645BA51A2BD73A1BAA8F9E",
+    @JsonAlias("isLiandong")
+    private Object isLiandong; // null,
 
-    @JsonAlias("wsnu")
-    private String wsnu; // "0",
+    @JsonAlias("promiseday")
+    private String promiseday; // "14",
 
-    @JsonAlias("starpropert")
-    private int starpropert; // 5,
+    @JsonAlias("promisetype")
+    private String promisetype; // "1",
 
-    @JsonAlias("inpropert")
-    private String inpropert; // "in04",
+    @JsonAlias("singleloginif")
+    private Object singleloginif; // null,
 
-    @JsonAlias("deptnam")
-    private String deptnam; // "东山县教育局",
+    @JsonAlias("servicename")
+    private String servicename; // "设立学前教育阶段民办学校的审批",
 
-    @JsonAlias("deptuni")
-    private String deptuni; // "E4A6D93E4484D3CC68CF6ED86CFFA443",
+    @JsonAlias("contactphone")
+    private Object contactphone; // null,
 
-    @JsonAlias("cknu")
-    private String cknu; // "1"
+    @JsonAlias("caCheck")
+    private boolean caCheck; // false,
+
+    @JsonAlias("ydjFlag")
+    private String ydjFlag; // "N",
+
+    @JsonAlias("parentunid")
+    private String parentunid; // "7366B95A5B645BA51A2BD73A1BAA8F9E",
+
+    @JsonAlias("wsnum")
+    private String wsnum; // "0",
+
+    @JsonAlias("starproperty")
+    private int starproperty; // 5,
+
+    @JsonAlias("inproperty")
+    private String inproperty; // "in04",
+
+    @JsonAlias("deptname")
+    private String deptname; // "东山县教育局",
+
+    @JsonAlias("areaCode")
+    private Object areaCode; // null,
+
+    @JsonAlias("checkSelf")
+    private Object checkSelf; // null,
+
+    @JsonAlias("serviceflag")
+    private Object serviceflag; // null,
+
+    @JsonAlias("isgf")
+    private Object isgf; // null,
+
+    @JsonAlias("name")
+    private Object name; // null,
+
+    @JsonAlias("deptunid")
+    private String deptunid; // "E4A6D93E4484D3CC68CF6ED86CFFA443",
+
+    @JsonAlias("cknum")
+    private String cknum; // "1",
+
+    @JsonAlias("deptCode")
+    private Object deptCode; // null
 }

@@ -3,10 +3,11 @@ package com.bear.crawler.gov.service;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.map.MapUtil;
 import com.bear.crawler.gov.GovConstant;
+import com.bear.crawler.gov.manager.ServiceInfoFileManager;
 import com.bear.crawler.gov.pojo.dto.CategoryDto;
 import com.bear.crawler.gov.pojo.dto.ServiceDirDto;
 import com.bear.crawler.gov.pojo.dto.resp.CategoryRespDto;
-import com.bear.crawler.gov.pojo.dto.resp.ServiceDirRespDto;
+import com.bear.crawler.gov.pojo.dto.resp.ServiceInfoRespDto;
 import com.bear.crawler.gov.util.GovOtherUtil;
 import com.bear.crawler.basic.http.OkHttp;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +26,9 @@ public class GovService {
     @Autowired
     private OkHttp okHttp;
 
+    @Autowired
+    private ServiceInfoFileManager serviceInfoFileManager;
+
     public void syncPersonalAffairsByCategory() {
         List<CategoryDto> categoryDtos = fetchCategory();
         Map<CategoryDto, List<ServiceDirDto>> map = new LinkedHashMap<>();
@@ -33,7 +37,7 @@ public class GovService {
             syncTopicByCategory(categoryDto,  serviceDirDtos);
             map.put(categoryDto, serviceDirDtos);
         }
-        print(map);
+        serviceInfoFileManager.saveServiceInfo(map);
     }
 
     private List<CategoryDto> fetchCategory() {
@@ -53,20 +57,16 @@ public class GovService {
 
     private void syncTopicByCategoryInternal(String categoryName, String url, int pageNum, List<ServiceDirDto> serviceDirDtos) {
         String newUrl = GovOtherUtil.getNewUrlByParams(url, MapUtil.of(GovConstant.PAGE_NUM, pageNum));
-        ServiceDirRespDto respDto = okHttp.get(newUrl, null, null, ServiceDirRespDto.class);
+        ServiceInfoRespDto respDto = okHttp.get(newUrl, null, null, ServiceInfoRespDto.class);
         if (GovOtherUtil.checkGovRespDto(respDto, "GovService.syncPersonalAffairsByCategory()")) {
             List<ServiceDirDto> dirDtos = respDto.getData();
             if (CollectionUtil.isNotEmpty(dirDtos)) {
                 serviceDirDtos.addAll(dirDtos);
                 syncTopicByCategoryInternal(categoryName, url, pageNum + 1, serviceDirDtos);
             } else {
-                log.info("syncTopicByCategoryInternal: load the {} to end", categoryName);
+                log.info("syncTopicByCategoryInternal: load the {} service info to end", categoryName);
             }
         }
-    }
-
-    private void print(Map<CategoryDto, List<ServiceDirDto>> map) {
-
     }
 
     public void syncPersonalAffairsByDepartment() {

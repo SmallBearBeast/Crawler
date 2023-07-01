@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RefreshScope
-@PropertySource(value = {"classpath:wechat.properties"})
+@PropertySource(value = {"classpath:crawler.properties"})
 @ConfigurationProperties(prefix = "wechat", ignoreInvalidFields = true)
 @Setter
 @Getter

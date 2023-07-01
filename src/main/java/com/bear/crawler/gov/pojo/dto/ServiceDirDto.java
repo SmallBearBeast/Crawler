@@ -14,6 +14,9 @@ public class ServiceDirDto {
     @JsonAlias("dirParentUnid")
     private String dirParentUnid; // "B185BC2D31F0D3F5F92D90CF59E48B4B",
 
+    @JsonAlias("rspDirectoryApasService")
+    private List<ServiceDirDto> rspDirectoryApasService;
+
     @JsonAlias("directoryId")
     private String directoryId; // "8D01C2C6CDFF3053951DC14568262E1B",
 

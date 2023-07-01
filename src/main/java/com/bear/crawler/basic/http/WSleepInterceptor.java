@@ -25,7 +25,7 @@ public class WSleepInterceptor implements Interceptor {
 
     private boolean isNeedToIntercept(Request request) {
         HttpUrl httpUrl = request.url();
-        return httpUrl.host().equals("mp.weixin.qq.com");
+        return httpUrl.host().equals("mp.weixin.qq.com") || httpUrl.host().equals("zwfw.fujian.gov.cn");
     }
 
     private void randomSleep() {

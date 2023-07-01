@@ -6,7 +6,7 @@ public class GovConstant {
 
     public static final String PAGE_NUM = "pageNum";
 
-    public static final String PAGE_SIZE = "pageSize";
+    public static final String UNID = "unid";
 
     // 获取个人办事所有的主题分类
     public static final String ALL_CATEGORY_URL = "https://zwfw.fujian.gov.cn:732/cms-business/apasService/categorizationMatters?type=1&bigtype=1&areacode=350626";
