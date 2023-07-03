@@ -21,6 +21,12 @@ public class GovController {
         return "syncPersonalAffairsByCategory successfully";
     }
 
+    @PostMapping("/filterPersonalAffairs")
+    public String filterPersonalAffairs() {
+        govService.filterPersonalAffairs();
+        return "filterPersonalAffairs successfully";
+    }
+
     @PostMapping("/syncPersonalAffairsByDepartment")
     public String syncPersonalAffairsByDepartment() {
         govService.syncPersonalAffairsByDepartment();

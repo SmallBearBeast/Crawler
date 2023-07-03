@@ -6,6 +6,7 @@ import com.bear.crawler.gov.GovConstant;
 import com.bear.crawler.gov.manager.ServiceInfoFileManager;
 import com.bear.crawler.gov.pojo.dto.CategoryDto;
 import com.bear.crawler.gov.pojo.dto.ServiceDirDto;
+import com.bear.crawler.gov.pojo.dto.ServiceItemDto;
 import com.bear.crawler.gov.pojo.dto.resp.CategoryRespDto;
 import com.bear.crawler.gov.pojo.dto.resp.ServiceInfoRespDto;
 import com.bear.crawler.gov.util.GovOtherUtil;
@@ -34,10 +35,11 @@ public class GovService {
         Map<CategoryDto, List<ServiceDirDto>> map = new LinkedHashMap<>();
         for (CategoryDto categoryDto : categoryDtos) {
             List<ServiceDirDto> serviceDirDtos = new ArrayList<>();
-            syncTopicByCategory(categoryDto,  serviceDirDtos);
+            syncTopicByCategory(categoryDto, serviceDirDtos);
             map.put(categoryDto, serviceDirDtos);
         }
         serviceInfoFileManager.saveServiceInfo(map);
+        serviceInfoFileManager.saveServiceDirListJsonStr(map);
     }
 
     private List<CategoryDto> fetchCategory() {
@@ -80,5 +82,86 @@ public class GovService {
 
     private void syncTopicByDepartment() {
 
+    }
+
+    private static final String[] FILTER_ITEM = new String[]{
+            "教师,教师资格",
+            "公证员",
+            "基层法律",
+            "执业许可",
+            "户口",
+            "身份证",
+    };
+
+    public void filterPersonalAffairs() {
+        List<List<ServiceDirDto>> list = serviceInfoFileManager.readServiceDirListJsonStr();
+        List<ServiceDirDto> allServiceDirDtos = new ArrayList<>();
+        for (List<ServiceDirDto> value : list) {
+            allServiceDirDtos.addAll(value);
+        }
+        Map<String, List<ServiceItemDto>> filterServiceItemMap = filterServiceDirInfo(allServiceDirDtos);
+        serviceInfoFileManager.saveFilterServiceItemInfo(filterServiceItemMap);
+    }
+
+    private Map<String, List<ServiceItemDto>> filterServiceDirInfo(List<ServiceDirDto> serviceDirDtos) {
+        Map<String, List<ServiceItemDto>> resultMap = new LinkedHashMap<>();
+        for (String filter : FILTER_ITEM) {
+            Map<String, ServiceItemDto> serviceItemDtoMap = new LinkedHashMap<>();
+            String[] splits = filter.split(",");
+            if (splits.length > 0) {
+                for (String split : splits) {
+                    filterAndCollect(split, serviceDirDtos, serviceItemDtoMap);
+                }
+            } else {
+                filterAndCollect(filter, serviceDirDtos, serviceItemDtoMap);
+            }
+            resultMap.put(filter, new ArrayList<>(serviceItemDtoMap.values()));
+        }
+        return resultMap;
+    }
+
+    private void filterAndCollect(String filter, List<ServiceDirDto> serviceDirDtos, Map<String, ServiceItemDto> serviceItemDtoMap) {
+        for (ServiceDirDto serviceDirDto : serviceDirDtos) {
+            filterAndCollect(filter, serviceDirDto, serviceItemDtoMap);
+        }
+    }
+
+    private void filterAndCollect(String filter, ServiceDirDto filterServiceDirDto, Map<String, ServiceItemDto> collectServiceItemDtoMap) {
+        String dirName = filterServiceDirDto.getDirName();
+        if (dirName != null && dirName.contains(filter)) {
+            collectServiceItemDto(filterServiceDirDto, collectServiceItemDtoMap);
+            return;
+        }
+        List<ServiceItemDto> serviceItemDtos = filterServiceDirDto.getApasServiceSimpleList();
+        if (CollectionUtil.isNotEmpty(serviceItemDtos)) {
+            for (ServiceItemDto serviceItemDto : serviceItemDtos) {
+                String itemName = serviceItemDto.getServicename();
+                if (itemName != null && itemName.contains(filter)) {
+                    collectServiceItemDtoMap.put(serviceItemDto.getUnid(), serviceItemDto);
+                    return;
+                }
+            }
+        }
+        List<ServiceDirDto> serviceDirDtos = filterServiceDirDto.getRspDirectoryApasService();
+        if (CollectionUtil.isNotEmpty(serviceDirDtos)) {
+            for (ServiceDirDto serviceDirDto : serviceDirDtos) {
+                filterAndCollect(filter, serviceDirDto, collectServiceItemDtoMap);
+            }
+        }
+    }
+
+    private void collectServiceItemDto(ServiceDirDto collectServiceDirDto, Map<String, ServiceItemDto> collectServiceItemDtoMap) {
+        List<ServiceItemDto> serviceItemDtos = collectServiceDirDto.getApasServiceSimpleList();
+        if (CollectionUtil.isNotEmpty(serviceItemDtos)) {
+            for (ServiceItemDto serviceItemDto : serviceItemDtos) {
+                collectServiceItemDtoMap.put(serviceItemDto.getUnid(), serviceItemDto);
+            }
+        }
+        List<ServiceDirDto> serviceDirDtos = collectServiceDirDto.getRspDirectoryApasService();
+        if (CollectionUtil.isNotEmpty(serviceDirDtos)) {
+            for (ServiceDirDto serviceDirDto : serviceDirDtos) {
+                collectServiceItemDto(serviceDirDto, collectServiceItemDtoMap);
+            }
+        }
     }
 }

@@ -262,4 +262,32 @@ public class WArticleService {
         List<WArticleItemPO> articleItemPOS = wArticleProvider.getTodayArticles();
         articleFileManager.saveArticlesByState(articleItemPOS);
     }
+
+    public void setReplyRule() {
+        String ruleName = "Rule_教师资格";
+        String ruleKey = "教师资格";
+        String ruleContent = "";
+        String url = "https://mp.weixin.qq.com/advanced/setreplyrule?cgi=setreplyrule&fun=save&t=ajax-response&token={{token}}&lang=zh_CN";
+        String referer = "https://mp.weixin.qq.com/advanced/autoreply?action=smartreply&t=ivr/keywords&token=" + wechatProperties.getToken() + "&lang=zh_CN";
+        Map<String, String> headerMap = MapUtil.of(AppConstant.REFERER, referer);
+        Map<String, String> paramMap = MapUtil.builder("token", wechatProperties.getToken())
+                .put("lang", "zh_CN")
+                .put("f", "json")
+                .put("ajax", "1")
+                .put("replytype", "smartreply")
+                .put("ruleid", "0")
+                .put("rulename", ruleName)
+                .put("allreply", "0")
+                .put("replycnt", "1")
+                .put("keywordcnt", "1")
+                .put("keyword0", ruleKey)
+                .put("matchmode0", "0")
+                .put("type0", "1")
+                .put("fileid0", "undefined")
+                .put("content0", ruleContent)
+                .build();
+        okHttp.post(url, paramMap, headerMap);
+        List<WArticleItemPO> articleItemPOS = wArticleProvider.getTodayArticles();
+        articleFileManager.saveArticlesByState(articleItemPOS);
+    }
 }

@@ -142,6 +142,12 @@ public class WechatController {
         return "sendMsgToRecentUser successfully";
     }
 
+    @PostMapping("/setReplyRule")
+    public String setReplyRule() {
+        wArticleService.setReplyRule();
+        return "setReplyRule successfully";
+    }
+
     @GetMapping("/test")
     public String test() {
         return "test successfully";
