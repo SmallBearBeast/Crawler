@@ -89,6 +89,7 @@ public class WechatController {
     @PostMapping("/updateHandleState")
     public String updateHandleState(@RequestParam("aids") List<String> aids, @RequestParam("state") int state) {
         wArticleService.updateHandleState(aids, state);
+        wArticleService.saveArticlesByState();
         return "updateHandleState successfully";
     }
 
@@ -150,6 +151,7 @@ public class WechatController {
 
     @GetMapping("/test")
     public String test() {
+        wArticleService.setUpArticlePOIgnore(null);
         return "test successfully";
     }
 }

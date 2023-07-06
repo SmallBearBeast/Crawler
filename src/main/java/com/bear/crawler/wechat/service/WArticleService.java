@@ -1,7 +1,10 @@
 package com.bear.crawler.wechat.service;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.lang.TypeReference;
 import cn.hutool.core.map.MapUtil;
+import cn.hutool.json.JSONUtil;
 import com.bear.crawler.wechat.AppConstant;
 import com.bear.crawler.basic.http.OkHttp;
 import com.bear.crawler.wechat.dao.WArticleDao;
@@ -9,6 +12,8 @@ import com.bear.crawler.wechat.manager.ArticleFileManager;
 import com.bear.crawler.wechat.mybatis.generator.po.WAccountPO;
 import com.bear.crawler.wechat.mybatis.generator.po.WArticleItemPO;
 import com.bear.crawler.wechat.pojo.WechatProperties;
+import com.bear.crawler.wechat.pojo.domain.ArticleIgnoreRuleDO;
+import com.bear.crawler.wechat.pojo.domain.ContentRuleDO;
 import com.bear.crawler.wechat.pojo.dto.WArticleItemDto;
 import com.bear.crawler.wechat.pojo.dto.resp.BaseRespDto;
 import com.bear.crawler.wechat.pojo.dto.resp.WArticleItemsRespDto;
@@ -22,11 +27,13 @@ import com.bear.crawler.wechat.util.OtherUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Spider;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -62,6 +69,11 @@ public class WArticleService {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Value("${wechat.articleIgnoreConfigPath}")
+    private String articleIgnoreConfigPath;
+
+    private Map<String, ArticleIgnoreRuleDO> articleIgnoreRuleMap = new HashMap<>();
 
     public void fetchWArticleDetail(String query) {
         Spider.create(wArticleDetailProcessor)
@@ -244,6 +256,43 @@ public class WArticleService {
                 } else {
                     log.info("saveArticleItemDtoToDB: itemPO {} is not lastest", itemPO.getTitle());
                 }
+            }
+        }
+    }
+
+    // Ignore策略
+    public boolean setUpArticlePOIgnore(WArticleItemPO itemPO) {
+        setUpArticleIgnoreRule();
+        String fakeId = itemPO.getOfficialAccountFakeId();
+        ArticleIgnoreRuleDO articleRule = articleIgnoreRuleMap.get(fakeId);
+        if (articleRule == null) {
+            articleRule = articleIgnoreRuleMap.get(AppConstant.BASE);
+        }
+        return false;
+        
+    }
+
+    private void setUpArticleIgnoreRule() {
+        if (articleIgnoreRuleMap != null) {
+            return;
+        }
+        String json = FileUtil.readUtf8String(articleIgnoreConfigPath);
+        articleIgnoreRuleMap = JSONUtil.parseObj(json).toBean(new TypeReference<>() {});
+        ArticleIgnoreRuleDO baseRule = articleIgnoreRuleMap.get(AppConstant.BASE);
+        for (ArticleIgnoreRuleDO rule : articleIgnoreRuleMap.values()) {
+            ContentRuleDO titleRule = rule.getTitleRule();
+            ContentRuleDO contentRule = rule.getContentRule();
+            if (titleRule.isBaseInclude()) {
+                titleRule.getInclude().addAll(baseRule.getTitleRule().getInclude());
+            }
+            if (titleRule.isBaseExclude()) {
+                titleRule.getExclude().addAll(baseRule.getTitleRule().getExclude());
+            }
+            if (contentRule.isBaseInclude()) {
+                contentRule.getInclude().addAll(baseRule.getContentRule().getInclude());
+            }
+            if (contentRule.isBaseExclude()) {
+                contentRule.getExclude().addAll(baseRule.getContentRule().getExclude());
             }
         }
     }

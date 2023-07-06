@@ -1,0 +1,114 @@
+{
+  "base": {
+    "name": "base",
+    "titleRule": {
+      "include": [
+        "东山",
+        "天气",
+        "考试"
+      ],
+      "exclude": [
+        "习近平",
+        "李强",
+        "国务院",
+        "常务会议"
+      ]
+    },
+    "contentRule": {
+      "include": [
+        "东山",
+        "天气",
+        "考试"
+      ],
+      "exclude": [
+      ]
+    }
+  },
+  "MjM5NzY4MjU4OA==": {
+    "name": "东山融媒",
+    "titleRule": {
+      "baseInclude": false,
+      "include": [
+        "all"
+      ],
+      "baseExclude": true,
+      "exclude": [
+        "嗨，东山"
+      ]
+    },
+    "contentRule": {
+      "baseInclude": true,
+      "include": [],
+      "baseExclude": true,
+      "exclude": []
+    }
+  },
+  "MjM5NjM0MDEwNg==": {
+    "name": "东山岛旅游",
+    "titleRule": {
+      "baseInclude": false,
+      "include": [
+        "all"
+      ],
+      "baseExclude": true,
+      "exclude": []
+    },
+    "contentRule": {
+      "baseInclude": true,
+      "include": [],
+      "baseExclude": true,
+      "exclude": []
+    }
+  },
+  "MzIxNjQ4NjczMA==": {
+    "name": "东山公交",
+    "titleRule": {
+      "baseInclude": false,
+      "include": [
+        "all"
+      ],
+      "baseExclude": true,
+      "exclude": []
+    },
+    "contentRule": {
+      "baseInclude": true,
+      "include": [],
+      "baseExclude": true,
+      "exclude": []
+    }
+  },
+  "MzAwODAwNjUxMg==": {
+    "name": "东山交警微发布",
+    "titleRule": {
+      "baseInclude": false,
+      "include": [
+        "all"
+      ],
+      "baseExclude": true,
+      "exclude": []
+    },
+    "contentRule": {
+      "baseInclude": true,
+      "include": [],
+      "baseExclude": true,
+      "exclude": []
+    }
+  },
+  "MzUyODE2MjAwOA==": {
+    "name": "海峡导报大东山",
+    "titleRule": {
+      "baseInclude": false,
+      "include": [
+        "all"
+      ],
+      "baseExclude": true,
+      "exclude": []
+    },
+    "contentRule": {
+      "baseInclude": true,
+      "include": [],
+      "baseExclude": true,
+      "exclude": []
+    }
+  }
+}

@@ -1,6 +1,7 @@
 package com.bear.crawler.gov.service;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.lang.Pair;
 import cn.hutool.core.map.MapUtil;
 import com.bear.crawler.gov.GovConstant;
 import com.bear.crawler.gov.manager.ServiceInfoFileManager;
@@ -84,14 +85,47 @@ public class GovService {
 
     }
 
-    private static final String[] FILTER_ITEM = new String[]{
-            "教师,教师资格",
-            "公证员",
-            "基层法律",
-            "执业许可",
-            "户口",
-            "身份证",
-    };
+    // Key是rule name，value是json文件提取的关键字，以,作为分隔符。
+    private static final Map<String, String> FILTER_ITEM_MAP = new LinkedHashMap<>();
+    {
+        FILTER_ITEM_MAP.put("身份证", "身份证");
+
+        FILTER_ITEM_MAP.put("户口", "户口");
+        FILTER_ITEM_MAP.put("户口迁移", "户口迁移");
+        FILTER_ITEM_MAP.put("居住证", "居住证");
+        FILTER_ITEM_MAP.put("出生登记", "出生登记");
+        FILTER_ITEM_MAP.put("户口登记", "户口登记");
+        FILTER_ITEM_MAP.put("户口注销", "户口注销");
+        FILTER_ITEM_MAP.put("姓名变更,改名字,改姓名,改名,姓名", "姓名变更");
+
+        FILTER_ITEM_MAP.put("社会保险,社保", "社会保险");
+        FILTER_ITEM_MAP.put("参保记录,参保查询,社保记录,社保查询", "参保缴费记录查询");
+        FILTER_ITEM_MAP.put("教师,教师资格", "教师,教师资格");
+        FILTER_ITEM_MAP.put("执业许可", "执业许可");
+        FILTER_ITEM_MAP.put("公证员", "公证员");
+        FILTER_ITEM_MAP.put("基层法律", "基层法律");
+        FILTER_ITEM_MAP.put("海域使用", "海域使用");
+        FILTER_ITEM_MAP.put("水域滩涂", "水域滩涂");
+        FILTER_ITEM_MAP.put("养殖,养殖证", "养殖,养殖证");
+        FILTER_ITEM_MAP.put("船员,船舶船员", "船员,船舶船员");
+        FILTER_ITEM_MAP.put("水生,水生野生动物", "水生,水生野生动物");
+        FILTER_ITEM_MAP.put("水产,苗种,水产苗种", "水产,苗种,水产苗种");
+        FILTER_ITEM_MAP.put("捕捞,渔业捕捞", "捕捞,渔业捕捞");
+        FILTER_ITEM_MAP.put("船舶国籍,船舶国籍登记", "船舶国籍,船舶国籍登记");
+        FILTER_ITEM_MAP.put("特种设备", "特种设备");
+        FILTER_ITEM_MAP.put("华侨", "华侨");
+        FILTER_ITEM_MAP.put("港澳台", "港澳台");
+        FILTER_ITEM_MAP.put("定居", "定居");
+        FILTER_ITEM_MAP.put("回国定居", "回国定居");
+        FILTER_ITEM_MAP.put("林草种子", "林草种子");
+        FILTER_ITEM_MAP.put("林草植物", "林草植物");
+        FILTER_ITEM_MAP.put("陆生,陆生野生动物", "陆生,陆生野生动物");
+        FILTER_ITEM_MAP.put("林木采伐", "林木采伐");
+        FILTER_ITEM_MAP.put("残疾儿童,康复救助", "残疾儿童,康复救助");
+        FILTER_ITEM_MAP.put("光荣牌", "光荣牌");
+        FILTER_ITEM_MAP.put("技工学校", "技工学校");
+        FILTER_ITEM_MAP.put("培训机构", "培训机构");
+    }
 
     public void filterPersonalAffairs() {
         List<List<ServiceDirDto>> list = serviceInfoFileManager.readServiceDirListJsonStr();
@@ -105,7 +139,7 @@ public class GovService {
 
     private Map<String, List<ServiceItemDto>> filterServiceDirInfo(List<ServiceDirDto> serviceDirDtos) {
         Map<String, List<ServiceItemDto>> resultMap = new LinkedHashMap<>();
-        for (String filter : FILTER_ITEM) {
+        for (String filter : FILTER_ITEM_MAP.values()) {
             Map<String, ServiceItemDto> serviceItemDtoMap = new LinkedHashMap<>();
             String[] splits = filter.split(",");
             if (splits.length > 0) {
